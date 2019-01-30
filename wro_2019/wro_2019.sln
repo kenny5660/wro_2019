@@ -1,0 +1,42 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.106
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wro_2019", "wro_2019\wro_2019.vcxproj", "{25FCD454-A26E-47F2-8C74-475659ADB34B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wro_2019_exe", "wro_2019_exe\wro_2019_exe.vcxproj", "{9B99CAAC-6B18-41A6-8337-A49A4393B843}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|VisualGDB = Debug|VisualGDB
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|VisualGDB = Release|VisualGDB
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{25FCD454-A26E-47F2-8C74-475659ADB34B}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{25FCD454-A26E-47F2-8C74-475659ADB34B}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{25FCD454-A26E-47F2-8C74-475659ADB34B}.Debug|x64.ActiveCfg = Debug|VisualGDB
+		{25FCD454-A26E-47F2-8C74-475659ADB34B}.Debug|x86.ActiveCfg = Debug|VisualGDB
+		{25FCD454-A26E-47F2-8C74-475659ADB34B}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{25FCD454-A26E-47F2-8C74-475659ADB34B}.Release|VisualGDB.Build.0 = Release|VisualGDB
+		{25FCD454-A26E-47F2-8C74-475659ADB34B}.Release|x64.ActiveCfg = Release|VisualGDB
+		{25FCD454-A26E-47F2-8C74-475659ADB34B}.Release|x86.ActiveCfg = Release|VisualGDB
+		{9B99CAAC-6B18-41A6-8337-A49A4393B843}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{9B99CAAC-6B18-41A6-8337-A49A4393B843}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{9B99CAAC-6B18-41A6-8337-A49A4393B843}.Debug|x64.ActiveCfg = Debug|VisualGDB
+		{9B99CAAC-6B18-41A6-8337-A49A4393B843}.Debug|x86.ActiveCfg = Debug|VisualGDB
+		{9B99CAAC-6B18-41A6-8337-A49A4393B843}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{9B99CAAC-6B18-41A6-8337-A49A4393B843}.Release|VisualGDB.Build.0 = Release|VisualGDB
+		{9B99CAAC-6B18-41A6-8337-A49A4393B843}.Release|x64.ActiveCfg = Release|VisualGDB
+		{9B99CAAC-6B18-41A6-8337-A49A4393B843}.Release|x86.ActiveCfg = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2BF06016-13FC-46ED-9BC4-48CD8BA2646C}
+	EndGlobalSection
+EndGlobal
