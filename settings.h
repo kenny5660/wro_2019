@@ -1,0 +1,11 @@
+//
+// Created by Danila on 14.02.2019.
+//
+
+#ifndef LIDAR_MATH_SETINGS_H
+#define LIDAR_MATH_SETINGS_H
+
+#define MAX_FIELD_WIDTH (24000)
+#define MAX_FIELD_HEIGHT MAX_FIELD_WIDTH
+
+#endif //LIDAR_MATH_SETINGS_H
