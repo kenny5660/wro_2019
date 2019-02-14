@@ -2,8 +2,8 @@
 
 !.gitignore
 
-!Tests/**/*.cpp
-!Tests/**/*.h
+!Tests
+Tests/*
 
 !*.cpp
 !*.h

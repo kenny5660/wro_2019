@@ -8,6 +8,7 @@
 #include <cmath>
 #include <assert.h>
 #include <iostream>
+#include <vector>
 #include "lidar_math.h"
 
 template <class T>
@@ -78,4 +79,20 @@ RobotPoint get_coordinates_from_corner(double a, double b, double c,
 RobotPoint init_position_from_line(double b, double c, double alpha) {
     return get_coordinates_from_line(b, c, alpha, -alpha / 2,
                                      left_field_margin);
+}
+
+RobotPoint init_position_from_corner(double a, double b, double c,
+                                     double corner_ab, double corner_bc,
+                                     double a_angle_offset) {
+    return get_coordinates_from_corner(a, b, c, corner_ab, corner_bc,
+                                       a_angle_offset, top_left_corner);
+}
+
+std::vector<Point> polar2cartesian(const std::vector<Point> &polar_points,
+                                   const Point &offset) {
+
+}
+
+std::vector<Point> get_corners(std::vector<Point> points) {
+
 }

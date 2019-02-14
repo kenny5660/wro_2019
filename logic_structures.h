@@ -24,6 +24,8 @@ enum field_corner {
 
 class Point {
  public:
+    Point(double x = NAN, double y = NAN): x_(x), y_(y) {}
+
     double get_x() { return x_; }
     double get_y() { return  y_; }
 
@@ -35,9 +37,30 @@ class Point {
     double y_;
 };
 
+class PolarPoint {
+ public:
+    PolarPoint(double r = NAN, double f = NAN): r_(r) { set_f(f); }
+
+    double get_r() { return r_; }
+    double get_f() { return  f_; }
+
+    void set_r(double r) { r_ = r; }
+    void set_f(double f);
+
+    void add_f(double f) { set_f(f_ + f); }
+
+    Point to_cartesian() {
+        return Point(r_ * cos(f_), r_ * sin(f_));
+    }
+
+ protected:
+    double r_;
+    double f_;
+};
+
 class RobotPoint: public Point {
  public:
-    RobotPoint(double x = 0, double y = 0, double angle = 0);
+    RobotPoint(double x = NAN, double y = NAN, double angle = NAN);
 
     double get_angle() { return angle_; }
     void set_angle(double angle);
