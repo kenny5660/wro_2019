@@ -32,6 +32,8 @@ class Point {
     void set_x(double x) { x_ = x; }
     void set_y(double y) { y_ = y; }
 
+    Point operator + (const Point &a) { return Point(x_ + a.x_, y_ + a.y_); }
+
  protected:
     double x_;
     double y_;
@@ -41,15 +43,15 @@ class PolarPoint {
  public:
     PolarPoint(double r = NAN, double f = NAN): r_(r) { set_f(f); }
 
-    double get_r() { return r_; }
-    double get_f() { return  f_; }
+    double get_r() const { return r_; }
+    double get_f() const { return  f_; }
 
     void set_r(double r) { r_ = r; }
     void set_f(double f);
 
     void add_f(double f) { set_f(f_ + f); }
 
-    Point to_cartesian() {
+    Point to_cartesian() const {
         return Point(r_ * cos(f_), r_ * sin(f_));
     }
 
@@ -62,7 +64,7 @@ class RobotPoint: public Point {
  public:
     RobotPoint(double x = NAN, double y = NAN, double angle = NAN);
 
-    double get_angle() { return angle_; }
+    double get_angle() const { return angle_; }
     void set_angle(double angle);
     void add_angle(double add) { set_angle(angle_ + add); }
 

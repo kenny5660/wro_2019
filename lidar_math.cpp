@@ -17,21 +17,12 @@ inline int sgn(T a) {
 }
 
 inline double get_side_triangle(double b, double c, double alpha) {
-    double co = cos(alpha);
-    double bb = 2 * c * b * co;
-    return sqrt(b * b + c * c - bb);
+    return sqrt(b * b + c * c - 2 * c * b * cos(alpha));
 }
 
 inline double get_gamma_angle(double b, double c, double alpha) {
     double side = get_side_triangle(b, c, alpha);
-    double a = asin((sin(alpha) * c) / side);
-    return (c > b) ? (M_PI - a) : a;
-};
-
-RobotPoint get_coordinate(double b, double l, double c, double alpha) {
-    double angle = M_PI - alpha / 2 - get_gamma_angle(b, c, alpha);
-    double x = l * sin(angle);
-    return RobotPoint(x, 0, angle);
+    return acos((side * side + b * b - c * c) /  (2 * side * b));
 };
 
 RobotPoint get_coordinates_from_line(double b, double c, double alpha,
@@ -39,6 +30,7 @@ RobotPoint get_coordinates_from_line(double b, double c, double alpha,
                                      field_margin margin) {
     // b_angle_offset - всегда указывается между 0 и само левой, если это
     // отрицательный offset, иначе к самой ближней по часовой стрелке
+    // Все лини даются в обходе по часовой стрелке
 
     RobotPoint (*robot_point_factory[4])(double, double) = {
         [](double angle, double coordinate) {
@@ -88,9 +80,13 @@ RobotPoint init_position_from_corner(double a, double b, double c,
                                        a_angle_offset, top_left_corner);
 }
 
-std::vector<Point> polar2cartesian(const std::vector<Point> &polar_points,
+std::vector<Point> polar2cartesian(const std::vector<PolarPoint> &polar_points,
                                    const Point &offset) {
-
+    std::vector<Point> ans;
+    ans.resize(polar_points.size());
+    for(int i = 0; i < polar_points.size(); i++) {
+        ans[i] = polar_points[i].to_cartesian();
+    }
 }
 
 std::vector<Point> get_corners(std::vector<Point> points) {
