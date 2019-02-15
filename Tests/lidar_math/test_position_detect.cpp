@@ -2,7 +2,7 @@
 // Created by Danila on 13.02.2019.
 //
 
-#include "test.h"
+#include "../test.h"
 
 TEST(PositionFromDownLine, PerpendicularLeftTriangle) {
     RobotPoint p = get_coordinates_from_line(13.217, 9.378, 0.68783426,

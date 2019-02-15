@@ -3,7 +3,8 @@
 !.gitignore
 
 !Tests
-Tests/*
+!Tests/**/
+!Tests/**/*
 
-!*.cpp
-!*.h
+!**/*.cpp
+!**/*.h

@@ -2,7 +2,7 @@
 // Created by Danila on 13.02.2019.
 //
 
-#include "test.h"
+#include "../test.h"
 
 TEST(InitPositionFromLine, LookUp) {
     RobotPoint p = init_position_from_line(11.181, 8.151, 0.523599);
