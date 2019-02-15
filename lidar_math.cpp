@@ -63,7 +63,7 @@ RobotPoint get_coordinates_from_corner(double a, double b, double c,
                                                      a_angle_offset,
                                                      (field_margin)corner);
     ans_point.merge(get_coordinates_from_line(b, c, corner_bc, a_angle_offset
-                                              + sgn(a_angle_offset) * corner_ab,
+                                                  + corner_ab,
                                               field_margin((corner + 1) % 4)));
     return ans_point;
 }

@@ -115,3 +115,49 @@ TEST(PositionFromLeftLine, PerpendicularIsIn) {
     EXPECT_TRUE(isnan(p.get_y()));
     EXPECT_NEAR(p.get_angle(), degree2radian(180 - 37.07), PRECISION_ANGLE);
 }
+
+TEST(PositionFromCorner, TopLeftCorner) {
+    RobotPoint p = get_coordinates_from_corner(6.93, 8.935, 6.35,
+        degree2radian(24.13), degree2radian(29.78), degree2radian(-20),
+        top_left_corner);
+    EXPECT_NEAR(p.get_x(), 6.571, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), 6.054, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_angle(), degree2radian(38.53), PRECISION_ANGLE);
+}
+
+TEST(PositionFromCorner, TopRightCorner) {
+    // a и c есть перпендикуляры
+    RobotPoint p = get_coordinates_from_corner(1.712, 10.607, 10.468,
+        degree2radian(80.71), degree2radian(9.29),
+        degree2radian(68.51), top_right_corner);
+    EXPECT_NEAR(p.get_x(), MAX_FIELD_WIDTH - 10.468, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), 1.712, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_angle(), degree2radian(90 - 68.51), PRECISION_ANGLE);
+}
+
+TEST(PositionFromCorner, BottomRightCorner) {
+    RobotPoint p = get_coordinates_from_corner(10.772, 12.022, 7.578,
+        degree2radian(65.23), degree2radian(37.51), degree2radian(147.23),
+        bottom_right_corner);
+    EXPECT_NEAR(p.get_x(), MAX_FIELD_WIDTH - 9.536, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), MAX_FIELD_HEIGHT - 7.32, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_angle(), degree2radian(5.06), PRECISION_ANGLE);
+}
+
+TEST(PositionFromCorner, BottomLeftCorner) {
+    RobotPoint p = get_coordinates_from_corner(11.847, 10.445, 9.227,
+                   degree2radian(90), degree2radian(90), degree2radian(41.43),
+                   bottom_left_corner);
+    EXPECT_NEAR(p.get_x(), 6.918, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), MAX_FIELD_HEIGHT - 7.839, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_angle(), degree2radian(180), PRECISION_ANGLE);
+}
+
+TEST(PositionFromCorner, BottomLeftCornerFreeField) {
+    RobotPoint p = get_coordinates_from_corner(13.817, 7.551, 10.423,
+        degree2radian(112.66), degree2radian(103.75), degree2radian(-67.38),
+        bottom_left_corner);
+    EXPECT_NEAR(p.get_x(), 5.365, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), MAX_FIELD_HEIGHT - 5.314, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_angle(), degree2radian(270), PRECISION_ANGLE);
+}
