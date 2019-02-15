@@ -24,3 +24,19 @@ TEST(InitPositionFromLine, LookPerpendicular) {
     EXPECT_TRUE(isnan(p.get_y()));
     EXPECT_DOUBLE_EQ(p.get_angle(), 0);
 }
+
+TEST(InitPositionFromCorner, ZeroLineDown) {
+    RobotPoint p = init_position_from_corner(7.595, 11.268, 10.190,
+        degree2radian(32.05), degree2radian(7.95), degree2radian(-20));
+    EXPECT_NEAR(p.get_x(), 7.219, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), 8.652, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_angle(), degree2radian(38.11), PRECISION_ANGLE);
+}
+
+TEST(InitPositionFromCorner, ZeroLineUp) {
+    RobotPoint p = init_position_from_corner(6.934, 9.579, 7.675,
+        degree2radian(19.53), degree2radian(30.47), degree2radian(-25));
+    EXPECT_NEAR(p.get_x(), 5.803, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), 7.621, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_angle(), degree2radian(58.18), PRECISION_ANGLE);
+}
