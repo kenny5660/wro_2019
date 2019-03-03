@@ -5,7 +5,7 @@
 #include "logic_structures.h"
 
 double angle_normalization(double angle) {
-    if(isnan(angle))
+    if(std::isnan(angle))
         return NAN;
     double (*fmod)(double, double) = [](double a, double b) {
       const long long prec = 1e6;
@@ -13,6 +13,23 @@ double angle_normalization(double angle) {
           / prec;
     };
     return fmod((fmod(angle, DOUBLE_PI) + DOUBLE_PI), DOUBLE_PI);
+}
+
+PolarPoint Point::to_polar() {
+    double dist = sqrt(x_ * x_ + y_ * y_);
+    return PolarPoint(dist, (dist >= 0.0000001) ? (atan2(y_, x_)) : 0);
+}
+
+Point &Point::operator += (const Point &a) {
+    x_ += a.x_;
+    y_ += a.y_;
+    return *this;
+}
+
+Point &Point::operator -= (const Point &a) {
+    x_ -= a.x_;
+    y_ -= a.y_;
+    return *this;
 }
 
 RobotPoint::RobotPoint(double x, double y, double angle) {
@@ -32,10 +49,10 @@ void RobotPoint::merge(const RobotPoint &a) {
 }
 
 void RobotPoint::double_merge(double &a, const double b) {
-    if (isnan(a)) {
+    if (std::isnan(a)) {
         a = b;
     } else {
-        if (isnan(b))
+        if (std::isnan(b))
             return;
         a = (a + b) / 2;
     }

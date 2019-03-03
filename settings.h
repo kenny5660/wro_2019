@@ -1,12 +1,14 @@
 //
 // Created by Danila on 14.02.2019.
 //
+// Все растояния в мм.
+// Все углы в радианах.
+//
 
 #ifndef LIDAR_MATH_SETINGS_H
 #define LIDAR_MATH_SETINGS_H
 
 #define TRUNCATION_FIELD_ERROR (5)
-#define TRUNCATION_LIDAR_ERROR (2)
 
 #define MAX_FIELD_WIDTH (2400)
 #define MAX_FIELD_HEIGHT MAX_FIELD_WIDTH
@@ -19,5 +21,13 @@
 
 #define FLOWER_CUBE_WIDTH (48)
 #define FLOWER_CUBE_HEIGHT FLOWER_CUBE_WIDTH
+
+#define TRUNCATION_LIDAR_ERROR (2)
+
+#define LIDAR_CORNER_STEP (1 / M_PI)
+
+namespace field_sett {
+    const double max_field_line = 10;
+}
 
 #endif //LIDAR_MATH_SETINGS_H

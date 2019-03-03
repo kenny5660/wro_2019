@@ -10,6 +10,59 @@ TEST(PointClass, Init) {
     EXPECT_TRUE(isnan(point.get_y()));
 }
 
+TEST(PointClass, ToPolar) {
+    Point point(-1, 0);
+    PolarPoint polar_point = point.to_polar();
+    EXPECT_NEAR(polar_point.get_r(), 1, PRECISION_LENGTH);
+    EXPECT_NEAR(polar_point.get_f(), degree2radian(180), PRECISION_ANGLE);
+    point.set_x(1);
+    polar_point = point.to_polar();
+    EXPECT_NEAR(polar_point.get_r(), 1, PRECISION_LENGTH);
+    EXPECT_NEAR(polar_point.get_f(), degree2radian(0), PRECISION_ANGLE);
+    point.set_x(0);
+    point.set_y(-1);
+    polar_point = point.to_polar();
+    EXPECT_NEAR(polar_point.get_r(), 1, PRECISION_LENGTH);
+    EXPECT_NEAR(polar_point.get_f(), degree2radian(270), PRECISION_ANGLE);
+    point.set_y(1);
+    polar_point = point.to_polar();
+    EXPECT_NEAR(polar_point.get_r(), 1, PRECISION_LENGTH);
+    EXPECT_NEAR(polar_point.get_f(), degree2radian(90), PRECISION_ANGLE);
+    point.set_y(-1);
+    point.set_x(-1);
+    polar_point = point.to_polar();
+    EXPECT_NEAR(polar_point.get_r(), 1.4142135623731, PRECISION_LENGTH);
+    EXPECT_NEAR(polar_point.get_f(), degree2radian(225), PRECISION_ANGLE);
+    point.set_x(2);
+    point.set_y(-3);
+    polar_point = point.to_polar();
+    EXPECT_NEAR(polar_point.get_r(), 3.605551275464, PRECISION_LENGTH);
+    EXPECT_NEAR(polar_point.get_f(), degree2radian(303.6901), PRECISION_ANGLE);
+    point.set_y(1);
+    polar_point = point.to_polar();
+    EXPECT_NEAR(polar_point.get_r(), 2.2360679774998, PRECISION_LENGTH);
+    EXPECT_NEAR(polar_point.get_f(), degree2radian(26.565), PRECISION_ANGLE);
+    point.set_x(-2);
+    polar_point = point.to_polar();
+    EXPECT_NEAR(polar_point.get_r(), 2.2360679774998, PRECISION_LENGTH);
+    EXPECT_NEAR(polar_point.get_f(), degree2radian(153.43494882292), PRECISION_ANGLE);
+    point.set_x(0);
+    point.set_y(0);
+    ASSERT_NO_THROW(polar_point = point.to_polar());
+    EXPECT_NEAR(polar_point.get_r(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(polar_point.get_f(), degree2radian(0), PRECISION_ANGLE);
+}
+
+TEST(PointClass, Dist) {
+    Point a(0, 0);
+    Point b(1, 1);
+    EXPECT_NEAR(a.dist(b), 1.4142135623, PRECISION_LENGTH);
+    EXPECT_NEAR(b.dist(a), 1.4142135623, PRECISION_LENGTH);
+    EXPECT_NEAR(b.dist(b), 0, PRECISION_LENGTH);
+    a.set_x(-1);
+    EXPECT_NEAR(a.dist(b), 2.236067977, PRECISION_LENGTH);
+}
+
 TEST(PolarPointClass, Init) {
     PolarPoint point(5);
     EXPECT_DOUBLE_EQ(point.get_r(), 5);

@@ -22,6 +22,13 @@ RobotPoint get_coordinates_from_corner(double a, double b, double c,
                                        double corner_ab, double corner_bc,
                                        double a_angle_offset,
                                        field_corner corner);
+std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,
+                                               double max_dist);
+void get_corners_from_obj(const std::vector<Point> &points,
+                          size_t begin,
+                          size_t end,
+                          std::vector<Point> &ans,
+                          double delta);
 //////
 
 void location_recognition_model_test();
