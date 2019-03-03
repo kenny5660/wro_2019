@@ -1,6 +1,8 @@
 ﻿*
-
+!highLogic
 !.gitignore
+!wro2019main
+!wro2019main/**
 
 !Tests
 !Tests/**/
@@ -8,3 +10,10 @@
 
 !**/*.cpp
 !**/*.h
+/wro2019main/.vs/wro2019main/v15
+*.filters
+*.user
+*.vgdbsettings
+/wro2019main/VisualGDB/Debug/CodeDB
+*.vcxproj
+*.sln
