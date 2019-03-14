@@ -12,7 +12,7 @@
 #define PRECISION_LENGTH (0.1)
 #define PRECISION_ANGLE (0.001)
 
-#define PRECISION_REAL_LENGTH ((PRECISION_LENGTH + TRUNCATION_FIELD_ERROR) * 2)
+#define PRECISION_REAL_LENGTH ((PRECISION_LENGTH + field_sett::truncation_field_error) * 2)
 
 const std::string img_path = "..\\Tests\\source_test\\";
 

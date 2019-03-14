@@ -31,7 +31,7 @@ void get_corners_from_obj(const std::vector<Point> &points,
                           size_t begin,
                           size_t end,
                           std::vector<Point> &ans,
-                          double delta = M_SQRT2 * 2 * TRUNCATION_LIDAR_ERROR);
+                          double delta = M_SQRT2 * 2 * lidar_sett::truncation_error);
 //////
 
 #endif //LIDAR_MATH_LIDAR_MATH_H

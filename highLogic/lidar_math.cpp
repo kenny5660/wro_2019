@@ -41,10 +41,10 @@ RobotPoint get_coordinates_from_line(double b, double c, double alpha,
           return RobotPoint(NAN, coordinate, M_PI_2 + angle);
         },
         [](double angle, double coordinate) {
-          return RobotPoint(MAX_FIELD_WIDTH - coordinate, NAN, M_PI + angle);
+          return RobotPoint(field_sett::max_field_width - coordinate, NAN, M_PI + angle);
         },
         [](double angle, double coordinate) {
-          return RobotPoint(NAN, MAX_FIELD_HEIGHT - coordinate,
+          return RobotPoint(NAN, field_sett::max_field_height - coordinate,
                             (3 * M_PI / 2) + angle);
         }
     };
