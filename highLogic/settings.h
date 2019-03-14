@@ -22,12 +22,13 @@
 #define FLOWER_CUBE_WIDTH (48)
 #define FLOWER_CUBE_HEIGHT FLOWER_CUBE_WIDTH
 
-#define TRUNCATION_LIDAR_ERROR (2)
+#define TRUNCATION_LIDAR_ERROR (5)
 
 #define LIDAR_CORNER_STEP (1 / M_PI)
 
 namespace field_sett {
     const double max_field_line = 10;
+    const int size_field_unit = 120;
 }
 
 #endif //LIDAR_MATH_SETINGS_H

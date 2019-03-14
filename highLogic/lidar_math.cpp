@@ -133,35 +133,65 @@ std::pair<size_t, double> fiend_max_distant_point(const std::vector<Point> &poin
     return std::pair<size_t, double>{index, max_dist};
 }
 
+void get_extr_point_from_obj(const std::vector<Point> &points,
+                             size_t begin,
+                             size_t end,
+                             std::vector<Point> &ans,
+                             double delta) {
+    if (end - begin == 1) {
+        ans.push_back(points[end]);
+    }
+    if (end - begin < 0) {
+        return;
+    }
+    std::pair<size_t, double> max = fiend_max_distant_point(points, points[begin], points[end], begin + 1, end - 1);
+    if (max.second <= delta) {
+        ans.push_back(points[end]);
+    } else {
+        get_extr_point_from_obj(points, begin, max.first, ans, delta);
+        get_extr_point_from_obj(points, max.first, end, ans, delta);
+    }
+}
+
 void get_corners_from_obj(const std::vector<Point> &points,
                           size_t begin,
                           size_t end,
                           std::vector<Point> &ans,
                           double delta) {
-    if (end - begin == 1) {
-        ans.push_back(points[end]);
-    }
-    if (end - begin <= 0) {
-        return;
-    }
-    size_t mid = (begin + end) / 2;
-    if (dist_line2point(points[begin], points[end], points[mid]) <= delta) {
-        std::pair<size_t, double> l_max_ind = fiend_max_distant_point(points, points[begin], points[mid], begin + 1, mid - 1);
-        std::pair<size_t, double> r_max_ind = fiend_max_distant_point(points, points[mid], points[end], mid + 1, end - 1);
-        if ((l_max_ind.second > delta) || (r_max_ind.second > delta)) {
-            if (l_max_ind.second > delta) {
-                get_corners_from_obj(points, begin, l_max_ind.first, ans, delta);
-                get_corners_from_obj(points, l_max_ind.first, mid, ans, delta);
-            }
-            if (r_max_ind.second > delta) {
-                get_corners_from_obj(points, mid, r_max_ind.first, ans, delta);
-                get_corners_from_obj(points, r_max_ind.first, end, ans, delta);
-            }
-        } else {
-            ans.push_back(points[end]);
+    /*
+     *     Есть проблема, если какаето прямая оказалась || прямой,
+     * относительно которой мы ищим точку раздела. Тогда эта точка может остаться.
+     * Чтобы её убрать нужно запустить полсе выполнения этой функции проверку на
+     * наличие "лишних" точек. При этом обход проверки следует начать со 2 с
+     * начала точки. Нужно выбрать именно эту, т. к. через 3 точки нельзя провести
+     * две || прямые.
+     */
+    get_extr_point_from_obj(points, begin, end, ans, delta);
+    for (int i = 1; i < ans.size() - 1; i++) {
+        if (dist_line2point(ans[i - 1], ans[i + 1], ans[i]) <= delta) {
+            ans.erase(ans.begin() + i);
         }
-    } else {
-        get_corners_from_obj(points, begin, mid, ans, delta);
-        get_corners_from_obj(points, mid + 1, end, ans, delta);
     }
+}
+
+std::vector<std::vector<Point>> get_corners(const std::vector<PolarPoint> &polar_points,
+                                            show_img_debug debug) {
+    std::vector<Point> cartesian_points(polar_points.size());
+    for (size_t i = 0; i < polar_points.size(); i++) {
+        cartesian_points[i] = polar_points[i].to_cartesian(-M_PI, true);
+    }
+    std::vector<std::vector<Point>> group_points = get_groups_obj(cartesian_points);
+    std::vector<std::vector<Point>> ans;
+    for (int i = 0; i < group_points.size(); i++) {
+        ans.emplace_back();
+        ans.back().push_back(group_points[i][0]);
+        get_corners_from_obj(group_points[i], 0, group_points[i].size() - 1, ans.back());
+    }
+    if (debug != nullptr) {
+        DebugFieldMat mat;
+        add_points_img(mat, cartesian_points);
+        add_lines_img(mat, ans);
+        debug("get_corners_lidar_math", mat);
+    }
+    return ans;
 }

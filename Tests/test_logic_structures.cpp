@@ -7,7 +7,7 @@
 TEST(PointClass, Init) {
     Point point(5);
     EXPECT_DOUBLE_EQ(point.get_x(), 5);
-    EXPECT_TRUE(isnan(point.get_y()));
+    EXPECT_TRUE(std::isnan(point.get_y()));
 }
 
 TEST(PointClass, ToPolar) {
@@ -66,7 +66,7 @@ TEST(PointClass, Dist) {
 TEST(PolarPointClass, Init) {
     PolarPoint point(5);
     EXPECT_DOUBLE_EQ(point.get_r(), 5);
-    EXPECT_TRUE(isnan(point.get_f()));
+    EXPECT_TRUE(std::isnan(point.get_f()));
 }
 
 TEST(PolarPointClass, Angle) {
@@ -96,8 +96,8 @@ TEST(PolarPointClass, ToCartesian) {
 TEST(RobotPointClass, Init) {
     RobotPoint point(0);
     EXPECT_DOUBLE_EQ(point.get_x(), 0);
-    EXPECT_TRUE(isnan(point.get_y()));
-    EXPECT_TRUE(isnan(point.get_angle()));
+    EXPECT_TRUE(std::isnan(point.get_y()));
+    EXPECT_TRUE(std::isnan(point.get_angle()));
 }
 
 TEST(RobotPointClass, Angle) {
@@ -114,12 +114,12 @@ TEST(RobotPointClass, Merge) {
     point.merge(RobotPoint(2));
     EXPECT_NEAR(point.get_x(), 2.5, PRECISION_LENGTH);
     EXPECT_NEAR(point.get_y(), 2, PRECISION_LENGTH);
-    EXPECT_TRUE(isnan(point.get_angle()));
+    EXPECT_TRUE(std::isnan(point.get_angle()));
     point.set_x(NAN);
     point.set_y(NAN);
     point.set_angle(1);
     point.merge(RobotPoint(NAN, 1, 2));
-    EXPECT_TRUE(isnan(point.get_x()));
+    EXPECT_TRUE(std::isnan(point.get_x()));
     EXPECT_NEAR(point.get_y(), 1, PRECISION_LENGTH);
     EXPECT_NEAR(point.get_angle(), 1.5, PRECISION_LENGTH);
 }
