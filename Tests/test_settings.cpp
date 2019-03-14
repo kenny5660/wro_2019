@@ -7,6 +7,8 @@
 TEST(SettingsCheck, FieldSettings) {
     ASSERT_EQ(field_sett::truncation_field_error, 5);
 
+    EXPECT_EQ(field_sett::number_field_unit, 20);
+
     EXPECT_NEAR(field_sett::max_field_width, 2400, field_sett::truncation_field_error);
     ASSERT_EQ(field_sett::max_field_height, field_sett::max_field_width);
 
@@ -21,6 +23,6 @@ TEST(SettingsCheck, FieldSettings) {
 }
 
 TEST(SettingsCheck, LidarSettings) {
-    EXPECT_EQ(lidar_sett::truncation_error, 2);
+    EXPECT_EQ(lidar_sett::truncation_error, 5);
     EXPECT_GT(lidar_sett::corner_step, 0);
 }

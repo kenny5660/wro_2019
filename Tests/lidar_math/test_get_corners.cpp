@@ -1128,7 +1128,7 @@ TEST(GetCornerSimulator, Line) {
         { 936.3110, 6.281615 },
         { 936.0940, 6.282400 }
     };
-    std::vector<std::vector<Point>> ans = get_corners(points, show_debug_img);
+    std::vector<std::vector<Point>> ans = get_corners(points);
     ASSERT_EQ(ans.size(), 1);
     ASSERT_EQ(ans[0].size(), 2);
     EXPECT_NEAR(ans[0][0].get_x(), -936.862, PRECISION_LENGTH);
@@ -3141,7 +3141,7 @@ TEST(GetCornerSimulator, Corne) {
             { 479.5955, 1.570011 },
             { 480.9020, 1.570796 }
     };
-    std::vector<std::vector<Point>> ans = get_corners(points, show_debug_img);
+    std::vector<std::vector<Point>> ans = get_corners(points);
     ASSERT_EQ(ans.size(), 1);
     ASSERT_EQ(ans[0].size(), 3);
     EXPECT_NEAR(ans[0][0].get_x(), -480, PRECISION_REAL_LENGTH);
@@ -8156,7 +8156,7 @@ TEST(GetCornerSimulator, FreeField) {
             { 480.1117, 6.280672 },
             { 479.3167, 6.281929 }
         };
-    std::vector<std::vector<Point>> ans = get_corners(points, show_debug_img);
+    std::vector<std::vector<Point>> ans = get_corners(points);
     ASSERT_EQ(ans.size(), 2);
     ASSERT_EQ(ans[0].size(), 6);
     ASSERT_EQ(ans[1].size(), 2);
@@ -13182,7 +13182,7 @@ TEST(GetCornerSimulator, MaxCornerAndRoot) {
         { 346.0441, 6.280672 },
         { 347.1262, 6.281929 }
     };
-    std::vector<std::vector<Point>> ans = get_corners(points, show_debug_img);
+    std::vector<std::vector<Point>> ans = get_corners(points);
     ASSERT_EQ(ans.size(), 13);
     ASSERT_EQ(ans[0].size(), 3);
     ASSERT_EQ(ans[1].size(), 2);

@@ -26,12 +26,13 @@ RobotPoint get_coordinates_from_corner(double a, double b, double c,
                                        double a_angle_offset,
                                        field_corner corner);
 std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,
-                                               double max_dist = field_sett::size_field_unit);
+                                           double max_dist = field_sett::size_field_unit);
 void get_corners_from_obj(const std::vector<Point> &points,
                           size_t begin,
                           size_t end,
                           std::vector<Point> &ans,
-                          double delta = M_SQRT2 * 2 * lidar_sett::truncation_error);
+                          double delta = M_SQRT2 * 2
+                              * lidar_sett::truncation_error);
 //////
 
 #endif //LIDAR_MATH_LIDAR_MATH_H

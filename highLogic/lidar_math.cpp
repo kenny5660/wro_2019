@@ -56,22 +56,31 @@ RobotPoint get_coordinates_from_line(double b, double c, double alpha,
                                        coordinate);
 };
 
-RobotPoint get_coordinates_from_corner(double a, double b, double c,
-                                       double corner_ab, double corner_bc,
-                                       double a_angle_offset,
-                                       field_corner corner) {
-    RobotPoint ans_point = get_coordinates_from_line(a, b, corner_ab,
-                                                     a_angle_offset,
-                                                     (field_margin) corner);
-    ans_point.merge(get_coordinates_from_line(b, c, corner_bc, a_angle_offset
-                                                  + corner_ab,
-                                              field_margin((corner + 1) % 4)));
+RobotPoint get_coordinates_from_corner(double a,
+                                                        double b,
+                                                        double c,
+                                                        double corner_ab,
+                                                        double corner_bc,
+                                                        double a_angle_offset,
+                                                        field_corner corner) {
+    RobotPoint
+        ans_point = get_coordinates_from_line(a, b, corner_ab,
+                                                               a_angle_offset,
+                                                               (field_margin) corner);
+    ans_point.merge(get_coordinates_from_line(b,
+                                                               c,
+                                                               corner_bc,
+                                                               a_angle_offset
+                                                                   + corner_ab,
+                                                               field_margin(
+                                                                   (corner + 1)
+                                                                       % 4)));
     return ans_point;
 }
 
 RobotPoint init_position_from_line(double b, double c, double alpha) {
     return get_coordinates_from_line(b, c, alpha, -alpha / 2,
-                                     left_field_margin);
+                                                      left_field_margin);
 }
 
 RobotPoint init_position_from_corner(double a, double b, double c,
