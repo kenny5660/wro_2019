@@ -6,10 +6,10 @@
 #include <fstream>
 #include "test.h"
 
-bool read(std::string s, std::vector<PolarPoint> &points) {
-    std::ifstream file(lidar_data_path + s);
+bool read(std::string s, std::vector<PolarPoint> &points, std::string path) {
+    std::ifstream file(path + s);
     if (!file.is_open()) {
-        std::cerr << "File not found!" << std::endl;
+        //std::cerr << "File not found!" << std::endl;
         return true;
     }
     points.clear();
