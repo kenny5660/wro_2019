@@ -146,9 +146,10 @@ void get_extr_point_from_obj(const std::vector<Point> &points,
                              size_t begin,
                              size_t end,
                              std::vector<Point> &ans,
-                             double delta) {
+                             double delta, std::vector<int> &index) {
     if (end - begin == 1) {
         ans.push_back(points[end]);
+        index.push_back(end);
     }
     if (end - begin < 0) {
         return;
@@ -156,11 +157,45 @@ void get_extr_point_from_obj(const std::vector<Point> &points,
     std::pair<size_t, double> max = fiend_max_distant_point(points, points[begin], points[end], begin + 1, end - 1);
     if (max.second <= delta) {
         ans.push_back(points[end]);
+        index.push_back(end);
     } else {
-        get_extr_point_from_obj(points, begin, max.first, ans, delta);
-        get_extr_point_from_obj(points, max.first, end, ans, delta);
+        get_extr_point_from_obj(points, begin, max.first, ans, delta, index);
+        get_extr_point_from_obj(points, max.first, end, ans, delta, index);
     }
 }
+
+//void approx(const std::vector<Point> &points,
+//            std::vector<Point> &ans,
+//            std::vector<int> &ind) { // нетестировал
+//    for (int i = 0; i < ind.size() - 1; i++) {
+//        double sum_x = 0;
+//        double sum_y = 0;
+//        double sum_xx = 0;
+//        double sum_xy = 0;
+//        auto add = [&](double x, double y) {
+//          sum_x += x;
+//          sum_y += y;
+//          sum_xx += (x * x);
+//          sum_xy += (x * y);
+//        };
+//        int count = 0;
+//        for (int k = ind[i] + 1; k < (ind[i + 1] - 1);
+//             k = (k + 1) % points.size()) {
+//            add(points[k].get_x(), points[k].get_y());
+//            count++;
+//        }
+//        add(ans[i].get_x(), ans[i].get_y());
+//        add(ans[i + 1].get_x(), ans[i + 1].get_y());
+//        count += 3;
+//        double x = sum_x / (count);
+//        double y = sum_y / (count);
+//        double xx = sum_xx / (count);
+//        double xy = sum_xy / (count);
+//        double b = (xy - x * y) / (xx - x * x);
+//        double a = y - b * x;
+//        // расчёт из a*x+b
+//    }
+//}
 
 void get_corners_from_obj(const std::vector<Point> &points,
                           size_t begin,
@@ -175,7 +210,8 @@ void get_corners_from_obj(const std::vector<Point> &points,
      * начала точки. Нужно выбрать именно эту, т. к. через 3 точки нельзя провести
      * две || прямые.
      */
-    get_extr_point_from_obj(points, begin, end, ans, delta);
+    std::vector<int> ind;
+    get_extr_point_from_obj(points, begin, end, ans, delta, ind);
     for (int i = 1; i < ans.size() - 1; i++) {
         if (dist_line2point(ans[i - 1], ans[i + 1], ans[i]) <= delta) {
             ans.erase(ans.begin() + i);
