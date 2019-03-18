@@ -240,3 +240,66 @@ std::vector<std::vector<Point>> get_corners(const std::vector<PolarPoint> &polar
     }
     return ans;
 }
+
+bool parallel_lines(const Point &line1_a, const Point &line1_b,
+                    const Point &line2_a, const Point &line2_b,
+                    double truncation_error) {
+    double angel1 = atan2(line1_a.get_x() - line1_b.get_x(),
+                          line1_a.get_y() - line1_b.get_y());
+    double angel2 = atan2(line2_a.get_x() - line2_b.get_x(),
+                          line2_a.get_y() - line2_b.get_y());
+    return ((fabs(angel2 - angel1) < truncation_error)
+        || (((M_PI_2 - fabs(angel1)) + (M_PI_2 - fabs(angel2)))
+            < truncation_error));
+}
+
+std::vector<std::vector<std::pair<Point, line_t>>> line2line_type(
+    const std::vector<std::vector<Point>> &points) {
+    std::vector<std::vector<std::pair<Point, line_t>>> ans(points.size());
+    for (int i = 0; i < points.size(); i++) {
+        ans[i].emplace_back();
+        ans[i].resize(points[i].size());
+        for (int j = 0; j < points[i].size(); j++) {
+            ans[i][j].first = points[i][j];
+            ans[i][j].second = undefined_lt;
+        }
+    }
+    return ans;
+}
+
+void detect_boarder(std::vector<std::vector<std::pair<Point, line_t>>> &points,
+                    double error_angel, double delta) {
+    for (int i = 0; i < points.size(); i++) {
+        for (int j = 0; j < (points[i].size() - 1); j++) {
+            if ((points[i][j].first.dist(points[i][j + 1].first)) > 5
+                * (field_sett::climate_box_max
+                    + field_sett::truncation_field_error
+                    + lidar_sett::truncation_error)) {
+                points[i][j].second = border_lt;
+            }
+            for (int x = i; x < points.size(); x++) {
+                for (int y = (x == i) ? (j + 1) : (0); y < (points[x].size() - 1); y++) {
+                    if (parallel_lines(points[i][j].first,
+                                       points[i][j + 1].first,
+                                       points[x][y].first,
+                                       points[x][y + 1].first,
+                                       error_angel)
+                        && (dist_line2point(points[i][j].first,
+                                            points[i][j + 1].first,
+                                            Point((points[x][y].first.get_x()
+                                                      + points[x][y
+                                                          + 1].first.get_x())
+                                                      / 2,
+                                                  (points[x][y].first.get_y()
+                                                      + points[x][y
+                                                          + 1].first.get_y())
+                                                      / 2)) >= (field_sett::min_field - delta))
+                                                      ) {
+                        points[i][j].second = border_lt;
+                        points[x][y].second = border_lt;
+                    }
+                }
+            }
+        }
+    }
+}

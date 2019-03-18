@@ -55,4 +55,8 @@ void add_lines_img(DebugFieldMat &mat,
                    const cv::Scalar &color = {128, 123, 190},
                    const cv::Scalar &color_corn = {255, 255, 255});
 
+void add_lines_img(DebugFieldMat &mat,
+                   const std::vector<std::vector<std::pair<Point,line_t>>> &points,
+                   const cv::Scalar &color_corn = {128, 123, 190});
+
 #endif //LIDAR_MATH_DEBUG_H

@@ -23,6 +23,13 @@ enum field_corner {
     bottom_left_corner
 };
 
+enum line_t {
+    undefined_lt,
+    border_lt,
+    cube_lt,
+    parking_lt
+};
+
 class PolarPoint;
 
 class Point {

@@ -82,9 +82,60 @@ void add_lines_img(DebugFieldMat &mat, const std::vector<std::vector<Point>> &po
             Point b = mat.get_zoom_point(points[j][i]);
             cv::line(mat, {int(std::round(a.get_x())), int(std::round(a.get_y()))},
                      {int(std::round(b.get_x())), int(std::round(b.get_y()))}, cl_line, 2);
-            cv::circle(mat, {int(std::round(a.get_x())), int(std::round(a.get_y()))}, 2, color_corn, CV_FILLED);
+            cv::circle(mat,
+                       {int(std::round(a.get_x())), int(std::round(a.get_y()))},
+                       2,
+                       color_corn,
+                       CV_FILLED);
         }
         Point b = mat.get_zoom_point(points[j].back());
         cv::circle(mat, {int(std::round(b.get_x())), int(std::round(b.get_y()))}, 2, color_corn, CV_FILLED);
+    }
+}
+
+void add_lines_img(DebugFieldMat &mat,
+                   const std::vector<std::vector<std::pair<Point,line_t>>> &points,
+                   const cv::Scalar &color_corn) {
+    const cv::Scalar colors[] = {{240, 33, 23},
+                                 {251, 238, 9},
+                                 {39, 159, 211},
+                                 {206, 164, 223}};
+    if (mat.zoom == 0) {
+        Point min_corner(points[0][0].first), max_corner(points[0][0].first);
+        for (size_t i = 0; i < points.size(); i++) {
+            for (size_t j = 0; j < points[i].size(); j++) {
+                min_corner.set_x(std::min(min_corner.get_x(),
+                                          points[i][j].first.get_x()));
+                min_corner.set_y(std::min(min_corner.get_y(),
+                                          points[i][j].first.get_y()));
+                max_corner.set_x(std::max(max_corner.get_x(),
+                                          points[i][j].first.get_x()));
+                max_corner.set_y(std::max(max_corner.get_y(),
+                                          points[i][j].first.get_y()));
+            }
+        }
+        mat.set_param(min_corner, max_corner);
+    }
+    for (size_t j = 0; j < points.size(); j++) {
+        for (size_t i = 1; i < points[j].size(); i++) {
+            Point a = mat.get_zoom_point(points[j][i - 1].first);
+            Point b = mat.get_zoom_point(points[j][i].first);
+            cv::line(mat,
+                     {int(std::round(a.get_x())), int(std::round(a.get_y()))},
+                     {int(std::round(b.get_x())), int(std::round(b.get_y()))},
+                     colors[points[j][i - 1].second],
+                     2);
+            cv::circle(mat,
+                       {int(std::round(a.get_x())), int(std::round(a.get_y()))},
+                       2,
+                       color_corn,
+                       CV_FILLED);
+        }
+        Point b = mat.get_zoom_point(points[j].back().first);
+        cv::circle(mat,
+                   {int(std::round(b.get_x())), int(std::round(b.get_y()))},
+                   2,
+                   color_corn,
+                   CV_FILLED);
     }
 }

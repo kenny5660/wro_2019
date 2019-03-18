@@ -16,6 +16,11 @@ RobotPoint init_position_from_corner(double a, double b, double c,
                                      double a_angle_offset);
 std::vector<std::vector<Point>> get_corners(const std::vector<PolarPoint> &polar_points,
                                             show_img_debug debug = nullptr);
+void detect_boarder(std::vector<std::vector<std::pair<Point, line_t>>> &points,
+                    double error_angel = field_sett::parking_zone_angel_min / 2,
+                    double delta = field_sett::number_field_unit);
+std::vector<std::vector<std::pair<Point, line_t>>> line2line_type(
+    const std::vector<std::vector<Point>> &points);
 
 //---FOR TEST---//
 RobotPoint get_coordinates_from_line(double b, double c, double alpha,
