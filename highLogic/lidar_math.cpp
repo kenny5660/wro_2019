@@ -241,6 +241,14 @@ std::vector<std::vector<Point>> get_corners(const std::vector<PolarPoint> &polar
     return ans;
 }
 
+inline bool is_parallel(double angel1, double angel2, double truncation_error) {
+    angel1 = (angel1 < 0) ? (angel1 + M_PI) : (angel1);
+    angel2 = (angel2 < 0) ? (angel2 + M_PI) : (angel2);
+    return ((fabs(angel2 - angel1) < truncation_error)
+            || (((M_PI - std::max(angel1, angel2)) + std::min(angel1, angel2))
+                < truncation_error));
+}
+
 bool parallel_lines(const Point &line1_a, const Point &line1_b,
                     const Point &line2_a, const Point &line2_b,
                     double truncation_error) {
@@ -248,9 +256,7 @@ bool parallel_lines(const Point &line1_a, const Point &line1_b,
                           line1_a.get_y() - line1_b.get_y());
     double angel2 = atan2(line2_a.get_x() - line2_b.get_x(),
                           line2_a.get_y() - line2_b.get_y());
-    return ((fabs(angel2 - angel1) < truncation_error)
-        || (((M_PI_2 - fabs(angel1)) + (M_PI_2 - fabs(angel2)))
-            < truncation_error));
+    return is_parallel(angel1, angel2, truncation_error);
 }
 
 std::vector<std::vector<std::pair<Point, line_t>>> line2line_type(
@@ -303,3 +309,93 @@ void detect_boarder(std::vector<std::vector<std::pair<Point, line_t>>> &points,
         }
     }
 }
+
+bool is_real_size_line_in(std::vector<std::vector<std::pair<Point, line_t>>> &points,
+                          int i,
+                          int j,
+                          double max) { // возвращает True когда мы видим отрезок целиком и он попадает в заданные границы
+    if (j >= (points[i].size() - 1)) {
+        std::cerr
+            << "lidar_math.cpp: is_real_size_line_in: is_real_size_line_in: \n"
+            << " Wrong j parameter!"
+            << std::endl;
+        return false;
+    }
+    double dist = points[i][j].first.dist(points[i][j + 1].first);
+    if (dist <= max) {
+        Point zero(0, 0);
+        if (j == 0) {
+            int last_i = ((i - 1) + points.size()) % points.size();
+            double d1 = zero.dist(points[i][j].first);
+            double d2 = zero.dist(points[last_i].back().first);
+            if (d1 > d2) {
+                return false;
+            }
+        }
+        if (j == (points[i].size() - 2)) {
+            int next_i = ((i + 1) + points.size()) % points.size();
+            double d1 = zero.dist(points[i][j].first);
+            double d2 = zero.dist(points[next_i][0].first);
+            if (d1 > d2) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+void detected_parking_zone(std::vector<std::vector<std::pair<Point, line_t>>> &points,
+                           double error_angel) {
+    double ang1_board = 0;
+    double ang2_board = 0;
+    for (int i = 0; i < points.size(); i++) {
+        bool break_f = false;
+        for (int j = 0; j < (points[i].size() - 1); j++) {
+            if (points[i][j].second == border_lt) {
+                ang1_board = atan2(points[i][j + 1].first.get_y() - points[i][j].first.get_y(),
+                                   points[i][j + 1].first.get_x() - points[i][j].first.get_x());
+                ang2_board = ang1_board + ((ang1_board < 0) ? (1) : (-1)) * M_PI_2;
+                break_f = true;
+                break;
+            }
+        }
+        if (break_f) {
+            break;
+        }
+    }
+    double width_error_pz = lidar_sett::max_tr_error
+                            + field_sett::truncation_field_error
+                            + field_sett::parking_zone_thickness;
+    for (int i = 0; i < points.size(); i++) {
+        for (int j = 0; j < (points[i].size() - 1); j++) {
+            double dist = points[i][j + 1].first.dist(points[i][j].first);
+            if ((points[i][j].second == undefined_lt)
+                && (((dist >= (field_sett::parking_zone_width_min
+                            - width_error_pz)
+                    && is_real_size_line_in(points, i, j, field_sett::parking_zone_width_max
+                        + width_error_pz))
+                    || ((dist >= field_sett::size_field_unit)
+                        && (ang2_board != ang1_board)
+                        && !is_parallel(ang1_board,
+                            atan2(points[i][j + 1].first.get_y()
+                                      - points[i][j].first.get_y(),
+                                  points[i][j + 1].first.get_x()
+                                      - points[i][j].first.get_x()),
+                            error_angel)
+                        && !is_parallel(ang2_board,
+                            atan2(points[i][j + 1].first.get_y()
+                                      - points[i][j].first.get_y(),
+                                  points[i][j + 1].first.get_x()
+                                      - points[i][j].first.get_x()),
+                        error_angel))
+                    ) && (dist <= (field_sett::parking_zone_width_max
+                    + width_error_pz)))
+                    ) {
+                for (int k = 0; k < points[i].size(); k++) {
+                    points[i][k].second = parking_lt;
+                }
+            }
+        }
+    }
+};

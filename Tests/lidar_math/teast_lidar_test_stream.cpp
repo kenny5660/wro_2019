@@ -46,6 +46,7 @@ TEST(StreamTest, detectTypeLine) {
         if (!read(lidar_stream_name, p, "")) {
             auto corners = line2line_type(get_corners(p));
             detect_boarder(corners);
+            detected_parking_zone(corners);
             cv::rectangle(mat,
                           cv::Point(0, 0),
                           cv::Point(debug_width_img, debug_height_img),

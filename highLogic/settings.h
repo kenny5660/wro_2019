@@ -23,6 +23,7 @@ namespace field_sett {
 
     const int parking_zone_width_max = 380;
     const int parking_zone_width_min = 360;
+    const int parking_zone_thickness = 17;
     const double parking_zone_angel_min = atan2(1, 4);
 
     const int climate_box_width = 230;
@@ -36,6 +37,7 @@ namespace field_sett {
 
 namespace lidar_sett {
     const int truncation_error = 5;
+    const double max_tr_error = truncation_error * M_SQRT2;
     const double corner_step = 1 / M_PI;
 }
 
