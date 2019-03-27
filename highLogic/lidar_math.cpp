@@ -277,10 +277,10 @@ void detect_boarder(std::vector<std::vector<std::pair<Point, line_t>>> &points,
                     double error_angel, double delta) {
     for (int i = 0; i < points.size(); i++) {
         for (int j = 0; j < (points[i].size() - 1); j++) {
-            if ((points[i][j].first.dist(points[i][j + 1].first)) > 5
+            if ((points[i][j].first.dist(points[i][j + 1].first)) > 5.2
                 * (field_sett::climate_box_max
                     + field_sett::truncation_field_error
-                    + lidar_sett::truncation_error)) {
+                    + lidar_sett::max_tr_error)) {
                 points[i][j].second = border_lt;
             }
             for (int x = i; x < points.size(); x++) {
@@ -399,3 +399,63 @@ void detected_parking_zone(std::vector<std::vector<std::pair<Point, line_t>>> &p
         }
     }
 };
+
+bool is_convex_triangle(std::vector<std::vector<std::pair<Point, line_t>>> &points,
+                        int i,
+                        int j) {
+    if ((j <= 0) || (j >= (points[i].size() - 1))) {
+        return false;
+    }
+    Point zero(0, 0);
+    double dist = points[i][j].first.dist(zero);
+    return (dist <= points[i][j - 1].first.dist(zero))
+            && (dist <= points[i][j + 1].first.dist(zero));
+}
+
+void detected_box(std::vector<std::vector<std::pair<Point, line_t>>> &points) {
+    const double error = field_sett::truncation_field_error + lidar_sett::max_tr_error;
+    for (int i = 0; i < points.size(); i++) {
+        for (int j = 0; j < (points[i].size() - 1); j++) {
+            double dist = points[i][j + 1].first.dist(points[i][j].first);
+            if ((points[i][j].second == undefined_lt) && (dist >= (field_sett::climate_box_width - error))) {
+                if (is_real_size_line_in(points, i, j,
+                    field_sett::climate_box_width + error)) {
+                    points[i][j].second = box_lt;
+                }
+                if ((is_convex_triangle(points, i, j))
+                    && is_real_size_line_in(points, i, j,
+                    (field_sett::climate_box_width + error) * 5)) {
+                    points[i][j].second = box_lt;
+                }
+                if (is_convex_triangle(points, i, j + 1)
+                    && is_real_size_line_in(points, i, j,
+                        (field_sett::climate_box_width + error) * 5)) {
+                    points[i][j + 1].second = box_lt;
+                }
+                if (points[i][j].first.dist(points[i][j + 1].first)
+                    >= (2 * (field_sett::climate_box_width - error))) {
+                    if (j == 0) { // случай первой точки
+                        if ((points[i][j].first.dist()
+                            - points[(i - 1 + points.size())
+                                % points.size()].back().first.dist())
+                            < (-field_sett::climate_box_max / 2.)) {
+                            points[i][j].second = box_lt;
+                        }
+                    } else if (j == (points[i].size() - 2)) { // последней
+                        if ((points[i][j].first.dist()
+                            - points[(i + 1) % points.size()][0].first.dist())
+                            < (-field_sett::climate_box_max / 2.)) {
+                            points[i][j + 1].second = box_lt;
+                        }
+                    } else { // в центре
+                        if ((points[i][j].first.dist()
+                            - points[i][j + 1].first.dist())
+                            < (-field_sett::climate_box_max / 2.)) {
+                            points[i][j].second = box_lt;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

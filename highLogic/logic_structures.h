@@ -26,7 +26,7 @@ enum field_corner {
 enum line_t {
     undefined_lt,
     border_lt,
-    cube_lt,
+    box_lt,
     parking_lt
 };
 
@@ -49,7 +49,7 @@ class Point {
 
     PolarPoint to_polar();
 
-    double dist(const Point &b) const {
+    double dist(const Point &b = Point(0, 0)) const {
         return sqrt((x_ - b.x_) * (x_ - b.x_) + (y_ - b.y_) * (y_ - b.y_));
     }
 
