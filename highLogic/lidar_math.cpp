@@ -465,3 +465,10 @@ void detected_lines_type(std::vector<std::vector<std::pair<Point, line_t>>> &poi
     detected_parking_zone(points);
     detected_box(points);
 }
+
+std::vector<std::vector<std::pair<Point, line_t >>> detected_lines_and_types(
+    const std::vector<PolarPoint> &points) {
+    std::vector<std::vector<std::pair<Point, line_t >>> lines = line2line_type(get_corners(points));
+    detected_lines_type(lines);
+    return lines;
+}
