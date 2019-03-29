@@ -24,6 +24,9 @@ void detected_parking_zone(std::vector<std::vector<std::pair<Point, line_t>>> &p
 std::vector<std::vector<std::pair<Point, line_t>>> line2line_type(
     const std::vector<std::vector<Point>> &points);
 void detected_box(std::vector<std::vector<std::pair<Point, line_t>>> &points);
+bool is_parallel(double angel1, double angel2,
+                 double truncation_error = field_sett::parking_zone_angel_min / 2);
+void detected_lines_type(std::vector<std::vector<std::pair<Point, line_t>>> &points);
 
 //---FOR TEST---//
 RobotPoint get_coordinates_from_line(double b, double c, double alpha,
@@ -45,7 +48,6 @@ bool is_real_size_line_in(std::vector<std::vector<std::pair<Point, line_t>>> &po
                           int i,
                           int j,
                           double max);
-bool is_parallel(double angel1, double angel2, double truncation_error);
 bool is_convex_triangle(std::vector<std::vector<std::pair<Point, line_t>>> &points,
                         int i,
                         int j);

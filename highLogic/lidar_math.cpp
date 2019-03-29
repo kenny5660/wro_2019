@@ -459,3 +459,9 @@ void detected_box(std::vector<std::vector<std::pair<Point, line_t>>> &points) {
         }
     }
 }
+
+void detected_lines_type(std::vector<std::vector<std::pair<Point, line_t>>> &points) {
+    detect_boarder(points);
+    detected_parking_zone(points);
+    detected_box(points);
+}
