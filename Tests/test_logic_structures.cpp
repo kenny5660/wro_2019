@@ -63,6 +63,24 @@ TEST(PointClass, Dist) {
     EXPECT_NEAR(a.dist(b), 2.236067977, PRECISION_LENGTH);
 }
 
+TEST(PointClass, Rotation) {
+    Point a(10, 0);
+    a.rotation(degree2radian(90));
+    EXPECT_NEAR(a.get_x(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(a.get_y(), 10, PRECISION_LENGTH);
+    a.rotation(degree2radian(-180));
+    EXPECT_NEAR(a.get_x(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(a.get_y(), -10, PRECISION_LENGTH);
+    a.rotation(degree2radian(0));
+    EXPECT_NEAR(a.get_x(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(a.get_y(), -10, PRECISION_LENGTH);
+    a.set_x(30);
+    a.set_y(20);
+    a.rotation(degree2radian(56));
+    EXPECT_NEAR(a.get_x(), 0.19503565302157, PRECISION_LENGTH);
+    EXPECT_NEAR(a.get_y(), 36.054985246066, PRECISION_LENGTH);
+}
+
 TEST(PolarPointClass, Init) {
     PolarPoint point(5);
     EXPECT_DOUBLE_EQ(point.get_r(), 5);
