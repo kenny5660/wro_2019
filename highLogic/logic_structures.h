@@ -23,6 +23,13 @@ enum field_corner {
     bottom_left_corner
 };
 
+enum line_t {
+    undefined_lt,
+    border_lt,
+    box_lt,
+    parking_lt
+};
+
 class PolarPoint;
 
 class Point {
@@ -35,14 +42,16 @@ class Point {
     void set_x(double x) { x_ = x; }
     void set_y(double y) { y_ = y; }
 
-    Point operator + (const Point &a) { return Point(x_ + a.x_, y_ + a.y_); }
-    Point operator - (const Point &a) { return Point(x_ - a.x_, y_ - a.y_); }
+    Point operator + (const Point &a) const { return Point(x_ + a.x_, y_ + a.y_); }
+    Point operator - (const Point &a) const { return Point(x_ - a.x_, y_ - a.y_); }
     Point &operator += (const Point &a);
     Point &operator -= (const Point &a);
 
     PolarPoint to_polar();
 
-    double dist(const Point &b) const {
+    void rotation(double ang);
+
+    double dist(const Point &b = Point(0, 0)) const {
         return sqrt((x_ - b.x_) * (x_ - b.x_) + (y_ - b.y_) * (y_ - b.y_));
     }
 

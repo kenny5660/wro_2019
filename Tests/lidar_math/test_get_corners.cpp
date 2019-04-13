@@ -137,429 +137,268 @@ TEST(GetCornersFromObj, GetLine) {
     EXPECT_NEAR(ans[1].get_y(), 3, PRECISION_LENGTH);
 }
 
-//TEST(GetCorner, OnlyCorners) {
-//    std::vector<PolarPoint> points(4);
-//    double robot_rotation = 89;
-//    points[0] = PolarPoint(1390.16359102, degree2radian(robot_rotation + 0));
-//    points[1] = PolarPoint(1414.21356237, degree2radian(robot_rotation + 1));
-//    points[2] = PolarPoint(1390.16359102, degree2radian(robot_rotation + 2));
-//    points[3] = PolarPoint(1367.3274611, degree2radian(robot_rotation + 3));
-//    auto corner_points = get_corners(points);
-//    ASSERT_EQ(corner_points.size(), 1);
-//    ASSERT_EQ(corner_points[0].size(), 3);
-//    EXPECT_NEAR(corner_points[0][0].get_x(), -24.2617000, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][0].get_y(), 1389.9518624, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_x(), 0, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_y(), 1414.21356237, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_x(), 47.7190402, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_y(), 1366.4945222, PRECISION_LENGTH);
-//}
-//
-//TEST(GetCorner, DivideOnLine) {
-//    std::vector<PolarPoint> points(5);
-//    double robot_rotation = 0;
-//    points[0] = PolarPoint(10, degree2radian(robot_rotation + 0));
-//    points[1] = PolarPoint(11.5470053838, degree2radian(robot_rotation + 30));
-//    points[2] = PolarPoint(500, degree2radian(robot_rotation + 90));
-//    points[3] = PolarPoint(11.5470053838, degree2radian(robot_rotation + 150));
-//    points[4] = PolarPoint(10, degree2radian(robot_rotation + 180));
-//    auto corner_points = get_corners(points, degree2radian(35));
-//    ASSERT_EQ(corner_points.size(), 2);
-//    ASSERT_EQ(corner_points[0].size(), 2);
-//    ASSERT_EQ(corner_points[1].size(), 2);
-//    EXPECT_NEAR(corner_points[0][0].get_x(), -10, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][0].get_y(), 0, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_x(), -10, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_y(), 5.7735026919, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[1][0].get_x(), 10, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[1][0].get_y(), 5.7735026919, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[1][1].get_x(), 10, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[1][1].get_y(), 0, PRECISION_LENGTH);
-//}
-//
-//TEST(GetCorner, combineEndsWithOnePoints) {
-//    std::vector<PolarPoint> points(2);
-//    double robot_rotation = 0;
-//    points[0] = PolarPoint(15, degree2radian(robot_rotation + 0));
-//    points[1] = PolarPoint(15.0022849207, degree2radian(robot_rotation + 359));
-//    auto corner_points = get_corners(points);
-//    ASSERT_EQ(corner_points.size(), 1);
-//    ASSERT_EQ(corner_points[0].size(), 2);
-//    EXPECT_NEAR(corner_points[0][0].get_x(), -15, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][0].get_y(), -0.26182597392, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_x(), -15, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_y(), 0, PRECISION_LENGTH);
-//}
-//
-//TEST(GetCorner, combineEndsWithEndOnePoint) {
-//    std::vector<PolarPoint> points(4);
-//    double robot_rotation = 0;
-//    points[0] = PolarPoint(1500, degree2radian(robot_rotation + 0));
-//    points[1] = PolarPoint(1500.22849207, degree2radian(robot_rotation + 1));
-//    points[2] = PolarPoint(750.228509459, degree2radian(robot_rotation + 2));
-//    points[3] = PolarPoint(1500.22849207, degree2radian(robot_rotation + 359));
-//    auto corner_points = get_corners(points);
-//    ASSERT_EQ(corner_points.size(), 1);
-//    ASSERT_EQ(corner_points[0].size(), 3);
-//    EXPECT_NEAR(corner_points[0][0].get_x(), -1500, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][0].get_y(), -26.182597392, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_x(), -1500, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_y(), 26.182597392, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_x(), -749.771490522, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_y(), 26.182597392, PRECISION_LENGTH);
-//}
-//
-//TEST(GetCorner, combineEndsWithFierstOnePoint) {
-//    std::vector<PolarPoint> points(4);
-//    double robot_rotation = 0;
-//    points[0] = PolarPoint(1500, degree2radian(robot_rotation + 0));
-//    points[1] = PolarPoint(1000.55867024, degree2radian(robot_rotation + 357));
-//    points[2] = PolarPoint(1500.91431645, degree2radian(robot_rotation + 358));
-//    points[3] = PolarPoint(1500.22849207, degree2radian(robot_rotation + 359));
-//    auto corner_points = get_corners(points);
-//    ASSERT_EQ(corner_points.size(), 1);
-//    ASSERT_EQ(corner_points[0].size(), 3);
-//    EXPECT_NEAR(corner_points[0][0].get_x(), -999.187439353, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][0].get_y(), -2 * 26.182597392, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_x(), -1500, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_y(), -2 * 26.182597392, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_x(), -1500, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_y(), 0, PRECISION_LENGTH);
-//}
-//
-//TEST(GetCorner, combineEnds) {
-//    std::vector<PolarPoint> points(6);
-//    double robot_rotation = 0;
-//    points[0] = PolarPoint(1500, degree2radian(robot_rotation + 0));
-//    points[1] = PolarPoint(1500.22849207, degree2radian(robot_rotation + 1));
-//    points[2] = PolarPoint(750.228509459, degree2radian(robot_rotation + 2));
-//    points[3] = PolarPoint(1000.55867024, degree2radian(robot_rotation + 357));
-//    points[4] = PolarPoint(1500.91431645, degree2radian(robot_rotation + 358));
-//    points[5] = PolarPoint(1500.22849207, degree2radian(robot_rotation + 359));
-//    auto corner_points = get_corners(points);
-//    ASSERT_EQ(corner_points.size(), 1);
-//    ASSERT_EQ(corner_points[0].size(), 4);
-//    EXPECT_NEAR(corner_points[0][0].get_x(), -999.187439353, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][0].get_y(), -2 * 26.182597392, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_x(), -1500, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_y(), -2 * 26.182597392, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_x(), -1500, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_y(), 26.182597392, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][3].get_x(), -749.771490522, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][3].get_y(), 26.182597392, PRECISION_LENGTH);
-//}
-//
-//
-//TEST(GetCorner, detectedLineFromManyPoints) {
-//    std::vector<PolarPoint> points{
-//        { 599.9465, 0.000000 },
-//        { 599.3135, 0.017453 },
-//        { 600.6564, 0.034907 },
-//        { 600.0567, 0.052360 },
-//        { 601.9774, 0.069813 },
-//        { 602.6678, 0.087266 },
-//        { 603.8598, 0.104720 },
-//        { 603.7405, 0.122173 },
-//        { 605.2700, 0.139626 },
-//        { 607.3963, 0.157080 },
-//        { 608.3443, 0.174533 },
-//        { 610.8113, 0.191986 },
-//        { 612.9887, 0.209440 },
-//        { 615.3235, 0.226893 },
-//        { 619.1719, 0.244346 },
-//        { 621.4420, 0.261799 },
-//        { 624.1670, 0.279253 },
-//        { 628.2854, 0.296706 },
-//        { 629.9797, 0.314159 },
-//        { 633.9494, 0.331613 },
-//        { 638.4098, 0.349066 },
-//        { 643.6791, 0.366519 },
-//        { 647.2693, 0.383972 },
-//        { 651.7929, 0.401426 },
-//        { 656.7908, 0.418879 },
-//        { 661.5139, 0.436332 },
-//        { 668.1600, 0.453786 },
-//        { 673.3242, 0.471239 },
-//        { 679.2686, 0.488692 },
-//        { 685.4131, 0.506145 },
-//        { 692.4810, 0.523599 },
-//        { 699.1756, 0.541052 },
-//        { 707.6289, 0.558505 },
-//        { 714.5903, 0.575959 },
-//        { 723.1677, 0.593412 },
-//        { 733.3983, 0.610865 },
-//        { 740.9544, 0.628319 },
-//        { 752.2103, 0.645772 },
-//        { 762.3321, 0.663225 },
-//        { 772.5138, 0.680678 },
-//        { 783.9364, 0.698132 },
-//        { 795.7469, 0.715585 },
-//        { 808.0933, 0.733038 },
-//        { 819.4958, 0.750492 },
-//        { 834.9698, 0.767945 },
-//        { 848.9698, 0.785398 },
-//        { 863.2939, 0.802851 },
-//        { 879.3820, 0.820305 },
-//        { 896.9176, 0.837758 },
-//        { 915.0303, 0.855211 },
-//        { 933.5805, 0.872665 },
-//        { 953.7152, 0.890118 },
-//        { 974.7020, 0.907571 },
-//        { 997.7851, 0.925025 },
-//        { 1021.0220, 0.942478 },
-//        { 1046.3509, 0.959931 },
-//        { 1072.4962, 0.977384 },
-//        { 1102.0100, 0.994838 },
-//        { 1132.4793, 1.012291 },
-//        { 1165.3765, 1.029744 },
-//        { 1199.2797, 1.047198 },
-//        { 1238.5733, 1.064651 },
-//        { 1277.4135, 1.082104 }
-//    };
-//    auto corner_points = get_corners(points);
-//    ASSERT_EQ(corner_points.size(), 1);
-//    ASSERT_EQ(corner_points[0].size(), 2);
-//    EXPECT_NEAR(corner_points[0][0].get_x(), -599.9465, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][0].get_y(), 0, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_x(), -599.71, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_y(), 1127.89, PRECISION_LENGTH);
-//}
-//
-//TEST(GetCorner, detectedAndCombineLineFromManyPoints) {
-//    std::vector<PolarPoint> points{
-//        { 599.9465, 0.000000 },
-//        { 599.3135, 0.017453 },
-//        { 600.6564, 0.034907 },
-//        { 600.0567, 0.052360 },
-//        { 601.9774, 0.069813 },
-//        { 602.6678, 0.087266 },
-//        { 603.8598, 0.104720 },
-//        { 603.7405, 0.122173 },
-//        { 605.2700, 0.139626 },
-//        { 607.3963, 0.157080 },
-//        { 608.3443, 0.174533 },
-//        { 610.8113, 0.191986 },
-//        { 612.9887, 0.209440 },
-//        { 615.3235, 0.226893 },
-//        { 619.1719, 0.244346 },
-//        { 621.4420, 0.261799 },
-//        { 624.1670, 0.279253 },
-//        { 628.2854, 0.296706 },
-//        { 629.9797, 0.314159 },
-//        { 633.9494, 0.331613 },
-//        { 638.4098, 0.349066 },
-//        { 643.6791, 0.366519 },
-//        { 647.2693, 0.383972 },
-//        { 651.7929, 0.401426 },
-//        { 656.7908, 0.418879 },
-//        { 661.5139, 0.436332 },
-//        { 668.1600, 0.453786 },
-//        { 673.3242, 0.471239 },
-//        { 679.2686, 0.488692 },
-//        { 685.4131, 0.506145 },
-//        { 692.4810, 0.523599 },
-//        { 699.1756, 0.541052 },
-//        { 707.6289, 0.558505 },
-//        { 714.5903, 0.575959 },
-//        { 723.1677, 0.593412 },
-//        { 733.3983, 0.610865 },
-//        { 740.9544, 0.628319 },
-//        { 752.2103, 0.645772 },
-//        { 762.3321, 0.663225 },
-//        { 772.5138, 0.680678 },
-//        { 783.9364, 0.698132 },
-//        { 795.7469, 0.715585 },
-//        { 808.0933, 0.733038 },
-//        { 819.4958, 0.750492 },
-//        { 834.9698, 0.767945 },
-//        { 848.9698, 0.785398 },
-//        { 863.2939, 0.802851 },
-//        { 879.3820, 0.820305 },
-//        { 896.9176, 0.837758 },
-//        { 915.0303, 0.855211 },
-//        { 933.5805, 0.872665 },
-//        { 953.7152, 0.890118 },
-//        { 974.7020, 0.907571 },
-//        { 997.7851, 0.925025 },
-//        { 1021.0220, 0.942478 },
-//        { 1046.3509, 0.959931 },
-//        { 1072.4962, 0.977384 },
-//        { 1102.0100, 0.994838 },
-//        { 1132.4793, 1.012291 },
-//        { 1165.3765, 1.029744 },
-//        { 1199.2797, 1.047198 },
-//        { 1238.5733, 1.064651 },
-//        { 1277.4135, 1.082104 },
-//        {1164.7855, 5.253441},
-//        {1131.8245, 5.270894},
-//        {1102.1576, 5.288348},
-//        {1073.8786, 5.305801},
-//        {1045.7336, 5.323254},
-//        {1021.4057, 5.340708},
-//        {997.1816, 5.358161},
-//        {975.1495, 5.375614},
-//        {952.9151, 5.393067},
-//        {932.6156, 5.410521},
-//        {913.7998, 5.427974},
-//        {897.5258, 5.445427},
-//        {878.8300, 5.462881},
-//        {863.0470, 5.480334},
-//        {849.0830, 5.497787},
-//        {834.3428, 5.515240},
-//        {821.3320, 5.532694},
-//        {807.5624, 5.550147},
-//        {795.3343, 5.567600},
-//        {784.0763, 5.585054},
-//        {771.6060, 5.602507},
-//        {761.6737, 5.619960},
-//        {750.6608, 5.637413},
-//        {742.5488, 5.654867},
-//        {732.6203, 5.672320},
-//        {724.6221, 5.689773},
-//        {715.8373, 5.707227},
-//        {707.3762, 5.724680},
-//        {700.9072, 5.742133},
-//        {693.6434, 5.759587},
-//        {685.0296, 5.777040},
-//        {679.2893, 5.794493},
-//        {673.1360, 5.811946},
-//        {667.5117, 5.829400},
-//        {662.1790, 5.846853},
-//        {657.4513, 5.864306},
-//        {651.3131, 5.881760},
-//        {646.3339, 5.899213},
-//        {641.8626, 5.916666},
-//        {637.6641, 5.934119},
-//        {634.6002, 5.951573},
-//        {631.7328, 5.969026},
-//        {627.2484, 5.986479},
-//        {623.4290, 6.003933},
-//        {621.7033, 6.021386},
-//        {619.0366, 6.038839},
-//        {616.3812, 6.056293},
-//        {614.2013, 6.073746},
-//        {611.5492, 6.091199},
-//        {608.8672, 6.108652},
-//        {607.4515, 6.126106},
-//        {606.8670, 6.143559},
-//        {603.5439, 6.161012},
-//        {603.6146, 6.178466},
-//        {601.9356, 6.195919},
-//        {601.4638, 6.213372},
-//        {600.0942, 6.230825},
-//        {600.6871, 6.248279},
-//        {599.5329, 6.265732}
-//    };
-//    auto corner_points = get_corners(points);
-//    ASSERT_EQ(corner_points.size(), 1);
-//    ASSERT_EQ(corner_points[0].size(), 2);
-//    EXPECT_NEAR(corner_points[0][0].get_x(), -599.9465, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][0].get_y(), -998.41607204, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_x(), -599.71, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_y(), 1127.89, PRECISION_LENGTH);
-//}
-//
-//TEST(GetCorner, getLeftTopCornerFromManyPoints) {
-//    std::vector<PolarPoint> points{
-//        {599.9465, 0.000000},
-//        {599.3135, 0.017453},
-//        {600.6564, 0.034907},
-//        {600.0567, 0.052360},
-//        {601.9774, 0.069813},
-//        {602.6678, 0.087266},
-//        {603.8598, 0.104720},
-//        {603.7405, 0.122173},
-//        {605.2700, 0.139626},
-//        {607.3963, 0.157080},
-//        {608.3443, 0.174533},
-//        {610.8113, 0.191986},
-//        {612.9887, 0.209440},
-//        {615.3235, 0.226893},
-//        {619.1719, 0.244346},
-//        {621.4420, 0.261799},
-//        {624.1670, 0.279253},
-//        {628.2854, 0.296706},
-//        {629.9797, 0.314159},
-//        {633.9494, 0.331613},
-//        {638.4098, 0.349066},
-//        {643.6791, 0.366519},
-//        {647.2693, 0.383972},
-//        {651.7929, 0.401426},
-//        {656.7908, 0.418879},
-//        {661.5139, 0.436332},
-//        {668.1600, 0.453786},
-//        {673.3242, 0.471239},
-//        {679.2686, 0.488692},
-//        {685.4131, 0.506145},
-//        {692.4810, 0.523599},
-//        {699.1756, 0.541052},
-//        {707.6289, 0.558505},
-//        {714.5903, 0.575959},
-//        {723.1677, 0.593412},
-//        {733.3983, 0.610865},
-//        {740.9544, 0.628319},
-//        {752.2103, 0.645772},
-//        {762.3321, 0.663225},
-//        {772.5138, 0.680678},
-//        {783.9364, 0.698132},
-//        {795.7469, 0.715585},
-//        {808.0933, 0.733038},
-//        {819.4958, 0.750492},
-//        {834.9698, 0.767945},
-//        {848.9698, 0.785398},
-//        {863.2939, 0.802851},
-//        {879.3820, 0.820305},
-//        {896.9176, 0.837758},
-//        {915.0303, 0.855211},
-//        {933.5805, 0.872665},
-//        {953.7152, 0.890118},
-//        {974.7020, 0.907571},
-//        {997.7851, 0.925025},
-//        {1021.0220, 0.942478},
-//        {1046.3509, 0.959931},
-//        {1072.4962, 0.977384},
-//        {1102.0100, 0.994838},
-//        {1132.4793, 1.012291},
-//        {1165.3765, 1.029744},
-//        {1199.2797, 1.047198},
-//        {1238.5733, 1.064651},
-//        {1277.4135, 1.082104},
-//        {1321.0373, 1.099557},
-//        {1335.4249, 1.117011},
-//        {1324.4165, 1.134464},
-//        {1314.2843, 1.151917},
-//        {1303.9551, 1.169371},
-//        {1293.4640, 1.186824},
-//        {1285.5511, 1.204277},
-//        {1277.4038, 1.221730},
-//        {1270.0466, 1.239184},
-//        {1261.7134, 1.256637},
-//        {1254.1817, 1.274090},
-//        {1247.8110, 1.291544},
-//        {1241.7010, 1.308997},
-//        {1236.8949, 1.326450},
-//        {1231.3489, 1.343904},
-//        {1227.5385, 1.361357},
-//        {1222.8415, 1.378810},
-//        {1218.6052, 1.396263},
-//        {1214.5321, 1.413717},
-//        {1211.8649, 1.431170},
-//        {1208.6988, 1.448623},
-//        {1205.9243, 1.466077},
-//        {1203.8105, 1.483530},
-//        {1203.4923, 1.500983},
-//        {1201.0602, 1.518436},
-//        {1200.1555, 1.535890},
-//        {1200.3416, 1.553343},
-//        {1199.6968, 1.570796}
-//    };
-//    auto corner_points = get_corners(points);
-//    ASSERT_EQ(corner_points.size(), 1);
-//    ASSERT_EQ(corner_points[0].size(), 3);
-//    EXPECT_NEAR(corner_points[0][0].get_x(), -599.9465, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][0].get_y(), 0, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_x(), -600, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][1].get_y(), 1200, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_x(), 0, PRECISION_LENGTH);
-//    EXPECT_NEAR(corner_points[0][2].get_y(), 1200, PRECISION_LENGTH);
-//}
+TEST(GetCornersFromObj, GetCorners) {
+    std::vector<Point> points = {
+        {0, -2},
+        {0, -1},
+        {0, 0},
+        {1, 0},
+        {2, 0},
+        {3, 0}
+    };
+    std::vector<Point> ans {points[0]};
+    get_corners_from_obj(points, 0, points.size() - 1, ans, 1.5);
+    ASSERT_EQ(ans.size(), 3);
+    EXPECT_NEAR(ans[0].get_x(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[0].get_y(), -2, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[1].get_x(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[1].get_y(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[2].get_x(), 3, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[2].get_y(), 0, PRECISION_LENGTH);
+}
+
+TEST(GetCornersFromObj, CrossWithMainLineInCenter) {
+    std::vector<Point> points = {
+        {0, 0},
+        {0, 1},
+        {0, 2},
+        {0, 3},
+        {0, 4},
+        {1, 4},
+        {2, 4},
+        {3, 4},
+        {4, 4},
+        {4, 5},
+        {4, 6},
+        {4, 7},
+        {4, 8},
+        {5, 8},
+        {6, 8},
+        {7, 8},
+        {8, 8}
+    };
+    std::vector<Point> ans {points[0]};
+    get_corners_from_obj(points, 0, points.size() - 1, ans, 1.1);
+    std::cout << ans.size();
+    ASSERT_EQ(ans.size(), 5);
+    EXPECT_NEAR(ans[0].get_x(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[0].get_y(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[1].get_x(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[1].get_y(), 4, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[2].get_x(), 4, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[2].get_y(), 4, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[3].get_x(), 4, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[3].get_y(), 8, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[4].get_x(), 8, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[4].get_y(), 8, PRECISION_LENGTH);
+}
+
+TEST(GetCornersFromObj, TwoPartDivorsedBy1Line) {
+    std::vector<Point> points = {
+        {0, 1},
+        {0, 2},
+        {0, 3},
+        {0, 4},
+        {0, 5},
+        {0, 6},
+        {0, 7},
+        {0, 8},
+        {0, 9},
+        {0, 10},
+        {1, 10},
+        {2, 10},
+        {3, 10},
+        {4, 10},
+        {5, 10},
+        {6, 10},
+        {7, 10},
+        {8, 10},
+        {9, 10},
+        {10, 10},
+        {10, 9},
+        {10, 8},
+        {10, 7},
+        {10, 6},
+        {11, 6},
+        {12, 6},
+        {13, 6},
+        {14, 6},
+        {14, 7},
+        {14, 8},
+    };
+    std::vector<Point> ans {points[0]};
+    get_corners_from_obj(points, 0, points.size() - 1, ans, 1.01);
+    ASSERT_EQ(ans.size(), 6);
+    EXPECT_NEAR(ans[0].get_x(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[0].get_y(), 1, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[1].get_x(), 0, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[1].get_y(), 10, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[2].get_x(), 10, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[2].get_y(), 10, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[3].get_x(), 10, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[3].get_y(), 6, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[4].get_x(), 14, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[4].get_y(), 6, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[5].get_x(), 14, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[5].get_y(), 8, PRECISION_LENGTH);
+}
+
+TEST(GetCornerSimulator, Line) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Line_881.ld", points));
+    std::vector<std::vector<Point>> ans = get_corners(points);
+    ASSERT_EQ(ans.size(), 1);
+    ASSERT_EQ(ans[0].size(), 2);
+    EXPECT_NEAR(ans[0][0].get_x(), -936.862, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[0][0].get_y(), -333.970, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[0][1].get_x(), -935.259, PRECISION_LENGTH);
+    EXPECT_NEAR(ans[0][1].get_y(), 340.037, PRECISION_LENGTH);
+}
+
+TEST(GetCornerSimulator, Corner) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Corner_2001.ld", points));
+    std::vector<std::vector<Point>> ans = get_corners(points);
+    ASSERT_EQ(ans.size(), 1);
+    ASSERT_EQ(ans[0].size(), 3);
+    EXPECT_NEAR(ans[0][0].get_x(), -480, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][0].get_y(), 0, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][1].get_x(), -480, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][1].get_y(), 480, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][2].get_x(), 0, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][2].get_y(), 480, PRECISION_REAL_LENGTH);
+}
+
+TEST(GetCornerSimulator, FreeField) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("FreeField_5k.ld", points));
+    std::vector<std::vector<Point>> ans = get_corners(points);
+    ASSERT_EQ(ans.size(), 2);
+    ASSERT_EQ(ans[0].size(), 6);
+    ASSERT_EQ(ans[1].size(), 2);
+    EXPECT_NEAR(ans[0][0].get_x(), -1200.3682000951972, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][0].get_y(), 644.27817080871773, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][1].get_x(), -1200, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][1].get_y(), 1200, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][2].get_x(), 1200, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][2].get_y(), 1200, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][3].get_x(), 1200, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][3].get_y(), -1200, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][4].get_x(), -1200, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][4].get_y(), -1200, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][5].get_x(), -1200, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][5].get_y(), -308.33047736102998, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[1][0].get_x(), -480, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[1][0].get_y(), -122.5, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[1][1].get_x(), -480, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[1][1].get_y(), 256.5, PRECISION_REAL_LENGTH);
+};
+
+TEST(GetCornerSimulator, MaxCornerAndRoot) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("MaxCorners_5k.ld", points));
+    std::vector<std::vector<Point>> ans = get_corners(points);
+    ASSERT_EQ(ans.size(), 13);
+    ASSERT_EQ(ans[0].size(), 3);
+    ASSERT_EQ(ans[1].size(), 2);
+    ASSERT_EQ(ans[2].size(), 3);
+    ASSERT_EQ(ans[4].size(), 3);
+    ASSERT_EQ(ans[5].size(), 2);
+    ASSERT_EQ(ans[6].size(), 4);
+    ASSERT_EQ(ans[7].size(), 3);
+    ASSERT_EQ(ans[8].size(), 3);
+    ASSERT_EQ(ans[9].size(), 3);
+    ASSERT_EQ(ans[10].size(), 2);
+    ASSERT_EQ(ans[11].size(), 3);
+    ASSERT_EQ(ans[12].size(), 4);
+
+    EXPECT_NEAR(ans[0][0].get_x(), -689.52043611642318, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][0].get_y(), 850.75785786296296, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][1].get_x(), -527.02212758340374, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][1].get_y(), 688.31837515518373, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][2].get_x(), -358.60018904916109, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[0][2].get_y(), 858.10100728266013, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[1][0].get_x(), -507.08638800927105, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[1][0].get_y(), 1217.7165494417004, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[1][1].get_x(), -302.82369180569265, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[1][1].get_y(), 1421.7382786355338, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[2][0].get_x(), -271.20062630592184, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[2][0].get_y(), 1281.1780740191919, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[2][1].get_x(), -103.76569784926748, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[2][1].get_y(), 1112.6459653100192, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[2][2].get_x(), 66.132083604965032, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[2][2].get_y(), 1282.4669383359853, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[3][0].get_x(), 96.183507735845097, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[3][0].get_y(), 1820.7355397970675, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[3][1].get_x(), 660.58563356138461, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[3][1].get_y(), 2385.2397031093678, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[3][2].get_x(), 992.13169748063524, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[3][2].get_y(), 2054.5261165760908, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[4][0].get_x(), 662.02054354215034, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[4][0].get_y(), 1366.5325852298276, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[4][1].get_x(), 829.56543970030668, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[4][1].get_y(), 1197.8669541736581, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[4][2].get_x(), 995.92797761540146, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[4][2].get_y(), 1363.5605951579623, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[5][0].get_x(), 1287.3283742596539, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[5][0].get_y(), 1757.8801083905, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[5][1].get_x(), 1491.1195720006272, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[5][1].get_y(), 1556.2284181242503, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[6][0].get_x(), 1165.1381866631473, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[6][0].get_y(), 1212.9598357010645, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[6][1].get_x(), 1171.3957570882399, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[6][1].get_y(), 1198.1957718693675, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[6][2].get_x(), 1495.0845059229771, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[6][2].get_y(), 1304.7992140458769, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[6][3].get_x(), 1573.3019037501072, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[6][3].get_y(), 1072.1107847556841, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[7][0].get_x(), 1279.0485533985252, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[7][0].get_y(), 869.24059166651307, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[7][1].get_x(), 1288.8879892183384, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[7][1].get_y(), 854.77917855478836, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[7][2].get_x(), 1616.075225958338, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[7][2].get_y(), 963.98592964820136, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[8][0].get_x(), 1909.5535897282944, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[8][0].get_y(), 1135.795898006163, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[8][1].get_x(), 2355.7266509048918, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[8][1].get_y(), 687.61236889924544, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[8][2].get_x(), 1804.5138933106005, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[8][2].get_y(), 136.31814820217349, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[9][0].get_x(), 1252.3671768000977, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[9][0].get_y(), 93.023084713380257, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[9][1].get_x(), 1084.3550654928233, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[9][1].get_y(), -75.064051516455052, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[9][2].get_x(), 1254.3974383929753, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[9][2].get_y(), -244.19354941959702, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[10][0].get_x(), 1394.5131338440474, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[10][0].get_y(), -273.28964985980389, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[10][1].get_x(), 1256.471201700499, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[10][1].get_y(), -411.74468216901641, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[11][0].get_x(), 744.01356142287136, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[11][0].get_y(), -244.8496008056685, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[11][1].get_x(), 575.60716687413878, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[11][1].get_y(), -413.79885690896657, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[11][2].get_x(), 738.38777055918024, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[11][2].get_y(), -577.22266932989851, PRECISION_REAL_LENGTH);
+
+    EXPECT_NEAR(ans[12][0].get_x(), 935.82497640610961, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[12][0].get_y(), -733.46306694799193, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[12][1].get_x(), 658.36895318531583, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[12][1].get_y(), -1006.3992315733511, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[12][2].get_x(), -1033.423763163338, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[12][2].get_y(), 685.35806610784482, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[12][3].get_x(), -773.48064384421389, PRECISION_REAL_LENGTH);
+    EXPECT_NEAR(ans[12][3].get_y(), 951.90076368413008, PRECISION_REAL_LENGTH);
+};

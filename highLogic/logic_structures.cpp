@@ -32,6 +32,13 @@ Point &Point::operator -= (const Point &a) {
     return *this;
 }
 
+void Point::rotation(double ang) { // вращение по часовой стрелке
+    double X = x_ * cos(ang) - y_ * sin(ang);
+    double Y = x_ * sin(ang) + y_ * cos(ang);
+    x_ = X;
+    y_ = Y;
+}
+
 RobotPoint::RobotPoint(double x, double y, double angle) {
     x_ = x;
     y_ = y;

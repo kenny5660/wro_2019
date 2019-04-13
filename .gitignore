@@ -8,8 +8,11 @@
 !Tests/**/
 !Tests/**/*
 
+Tests/lidar_math/*.ld
+
 !**/*.cpp
 !**/*.h
+
 /wro2019main/.vs/wro2019main/v15
 *.filters
 *.user
