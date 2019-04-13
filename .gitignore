@@ -25,3 +25,13 @@ Tests/lidar_math/*.ld
 /wro2019main/Robot_low_Lvl_lib/VisualGDB/Debug
 /wro2019main/VisualGDB/Debug
 *.props
+/wro2019main/Tests/VisualGDB/VisualGDBCache/Tests-Debug
+/wro2019main/Tests/VisualGDB/Debug
+/wro2019main/Robot_exe/VisualGDB/Release
+/wro2019main/Robot_high_lvl_lib/VisualGDB/Release
+*.dep
+*.rsp
+*.o
+*.log
+*.alldeps
+/wro2019main/VisualGDB/Release
