@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <vector>
+#include <opencv2/core/types.hpp>
 #define DOUBLE_PI (2 * M_PI)
 
 enum field_margin {
@@ -43,11 +44,17 @@ class Point {
     void set_y(double y) { y_ = y; }
 
     Point operator + (const Point &a) const { return Point(x_ + a.x_, y_ + a.y_); }
+    Point operator + (const double a) const { return Point(x_ + a, y_ + a); }
     Point operator - (const Point &a) const { return Point(x_ - a.x_, y_ - a.y_); }
+    Point operator - (const double a) const { return Point(x_ - a, y_ - a); }
+    Point operator * (const Point &a) const { return Point(x_ * a.x_, y_ * a.y_); }
+    Point operator * (const int a) const { return Point(x_ * a, y_ * a); }
     Point &operator += (const Point &a);
     Point &operator -= (const Point &a);
 
     PolarPoint to_polar();
+
+    operator cv::Point() { return cv::Point(int(round(get_x())), int(round(get_y()))); }
 
     void rotation(double ang);
 
@@ -58,6 +65,30 @@ class Point {
  protected:
     double x_;
     double y_;
+};
+
+class MassPoint: public Point {
+ public:
+    MassPoint(double x = NAN, double y = NAN);
+    MassPoint(const Point &);
+
+    void set_x(double x);
+    void set_y(double y);
+
+    MassPoint operator + (const MassPoint &a) const;
+    MassPoint operator - (const MassPoint &a) const;
+    MassPoint &operator += (const MassPoint &a);
+    MassPoint &operator -= (const MassPoint &a);
+
+    void merge(const MassPoint &p);
+
+ protected:
+    size_t count_x_ = 0;
+    size_t count_y_ = 0;
+    void double_merge(double &a, const double b, size_t &counter_a, const size_t counter_b);
+
+ private:
+    void count_merge(const MassPoint &p);
 };
 
 class PolarPoint {
@@ -84,7 +115,7 @@ class PolarPoint {
     double f_;
 };
 
-class RobotPoint: public Point {
+class RobotPoint: public MassPoint {
  public:
     RobotPoint(double x = NAN, double y = NAN, double angle = NAN);
 
@@ -98,7 +129,7 @@ class RobotPoint: public Point {
     double angle_;
 
  private:
-    static void double_merge(double &a, const double b);
+    size_t count_angle_ = 0;
 };
 
 #endif //LIDAR_MATH_LOGIC_STRUCTURES_H

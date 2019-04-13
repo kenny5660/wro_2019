@@ -21,3 +21,35 @@ bool read(std::string s, std::vector<PolarPoint> &points, std::string path) {
     file.close();
     return false;
 }
+
+std::string lines2string(const std::vector<std::vector<Point>> &p) {
+    int accuracy = 1000;
+    std::string s = "{";
+    for (auto i : p) {
+        s += "{";
+        for (auto j : i) {
+            s += "(";
+            if (std::isnan(j.get_x())) {
+                s += "nan";
+            } else {
+                s += std::to_string(
+                    int(j.get_x() * accuracy) / double(accuracy));
+            }
+            s += ", ";
+            if (std::isnan(j.get_y())) {
+                s += "nan";
+            } else {
+                s += std::to_string(
+                    int(j.get_y() * accuracy) / double(accuracy));
+            }
+            s += "), ";
+        }
+        s.pop_back();
+        s.pop_back();
+        s += "}, ";
+    }
+    s.pop_back();
+    s.pop_back();
+    s += "}";
+    return s;
+}

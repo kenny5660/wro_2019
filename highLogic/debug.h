@@ -43,7 +43,6 @@ void clear_logs();
      double zoom = 0;
      Point offset = {0, 0};
 
-  private:
      const size_t indent = 10;
  };
 
@@ -57,6 +56,12 @@ void add_lines_img(DebugFieldMat &mat,
 
 void add_lines_img(DebugFieldMat &mat,
                    const std::vector<std::vector<std::pair<Point,line_t>>> &points,
-                   const cv::Scalar &color_corn = {128, 123, 190});
+                   bool writing = false, const cv::Scalar &color_corn = {128, 123, 190});
+
+void add_robot_img_global(DebugFieldMat &mat,
+                          const RobotPoint r_p,
+                          const cv::Scalar &circle_color = {106, 103, 107});
+
+void add_point_img(DebugFieldMat &mat, const Point &p = {0, 0}, const cv::Scalar &circle_color = {0, 0 ,255});
 
 #endif //LIDAR_MATH_DEBUG_H
