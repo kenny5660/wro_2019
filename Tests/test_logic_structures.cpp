@@ -81,6 +81,18 @@ TEST(PointClass, Rotation) {
     EXPECT_NEAR(a.get_y(), 36.054985246066, PRECISION_LENGTH);
 }
 
+TEST(MassPointClass, Merge) {
+    MassPoint a(2, 3);
+    MassPoint b(3, 2);
+    a.merge(MassPoint(1, 4));
+    a.merge(MassPoint(6, 1));
+    a.merge(MassPoint(4, 6));
+    b.merge(MassPoint(5, 5));
+    a.merge(b);
+    EXPECT_NEAR(a.get_x(), 3.5, PRECISION_LENGTH);
+    EXPECT_NEAR(a.get_y(), 3.5, PRECISION_LENGTH);
+}
+
 TEST(PolarPointClass, Init) {
     PolarPoint point(5);
     EXPECT_DOUBLE_EQ(point.get_r(), 5);
@@ -140,4 +152,15 @@ TEST(RobotPointClass, Merge) {
     EXPECT_TRUE(std::isnan(point.get_x()));
     EXPECT_NEAR(point.get_y(), 1, PRECISION_LENGTH);
     EXPECT_NEAR(point.get_angle(), 1.5, PRECISION_LENGTH);
+    RobotPoint p1(1, 1);
+    RobotPoint p2(2, 2, 2);
+    p1.merge(RobotPoint(2));
+    p1.merge(RobotPoint(3));
+    p1.merge(RobotPoint(4));
+    p2.merge(RobotPoint(3));
+    p2.merge(RobotPoint(20));
+    p1.merge(p2);
+    EXPECT_NEAR(p1.get_x(), 5, PRECISION_LENGTH);
+    EXPECT_NEAR(p1.get_y(), 1.5, PRECISION_LENGTH);
+    EXPECT_NEAR(p1.get_angle(), 2, PRECISION_LENGTH);
 }

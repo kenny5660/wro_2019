@@ -3,6 +3,7 @@
 //
 
 #include "debug.h"
+#include "settings.h"
 #include <ctime>
 #include <chrono>
 #include <opencv2/imgproc.hpp>
@@ -95,7 +96,7 @@ void add_lines_img(DebugFieldMat &mat, const std::vector<std::vector<Point>> &po
 
 void add_lines_img(DebugFieldMat &mat,
                    const std::vector<std::vector<std::pair<Point,line_t>>> &points,
-                   const cv::Scalar &color_corn) {
+                   bool writing, const cv::Scalar &color_corn) {
     const cv::Scalar colors[] = {{240, 33, 23},
                                  {251, 238, 9},
                                  {39, 159, 211},
@@ -130,6 +131,15 @@ void add_lines_img(DebugFieldMat &mat,
                        2,
                        color_corn,
                        CV_FILLED);
+            if (writing) {
+                cv::putText(mat,
+                            "{" + std::to_string(int(std::round(points[j][i - 1].first.get_x()))) + ", "
+                                + std::to_string(int(std::round(points[j][i - 1].first.get_y()))) + "}",
+                            {int(std::round(a.get_x())),
+                             int(std::round(a.get_y()))},
+                            CV_FONT_HERSHEY_SIMPLEX, 0.3,
+                            {255, 255, 255});
+            }
         }
         Point b = mat.get_zoom_point(points[j].back().first);
         cv::circle(mat,
@@ -137,5 +147,29 @@ void add_lines_img(DebugFieldMat &mat,
                    2,
                    color_corn,
                    CV_FILLED);
+        if (writing) {
+            cv::putText(mat,
+                        "{" + std::to_string(int(std::round(points[j].back().first.get_x()))) + ", "
+                            + std::to_string(int(std::round(points[j].back().first.get_y()))) + "}",
+                        {int(std::round(b.get_x())),
+                         int(std::round(b.get_y()))},
+                        CV_FONT_HERSHEY_SIMPLEX, 0.3,
+                        {255, 255, 255});
+        }
     }
+}
+
+void add_point_img(DebugFieldMat &mat, const Point &p, const cv::Scalar &circle_color) {
+    cv::circle(mat, {int(mat.get_zoom_point(p).get_x()), int(mat.get_zoom_point(p).get_y())}, 3, {0, 0, 255}, CV_FILLED);
+}
+
+void add_robot_img_global(DebugFieldMat &mat,
+                          const RobotPoint r_p,
+                          const cv::Scalar &circle_color) {
+    RobotPoint p(r_p.get_x(), r_p.get_y(), r_p.get_angle());
+    const double radius_line = 12;
+    cv::circle(mat, {int(p.get_x() * mat.zoom + mat.indent), int(p.get_y()*mat.zoom + mat.indent)}, 7, circle_color, CV_FILLED);
+    cv::line(mat, {int(p.get_x() * mat.zoom + mat.indent), int(p.get_y()*mat.zoom + mat.indent)},
+             {int((p.get_x() * mat.zoom + mat.indent) + radius_line * cos(M_PI - p.get_angle()) ),
+              int((p.get_y()*mat.zoom + mat.indent) - radius_line * sin(M_PI - p.get_angle()))}, {0, 0, 255}, 2);
 }

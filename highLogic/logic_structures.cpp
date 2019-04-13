@@ -39,30 +39,110 @@ void Point::rotation(double ang) { // вращение по часовой ст�
     y_ = Y;
 }
 
-RobotPoint::RobotPoint(double x, double y, double angle) {
+MassPoint::MassPoint(double x, double y) {
     x_ = x;
     y_ = y;
+    if (!std::isnan(x_)) {
+        count_x_ = 1;
+    }
+    if (!std::isnan(y_)) {
+        count_y_ = 1;
+    }
+}
+
+MassPoint::MassPoint(const Point &p) {
+    x_ = p.get_x();
+    y_ = p.get_y();
+    if (!std::isnan(x_)) {
+        count_x_ = 1;
+    }
+    if (!std::isnan(y_)) {
+        count_y_ = 1;
+    }
+}
+
+void MassPoint::set_x(double x) {
+    Point::set_x(x);
+    count_x_++;
+}
+
+void MassPoint::set_y(double y) {
+    Point::set_y(y);
+    count_y_++;
+}
+
+void MassPoint::count_merge(const MassPoint &p) {
+    count_x_ = std::min(count_x_, p.count_x_);
+    count_y_ = std::min(count_y_, p.count_y_);
+}
+
+MassPoint MassPoint::operator + (const MassPoint &a) const {
+    MassPoint ans(x_ + a.x_, y_ + a.y_);
+    ans.count_merge(a);
+    return ans;
+}
+
+MassPoint MassPoint::operator - (const MassPoint &a) const {
+    MassPoint ans(x_ - a.x_, y_ - a.y_);
+    ans.count_merge(a);
+    return ans;
+}
+
+MassPoint &MassPoint::operator += (const MassPoint &a) {
+    x_ += a.x_;
+    y_ += a.y_;
+    count_merge(a);
+    return *this;
+}
+
+MassPoint &MassPoint::operator -= (const MassPoint &a) {
+    x_ -= a.x_;
+    y_ -= a.y_;
+    count_merge(a);
+    return *this;
+}
+
+void MassPoint::double_merge(double &a, const double b, size_t &counter_a, const size_t counter_b) {
+    if (std::isnan(a)) {
+        a = b;
+        counter_a = counter_b;
+    } else {
+        if (std::isnan(b)) {
+            return;
+        }
+        a = (a * counter_a + b * counter_b) / (counter_a + counter_b);
+        counter_a += counter_b;
+    }
+}
+
+void MassPoint::merge(const MassPoint &p) {
+    double_merge(x_, p.x_, count_x_, p.count_x_);
+    double_merge(y_, p.y_, count_y_, p.count_y_);
+}
+
+RobotPoint::RobotPoint(double x, double y, double angle) {
+    x_ = x;
+    if (!std::isnan(x)) {
+        count_x_ = 1;
+    }
+    y_ = y;
+    if (!std::isnan(y)) {
+        count_y_ = 1;
+    }
     set_angle(angle);
+    if (!std::isnan(angle)) {
+        count_angle_ = 1;
+    }
 }
 
 void RobotPoint::set_angle(double angle) {
     angle_ = angle_normalization(angle);
+    count_angle_ = 1;
 }
 
 void RobotPoint::merge(const RobotPoint &a) {
-    double_merge(x_, a.x_);
-    double_merge(y_, a.y_);
-    double_merge(angle_, a.angle_);
-}
-
-void RobotPoint::double_merge(double &a, const double b) {
-    if (std::isnan(a)) {
-        a = b;
-    } else {
-        if (std::isnan(b))
-            return;
-        a = (a + b) / 2;
-    }
+    MassPoint::merge(a);
+    double_merge(angle_, a.angle_, count_angle_, a.count_angle_);
 }
 
 void PolarPoint::set_f(double f) {
