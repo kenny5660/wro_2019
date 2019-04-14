@@ -6,11 +6,16 @@
 #define LIDAR_MATH_TEST_H
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include "../highLogic/lidar_math.h"
 #include "../highLogic/debug.h"
+#include "../highLogic/Map.h"
 
 #define PRECISION_LENGTH (0.1)
 #define PRECISION_ANGLE (0.001)
+
+#define PRECISION_LENGTH_POS (20.0)
+#define PRECISION_ANGLE_POS (0.05)
 
 #define PRECISION_REAL_LENGTH ((PRECISION_LENGTH + field_sett::truncation_field_error) * 2)
 
@@ -27,5 +32,7 @@ constexpr inline double degree2radian(double degree) {
 }
 
 bool read(std::string s, std::vector<PolarPoint> &points, std::string path = lidar_data_path);
+
+std::string lines2string(const std::vector<std::vector<Point>> &p);
 
 #endif //LIDAR_MATH_TEST_H

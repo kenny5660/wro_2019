@@ -62,3 +62,23 @@ TEST(StreamTest, detectTypeLine) {
     thr.join();
     cv::destroyWindow(name);
 }
+
+TEST(StreamTest, CreatMap) {
+    std::thread thr(open_test_jar);
+    std::vector<PolarPoint> p;
+    const std::string name = "Creat Map";
+    cv::namedWindow(name, cv::WINDOW_AUTOSIZE );
+    while (thr.joinable()) {
+        if (!read(lidar_stream_name, p, "")) {
+            //Map m(p, show_debug_img);
+            Map m(p);
+            imshow(name, m.get_img(400, 400));
+            std::cout << "X: " << m.get_position().get_x()
+                      << " Y: " << m.get_position().get_y()
+                      << " Ang: " << m.get_position().get_angle() * 180 / M_PI << std::endl;
+            cv::waitKey(33);
+        }
+    }
+    thr.join();
+    cv::destroyWindow(name);
+}

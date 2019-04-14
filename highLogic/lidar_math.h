@@ -29,8 +29,6 @@ bool is_parallel(double angel1, double angel2,
 void detected_lines_type(std::vector<std::vector<std::pair<Point, line_t>>> &points);
 std::vector<std::vector<std::pair<Point, line_t >>> detected_lines_and_types(
     const std::vector<PolarPoint> &points);
-
-//---FOR TEST---//
 RobotPoint get_coordinates_from_line(double b, double c, double alpha,
                                      double b_angle_offset,
                                      field_margin margin);
@@ -38,6 +36,10 @@ RobotPoint get_coordinates_from_corner(double a, double b, double c,
                                        double corner_ab, double corner_bc,
                                        double a_angle_offset,
                                        field_corner corner);
+Point get_line_cross(const Point &ap1, const Point &bp1, const Point &ap2, const Point &bp2);
+bool in_outline(const std::vector<Point> &outline, Point p);
+
+//---FOR TEST---//
 std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,
                                            double max_dist = field_sett::size_field_unit);
 void get_corners_from_obj(const std::vector<Point> &points,

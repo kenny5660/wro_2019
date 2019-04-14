@@ -472,3 +472,53 @@ std::vector<std::vector<std::pair<Point, line_t >>> detected_lines_and_types(
     detected_lines_type(lines);
     return lines;
 }
+
+inline double det(double a, double b, double c, double d) {
+    return a * d - b * c;
+}
+
+inline bool point_in_line(const Point &line_a, const Point &line_b, const Point &a) {
+    const double accuracy = 0.1;
+    return ((std::min(line_a.get_x(), line_b.get_x()) <= a.get_x() + accuracy)
+            && (std::max(line_a.get_x(), line_b.get_x() + accuracy) >= a.get_x())
+            && (std::min(line_a.get_y(), line_b.get_y()) <= a.get_y() + accuracy)
+            && (std::max(line_a.get_y(), line_b.get_y() + accuracy) >= a.get_y()));
+}
+
+Point get_line_cross(const Point &ap1, const Point &bp1, const Point &ap2, const Point &bp2) {
+    double A1 = bp1.get_y() - ap1.get_y();
+    double B1 = ap1.get_x() - bp1.get_x();
+    double C1 = ap1.get_x() * bp1.get_y() - bp1.get_x() * ap1.get_y();
+
+    double A2 = bp2.get_y() - ap2.get_y();
+    double B2 = ap2.get_x() - bp2.get_x();
+    double C2 = ap2.get_x() * bp2.get_y() - bp2.get_x() * ap2.get_y();
+
+    double det_p = det(A1, B1, A2, B2);
+    if (det_p == 0) {
+        return {};
+    }
+
+    Point ans = {(det(C1, B1, C2, B2) / det_p), ((det(A1, C1, A2, C2) / det_p))};
+    if (point_in_line(ap1, bp1, ans) && point_in_line(ap2, bp2, ans)) {
+        return ans;
+    }
+    return {};
+}
+
+bool in_outline(const std::vector<Point> &outline, Point p) {
+    size_t counter = 0;
+    for (int i = 0; i < outline.size() - 1; i++) {
+        if (!std::isnan(get_line_cross(p,
+                           Point(p.get_x(), 2 * field_sett::max_field_height),
+                           outline[i], outline[i + 1]).get_x())) {
+            counter++;
+        }
+    }
+    if (!std::isnan(get_line_cross(p,
+                                   Point(p.get_x(), 2 * field_sett::max_field_height),
+                                   outline.back(), outline.front()).get_x())) {
+        counter++;
+    }
+    return bool(counter % 2);
+}

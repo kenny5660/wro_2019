@@ -23,7 +23,9 @@ namespace field_sett {
 
     const int parking_zone_width_max = 380;
     const int parking_zone_width_min = 360;
+    const int parking_zone_door_size = 345;
     const int parking_zone_thickness = 17;
+    const int parking_zone_free_radius = 960 / 2;
     const double parking_zone_angel_min = atan2(1, 4);
 
     const int climate_box_width = 230;
