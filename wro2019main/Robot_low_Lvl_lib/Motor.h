@@ -2,46 +2,68 @@
 #include "Kangaroo.h"
 class Motor {
 public:
-	//Getting Current Encoder value
+	//@brief Getting Current Encoder value
 	virtual int	GetCurEnc() const;
 	
-	//Getting Current Encoder value in degrees
+	//@brief Getting Current Encoder value in degrees
 	virtual int GetCurEncDeg() const;
 	
-	//Getting Current Encoder value in rotations
+	//@brief Getting Current Encoder value in rotations
 	virtual int GetCurEncRot() const;
 	
-	//Stop motor
+	//@brief Stop motor
 	virtual void Stop();
 	
-	// Move motor without stop
+	//@brief Move motor without stop
+	//@param speed measured in deg/sec
     virtual void MoveContinue(int speed);
 	
 	// Move motor and wait 'msec' milliseconds
+	//@brief Move motor and wait 'msec' milliseconds
+	//@param speed measured in deg/sec
+	//@param msec measured in milliseconds
 	virtual void MoveTime(int speed, int msec);
 	
-	// Move motor from 'CurEnc' to 'CurEnc'+'counts' (increment), when 'wait' is true, function wait flag 'IsReady'
+	//@brief Move motor from 'CurEnc' to 'CurEnc'+'counts' (increment)
+	//@param speed measured in deg/sec
+	//@param counts measured in EncCounts
+	//@param wait when is true, function wait flag 'IsReady'
 	virtual void MoveIncEncCounts(int speed, int counts, bool wait = false);
 	
-	// Move motor  from GetCurEncDeg to GetCurEncDeg+'deg' (increment), when 'wait' is true, function wait flag 'IsReady'
+	//@brief Move motor  from GetCurEncDeg to GetCurEncDeg+'deg' (increment)
+	//@param speed measured in deg/sec
+	//@param deg measured in degrees
+	//@param wait when is true, function wait flag 'IsReady'
 	virtual void MoveIncDeg(int speed, int deg, bool wait = false);
 	
-	// Move motor from GetCurEncRot to GetCurEncRot+'rots' (increment), when 'wait' is true, function wait flag 'IsReady'
+	//@brief Move motor from GetCurEncRot to GetCurEncRot+'rots' (increment)
+	//@param speed measured in deg/sec
+	//@param rots measured in rotations
+	//@param wait when is true, function wait flag 'IsReady'
 	virtual void MoveIncRot(int speed, int rots, bool wait = false);
 	
-	// Move motor from 'CurEnc' to 'counts' (set), when 'wait' is true, function wait flag 'IsReady'
+	//@brief Move motor from 'CurEnc' to 'counts' (set)
+	//@param speed measured in deg/sec
+	//@param counts measured in EncCounts
+	//@param wait when is true, function wait flag 'IsReady'
 	virtual void MoveToEncCounts(int speed, int counts, bool wait = false);
 	
-	// Move motor from 'CurEnc' to 'deg' (set), when 'wait' is true, function wait flag 'IsReady'
+	//@brief Move motor from 'CurEnc' to 'deg' (set)
+	//@param speed measured in deg/sec
+	//@param deg measured in degrees
+	//@param wait when is true, function wait flag 'IsReady'
 	virtual void MoveToDeg(int speed, int deg, bool wait = false);
 	
-	// Move motor from 'CurEnc' to 'rots' (set), when 'wait' is true, function wait flag 'IsReady'
+	//@brief Move motor from 'CurEnc' to 'rots' (set)
+	//@param speed measured in deg/sec
+	//@param rots measured in degrees
+	//@param wait when is true, function wait flag 'IsReady'
 	virtual void MoveToRot(int speed, int rots, bool wait = false);
 	
-	//Return true if motor is ready for new command, false if motor is moving
+	//@brief Return true if motor is ready for new command, false if motor is moving
 	virtual bool IsReady();
 	
-	//Set encoder to 0
+	//@brief Set encoder to 0
 	virtual void ResetEnc();
 };
 
@@ -66,7 +88,6 @@ public:
 	// Move motor and wait 'msec' milliseconds
 	 void MoveTime(int speed, int msec) override;
 	
-	// Move motor from 'CurEnc' to 'CurEnc'+'counts' (increment), when 'wait' is true, function wait flag 'IsReady'
 	 void MoveIncEncCounts(int speed, int counts, bool wait = false) override;
 	
 	// Move motor  from GetCurEncDeg to GetCurEncDeg+'deg' (increment), when 'wait' is true, function wait flag 'IsReady'

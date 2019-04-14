@@ -40,12 +40,12 @@ void KangarooMotor::Stop()
 
 void  KangarooMotor::MoveContinue(int speed)
 {
-	kangaroo_drv_->CmdMoveToSpeed(chnl_, speed);
+	kangaroo_drv_->CmdMoveToSpeed(chnl_, speed*counts_per_deg_);
 }
 
 void KangarooMotor::MoveIncEncCounts(int speed, int counts, bool wait)
 {
-	kangaroo_drv_->CmdMoveIncPos(chnl_, counts, speed);
+	kangaroo_drv_->CmdMoveIncPos(chnl_, counts, speed*counts_per_deg_);
 	while (!IsReady() && wait) ;
 }
 
@@ -61,7 +61,7 @@ void KangarooMotor::MoveIncRot(int speed, int rot, bool wait)
 
 void KangarooMotor::MoveToEncCounts(int speed, int counts, bool wait)
 {
-	kangaroo_drv_->CmdMoveToPos(chnl_, counts, speed);
+	kangaroo_drv_->CmdMoveToPos(chnl_, counts, speed*counts_per_deg_);
 	while (!IsReady() && wait) ;
 }
 
