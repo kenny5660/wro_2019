@@ -30,3 +30,12 @@ void OmniWheels4Squre::Move(std::pair<double, double> vSpeed, double angular_spe
 	motor_back_->MoveContinue(w_back);
 	motor_right_->MoveContinue(w_right);
 }
+
+
+void OmniWheels4Squre::Stop()
+{
+	motor_front_->Stop();
+	motor_left_->Stop();
+	motor_back_->Stop();
+	motor_right_->Stop();
+}

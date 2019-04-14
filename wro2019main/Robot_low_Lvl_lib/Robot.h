@@ -6,7 +6,7 @@ class Robot
 {
 public:
 	Robot();
-	void Start();
+	virtual void Start();
 private:
 	
 };
@@ -15,6 +15,7 @@ class RobotGardener : public Robot
 {
 public:
 	RobotGardener();
+	void Start() override;
 private:
 	std::shared_ptr<OmniWheels> omni;
 	
