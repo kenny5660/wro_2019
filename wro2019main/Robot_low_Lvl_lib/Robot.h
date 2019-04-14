@@ -1,4 +1,6 @@
-#include "Motor.h"
+#pragma once
+
+#include "OmniWheels.h"
 
 class Robot
 {
@@ -14,6 +16,6 @@ class RobotGardener : public Robot
 public:
 	RobotGardener();
 private:
-	
+	std::shared_ptr<OmniWheels> omni;
 	
 };
