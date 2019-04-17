@@ -5,6 +5,9 @@
 class Robot
 {
 public:
+	//@brief sleep(wait) 'msec' milliseconds
+	//@param msec milliseconds to wait
+	void Delay(int msec);
 private:
 	
 };

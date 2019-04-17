@@ -11,7 +11,7 @@ void KangarooDriver::CmdMoveIncPos(uint8_t chnl, int pos, int limit_speed)
 
 void KangarooDriver::CmdMoveToSpeed(uint8_t chnl, int speed)
 {
-	CmdMoveSpeed(chnl, kGetSpeed, speed);
+	CmdMoveSpeed(chnl, kMoveTypeSpeed, speed);
 }
 void KangarooDriver::CmdMoveIncSpeed(uint8_t chnl, int speed)
 {
@@ -196,7 +196,7 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 	uint8_t bitpack_Value[5];  // Зачем это?
 	uint8_t crc14[2];
 	int read_status = Uart_Read(uart_.get(), packet_header, 3);
-	if (read_status != VI_SUCCESS)
+	if (packet_header[0] != addr_ || packet_header[1] != kCmdGetReply)
 	{
 		throw std::runtime_error("Read error, kangaroo driver!");
 	}
@@ -224,5 +224,5 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 
 KangarooDriver::KangarooDriver(std::shared_ptr<MyRio_Uart> _uart, uint8_t _addr): uart_(_uart), addr_(_addr)
 {
-	CmdGet(1, kGetPos);
+	CmdGet('1', kGetPos);
 }

@@ -69,7 +69,7 @@ public:
 
 class KangarooMotor : public Motor {
 public:
-	KangarooMotor(std::shared_ptr<KangarooDriver> kangarooDrv, uint8_t chnl, int counts_per_deg = 1);
+	KangarooMotor(std::shared_ptr<KangarooDriver> kangarooDrv, uint8_t chnl, bool inverted = false,int counts_per_deg = 1);
 	//Getting Current Encoder value
 	 int GetCurEnc() const override;
 	
@@ -114,4 +114,5 @@ public:
 	std::shared_ptr<KangarooDriver> kangaroo_drv_;
 	uint8_t chnl_;
 	int counts_per_deg_;
+	int inverted_coef_ = 1;
 };

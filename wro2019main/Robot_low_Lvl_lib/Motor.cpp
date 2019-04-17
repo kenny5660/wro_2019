@@ -1,11 +1,13 @@
 #include "Motor.h"
 KangarooMotor::KangarooMotor(std::shared_ptr<KangarooDriver> kangarooDrv, 
 	uint8_t chnl,
+	bool inverted,
 	int counts_per_deg)
 	: kangaroo_drv_(kangarooDrv)
 	, chnl_(chnl)
+	, inverted_coef_(inverted ? -1:1)
 	, counts_per_deg_(counts_per_deg) {
-		
+		kangaroo_drv_->CmdStart(chnl_);
 		ResetEnc();
 	}
 void KangarooMotor::MoveTime(int speed, int msec)
@@ -46,12 +48,18 @@ void KangarooMotor::Stop()
 
 void  KangarooMotor::MoveContinue(int speed)
 {
-	kangaroo_drv_->CmdMoveToSpeed(chnl_, speed*counts_per_deg_);
+	speed *= inverted_coef_*counts_per_deg_;
+	speed = speed > 1500 ? 1500 : speed;
+	speed = speed < -1500 ? -1500 : speed;
+	kangaroo_drv_->CmdMoveToSpeed(chnl_, speed);
 }
 
 void KangarooMotor::MoveIncEncCounts(int speed, int counts, bool wait)
 {
-	kangaroo_drv_->CmdMoveIncPos(chnl_, counts, speed*counts_per_deg_);
+	speed *= inverted_coef_*counts_per_deg_;
+	if (speed != 0) {
+		kangaroo_drv_->CmdMoveIncPos(chnl_, speed > 0 ? counts : -counts, speed > 0 ? speed : -speed);
+	}
 	while (!IsReady() && wait) ;
 }
 
@@ -67,7 +75,10 @@ void KangarooMotor::MoveIncRot(int speed, int rot, bool wait)
 
 void KangarooMotor::MoveToEncCounts(int speed, int counts, bool wait)
 {
-	kangaroo_drv_->CmdMoveToPos(chnl_, counts, speed*counts_per_deg_);
+	speed *= inverted_coef_*counts_per_deg_;
+	if (speed != 0) {
+		kangaroo_drv_->CmdMoveToPos(chnl_, speed > 0 ? counts : -counts, speed > 0 ? speed : -speed);
+	}
 	while (!IsReady() && wait) ;
 }
 

@@ -6,11 +6,7 @@
 	Read more about CppUTest syntax here: https://github.com/google/googletest
 */
 
-TEST(DemoTestGroup, FailingTest)
-{
-    EXPECT_EQ(1, 1);
-    EXPECT_EQ(1, 2);	//<= This test should fail here
-}
+
 
 TEST(DemoTestGroup, SuccessfulTest1)
 {
