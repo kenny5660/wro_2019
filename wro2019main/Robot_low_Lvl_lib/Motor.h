@@ -3,68 +3,68 @@
 class Motor {
 public:
 	//@brief Getting Current Encoder value
-	virtual int	GetCurEnc() const;
+	virtual int	GetCurEnc() const {throw std::runtime_error("Not implemented");}
 	
 	//@brief Getting Current Encoder value in degrees
-	virtual int GetCurEncDeg() const;
+	virtual int GetCurEncDeg() const {throw std::runtime_error("Not implemented");}
 	
 	//@brief Getting Current Encoder value in rotations
-	virtual int GetCurEncRot() const;
+	virtual int GetCurEncRot() const {throw std::runtime_error("Not implemented");}
 	
 	//@brief Stop motor
-	virtual void Stop();
+	virtual void Stop() {throw std::runtime_error("Not implemented");}
 	
 	//@brief Move motor without stop
 	//@param speed measured in deg/sec
-    virtual void MoveContinue(int speed);
+    virtual void MoveContinue(int speed) {throw std::runtime_error("Not implemented");}
 	
 	// Move motor and wait 'msec' milliseconds
 	//@brief Move motor and wait 'msec' milliseconds
 	//@param speed measured in deg/sec
 	//@param msec measured in milliseconds
-	virtual void MoveTime(int speed, int msec);
+	virtual void MoveTime(int speed, int msec) {throw std::runtime_error("Not implemented");}
 	
 	//@brief Move motor from 'CurEnc' to 'CurEnc'+'counts' (increment)
 	//@param speed measured in deg/sec
 	//@param counts measured in EncCounts
 	//@param wait when is true, function wait flag 'IsReady'
-	virtual void MoveIncEncCounts(int speed, int counts, bool wait = false);
+	virtual void MoveIncEncCounts(int speed, int counts, bool wait = false) {throw std::runtime_error("Not implemented");}
 	
 	//@brief Move motor  from GetCurEncDeg to GetCurEncDeg+'deg' (increment)
 	//@param speed measured in deg/sec
 	//@param deg measured in degrees
 	//@param wait when is true, function wait flag 'IsReady'
-	virtual void MoveIncDeg(int speed, int deg, bool wait = false);
+	virtual void MoveIncDeg(int speed, int deg, bool wait = false) {throw std::runtime_error("Not implemented");}
 	
 	//@brief Move motor from GetCurEncRot to GetCurEncRot+'rots' (increment)
 	//@param speed measured in deg/sec
 	//@param rots measured in rotations
 	//@param wait when is true, function wait flag 'IsReady'
-	virtual void MoveIncRot(int speed, int rots, bool wait = false);
+	virtual void MoveIncRot(int speed, int rots, bool wait = false){throw std::runtime_error("Not implemented");}
 	
 	//@brief Move motor from 'CurEnc' to 'counts' (set)
 	//@param speed measured in deg/sec
 	//@param counts measured in EncCounts
 	//@param wait when is true, function wait flag 'IsReady'
-	virtual void MoveToEncCounts(int speed, int counts, bool wait = false);
+	virtual void MoveToEncCounts(int speed, int counts, bool wait = false){throw std::runtime_error("Not implemented");}
 	
 	//@brief Move motor from 'CurEnc' to 'deg' (set)
 	//@param speed measured in deg/sec
 	//@param deg measured in degrees
 	//@param wait when is true, function wait flag 'IsReady'
-	virtual void MoveToDeg(int speed, int deg, bool wait = false);
+	virtual void MoveToDeg(int speed, int deg, bool wait = false){throw std::runtime_error("Not implemented");}
 	
 	//@brief Move motor from 'CurEnc' to 'rots' (set)
 	//@param speed measured in deg/sec
 	//@param rots measured in degrees
 	//@param wait when is true, function wait flag 'IsReady'
-	virtual void MoveToRot(int speed, int rots, bool wait = false);
+	virtual void MoveToRot(int speed, int rots, bool wait = false){throw std::runtime_error("Not implemented");}
 	
 	//@brief Return true if motor is ready for new command, false if motor is moving
-	virtual bool IsReady();
+	virtual bool IsReady(){throw std::runtime_error("Not implemented");} 
 	
 	//@brief Set encoder to 0
-	virtual void ResetEnc();
+	virtual void ResetEnc(){throw std::runtime_error("Not implemented");}
 };
 
 class KangarooMotor : public Motor {

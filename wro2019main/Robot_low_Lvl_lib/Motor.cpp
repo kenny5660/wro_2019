@@ -4,8 +4,14 @@ KangarooMotor::KangarooMotor(std::shared_ptr<KangarooDriver> kangarooDrv,
 	int counts_per_deg)
 	: kangaroo_drv_(kangarooDrv)
 	, chnl_(chnl)
-	, counts_per_deg_(counts_per_deg) {}
-
+	, counts_per_deg_(counts_per_deg) {
+		
+		ResetEnc();
+	}
+void KangarooMotor::MoveTime(int speed, int msec)
+{
+	throw std::runtime_error("Not implemented");
+}
 int KangarooMotor::GetCurEnc() const
 {
 	auto params =	kangaroo_drv_->CmdGet(chnl_, KangarooDriver::kGetPos);

@@ -195,10 +195,14 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 	uint8_t data_header[3];
 	uint8_t bitpack_Value[5];  // Зачем это?
 	uint8_t crc14[2];
-	//Uart_Clear(kang->uart);
-	Uart_Read(uart_.get(), packet_header, 3);
+	int read_status = Uart_Read(uart_.get(), packet_header, 3);
+	if (read_status != VI_SUCCESS)
+	{
+		throw std::runtime_error("Read error, kangaroo driver!");
+	}
 	if (packet_header[2] > 8) {
 		flags = -1;
+		throw std::runtime_error("Read error, kangaroo driver!");
 		return std::make_pair(0,flags);
 	}
 	Uart_Read(uart_.get(), data_header, 3);
@@ -220,5 +224,5 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 
 KangarooDriver::KangarooDriver(std::shared_ptr<MyRio_Uart> _uart, uint8_t _addr): uart_(_uart), addr_(_addr)
 {
-	
+	CmdGet(1, kGetPos);
 }

@@ -10,6 +10,6 @@
 int start_robot()
 {
 	RobotGardener robot;
-	robot.Start();
+	robot.GetOmni()->GetMotor(OmniWheels::MotorDir::FRONT)->MoveContinue(200);
 	return 0;
 }

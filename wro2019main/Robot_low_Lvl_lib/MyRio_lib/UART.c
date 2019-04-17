@@ -161,7 +161,7 @@ int32_t Uart_Read(MyRio_Uart* port, uint8_t* const data,
 
     status = viRead(port->session, (ViBuf)data, (ViUInt32)nData, &numberRead);
 
-    return status;
+    return status; 
 }
 
 
