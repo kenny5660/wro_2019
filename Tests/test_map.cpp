@@ -64,6 +64,7 @@ std::string get_death_zone(const std::array<std::array<bool, field_sett::number_
         }
         s += "\n";
     }
+    std::cout << s << std::endl;
     return s;
 }
 
@@ -265,4 +266,265 @@ TEST(Map, CreatMapMaxCornerFreeField) {
                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1}
               }}));
+}
+
+TEST(Map, CreatMapMaxBoxAndMargTogether) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("MergeMapRot2/1.ld", points));
+    auto lines = detected_lines_and_types(points);
+    Map m(lines, show_debug_img);
+    show_debug_img("", m.get_img(400, 400));
+    RobotPoint position = m.get_position();
+    EXPECT_NEAR(position.get_x(), 1900, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_y(), 200, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_angle(), degree2radian(290), PRECISION_ANGLE_POS);
+    EXPECT_EQ(lines2string(m.get_parking_zone_line()),
+              "{{(-1059.553000, -653.359000), (-1071.580000, -636.624000), (-1417.891000, -636.914000)}}");
+    EXPECT_TRUE(boxes_exist(m.get_boxes_normal(),
+                            {{1 * field_sett::size_field_unit, 3 * field_sett::size_field_unit},
+                             {18 * field_sett::size_field_unit, 5 * field_sett::size_field_unit},
+                             {18 * field_sett::size_field_unit, 10 * field_sett::size_field_unit},
+                             {12 * field_sett::size_field_unit, 5 * field_sett::size_field_unit},
+                             {12 * field_sett::size_field_unit, 11 * field_sett::size_field_unit}}));
+    EXPECT_EQ(get_death_zone(m.get_death_zone()), get_death_zone({{
+                  {0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0}
+              }}));
+}
+
+TEST(Map, CreatMapMax2BoxesAndMargTogether) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("MergeMapRot3/0.ld", points));
+    auto lines = detected_lines_and_types(points);
+    Map m(lines, show_debug_img);
+    show_debug_img("", m.get_img(400, 400));
+    RobotPoint position = m.get_position();
+    EXPECT_NEAR(position.get_x(), 1248, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_y(), 1352, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_angle(), degree2radian(0), PRECISION_ANGLE_POS);
+    EXPECT_EQ(lines2string(m.get_parking_zone_line()),
+              "{{(-210.335000, 548.285000), (110.754000, 386.198000), (278.758000, 719.543000)}}");
+    EXPECT_TRUE(boxes_exist(m.get_boxes_normal(),
+                            {{0 * field_sett::size_field_unit, 6 * field_sett::size_field_unit},
+                             {18 * field_sett::size_field_unit, 6 * field_sett::size_field_unit},
+                             {4 * field_sett::size_field_unit, 14 * field_sett::size_field_unit},
+                             {15 * field_sett::size_field_unit, 14 * field_sett::size_field_unit},
+                             {9 * field_sett::size_field_unit, 18 * field_sett::size_field_unit}}));
+    EXPECT_EQ(get_death_zone(m.get_death_zone()), get_death_zone({{
+                  {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+                  {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1}
+              }}));
+}
+
+TEST(Map, MergeRot0) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("MergeMapRot0/0.ld", points));
+    Map m1(points);
+    points.clear();
+    show_debug_img("m1", m1.get_img());
+    ASSERT_FALSE(read("MergeMapRot0/1.ld", points));
+    Map m2(points);
+    show_debug_img("m2", m2.get_img());
+    m1.merge(m2);
+    auto position = m1.get_position();
+    auto expected_position = m2.get_position();
+    EXPECT_NEAR(position.get_x(), expected_position.get_x(), PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_y(), expected_position.get_y(), PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_angle(), expected_position.get_angle(), PRECISION_ANGLE_POS);
+    EXPECT_TRUE(boxes_exist(m1.get_boxes_normal(),
+                            {{2 * field_sett::size_field_unit, 3 * field_sett::size_field_unit},
+                             {2 * field_sett::size_field_unit, 13 * field_sett::size_field_unit},
+                             {2 * field_sett::size_field_unit, 16 * field_sett::size_field_unit},
+                             {15 * field_sett::size_field_unit, 3 * field_sett::size_field_unit},
+                             {15 * field_sett::size_field_unit, 11 * field_sett::size_field_unit}}));
+    EXPECT_EQ(get_death_zone(m1.get_death_zone()), get_death_zone({{
+                  {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0},
+                  {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0},
+                  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+                  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+                  {1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}
+              }}));
+}
+
+TEST(Map, MergeRot1) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("MergeMapRot1/0.ld", points));
+    Map m1(points);
+    points.clear();
+    show_debug_img("m1", m1.get_img());
+    ASSERT_FALSE(read("MergeMapRot1/1.ld", points));
+    Map m2(points);
+    show_debug_img("m2", m2.get_img());
+    m1.merge(m2);
+    auto position = m1.get_position();
+    EXPECT_NEAR(position.get_x(), 900, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_y(), 200, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_angle(), degree2radian(150), PRECISION_ANGLE_POS);
+    EXPECT_TRUE(boxes_exist(m1.get_boxes_normal(),
+                            {{1 * field_sett::size_field_unit, 8 * field_sett::size_field_unit},
+                             {1 * field_sett::size_field_unit, 10 * field_sett::size_field_unit},
+                             {1 * field_sett::size_field_unit, 12 * field_sett::size_field_unit},
+                             {1 * field_sett::size_field_unit, 14 * field_sett::size_field_unit},
+                             {1 * field_sett::size_field_unit, 16 * field_sett::size_field_unit}}));
+    EXPECT_EQ(get_death_zone(m1.get_death_zone()), get_death_zone({{
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+               }}));
+}
+
+TEST(Map, MergeRot2) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("MergeMapRot2/0.ld", points));
+    Map m1(points);
+    points.clear();
+    show_debug_img("m1", m1.get_img());
+    ASSERT_FALSE(read("MergeMapRot2/1.ld", points));
+    Map m2(points);
+    show_debug_img("m2", m2.get_img());
+    m1.merge(m2);
+    auto position = m1.get_position();
+    EXPECT_NEAR(position.get_x(), 200, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_y(), 500, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_angle(), degree2radian(200), PRECISION_ANGLE_POS);
+    EXPECT_TRUE(boxes_exist(m1.get_boxes_normal(),
+                            {{5 * field_sett::size_field_unit, 0 * field_sett::size_field_unit},
+                             {10 * field_sett::size_field_unit, 0 * field_sett::size_field_unit},
+                             {5 * field_sett::size_field_unit, 6 * field_sett::size_field_unit},
+                             {11 * field_sett::size_field_unit, 6 * field_sett::size_field_unit},
+                             {3 * field_sett::size_field_unit, 17 * field_sett::size_field_unit}}));
+    EXPECT_EQ(get_death_zone(m1.get_death_zone()), get_death_zone({{
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+                   {1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0},
+                   {1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+                   {1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+                   {1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+               }}));
+}
+
+TEST(Map, MergeRot3) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("MergeMapRot3/0.ld", points));
+    Map m1(points);
+    points.clear();
+    show_debug_img("m1", m1.get_img());
+    ASSERT_FALSE(read("MergeMapRot3/1.ld", points));
+    Map m2(points);
+    show_debug_img("m2", m2.get_img());
+    m1.merge(m2);
+    auto position = m1.get_position();
+    EXPECT_NEAR(position.get_x(), 1200, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_y(), 1300, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(position.get_angle(), degree2radian(300), PRECISION_ANGLE_POS);
+    EXPECT_TRUE(boxes_exist(m1.get_boxes_normal(),
+                            {{0 * field_sett::size_field_unit, 6 * field_sett::size_field_unit},
+                             {18 * field_sett::size_field_unit, 6 * field_sett::size_field_unit},
+                             {4 * field_sett::size_field_unit, 14 * field_sett::size_field_unit},
+                             {15 * field_sett::size_field_unit, 14 * field_sett::size_field_unit},
+                             {9 * field_sett::size_field_unit, 18 * field_sett::size_field_unit}}));
+    EXPECT_EQ(get_death_zone(m1.get_death_zone()), get_death_zone({{
+                   {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0},
+                   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+                   {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1}
+               }}));
 }

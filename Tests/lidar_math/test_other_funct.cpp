@@ -34,3 +34,17 @@ TEST(MathFunc, PoinyInOutline) {
                             {1, 1},
                             {1, -1}}, {-0.5, 0.25}));
 }
+
+TEST(MathFunc, Sign) {
+    EXPECT_EQ(0, sign(0));
+    EXPECT_EQ(-1, sign(-0.123));
+    EXPECT_EQ(1, sign(10.123));
+}
+
+TEST(MathFunc, PositionRelativeLine) {
+    EXPECT_EQ(position_relative_line({1, 1}, {-1, -1}, {0.1, 0}, 0.2), 0);
+    EXPECT_EQ(position_relative_line({1, 1}, {-1, -1}, {2, 3}, 0), 1);
+    EXPECT_EQ(position_relative_line({1, 1}, {-1, -1}, {2, -3}, 0), -1);
+    EXPECT_EQ(position_relative_line({-3, 2}, {0, 0}, {0, 2}, 0.1), 1);
+    EXPECT_EQ(position_relative_line({-3, 2}, {0, 0}, {0, -1}, 0), -1);
+}

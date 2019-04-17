@@ -75,6 +75,9 @@ class MassPoint: public Point {
     void set_x(double x);
     void set_y(double y);
 
+    std::pair<size_t, size_t> get_mass() const { return std::make_pair(count_x_, count_y_); }
+    void set_mass(std::pair<size_t, size_t> m);
+
     MassPoint operator + (const MassPoint &a) const;
     MassPoint operator - (const MassPoint &a) const;
     MassPoint &operator += (const MassPoint &a);

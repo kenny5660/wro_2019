@@ -522,3 +522,24 @@ bool in_outline(const std::vector<Point> &outline, Point p) {
     }
     return bool(counter % 2);
 }
+
+int sign(double a) {
+    if (a < 0) {
+        return -1;
+    } else if (a > 0) {
+        return +1;
+    }
+    return 0;
+}
+
+int position_relative_line(const Point &A, const Point &B, const Point &p,
+                           double delta) {
+    // -1 - ниже линии
+    // 0 - в окрестности дельта
+    // 1 выше линни
+    if (dist_line2point(A, B, p) <= delta) {
+        return 0;
+    }
+    double ans = (p.get_x() * (B.get_y() - A.get_y()) - A.get_x() * (B.get_y() - A.get_y()) + A.get_y() * (B.get_x() - A.get_x())) / (-A.get_x() + B.get_x());
+    return sign(p.get_y() - ans);
+}

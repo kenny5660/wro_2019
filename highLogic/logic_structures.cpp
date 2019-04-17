@@ -115,6 +115,11 @@ void MassPoint::double_merge(double &a, const double b, size_t &counter_a, const
     }
 }
 
+void MassPoint::set_mass(std::pair<size_t , size_t> m) {
+    count_x_ = m.first;
+    count_y_ = m.second;
+}
+
 void MassPoint::merge(const MassPoint &p) {
     double_merge(x_, p.x_, count_x_, p.count_x_);
     double_merge(y_, p.y_, count_y_, p.count_y_);
