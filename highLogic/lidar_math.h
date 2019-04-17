@@ -38,6 +38,9 @@ RobotPoint get_coordinates_from_corner(double a, double b, double c,
                                        field_corner corner);
 Point get_line_cross(const Point &ap1, const Point &bp1, const Point &ap2, const Point &bp2);
 bool in_outline(const std::vector<Point> &outline, Point p);
+int sign(double a);
+int position_relative_line(const Point &A, const Point &B, const Point &p,
+                           double delta = field_sett::size_field_unit);
 
 //---FOR TEST---//
 std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,

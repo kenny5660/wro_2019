@@ -8,6 +8,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgproc.hpp>
 #include <string>
+#include <c++/set>
 #include "map.h"
 #include "settings.h"
 #include "lidar_math.h"
@@ -22,7 +23,8 @@ enum box_corner_type {
     left_up_bt,
     right_up_bt,
     right_down_bt,
-    left_down_bt
+    left_down_bt,
+    undef_bt
 };
 
 BoxMap::BoxMap(const Point &p, box_color_t color) : color_(color) {
@@ -39,6 +41,15 @@ void BoxMap::set_color(const box_color_t c) {
         return;
     }
     color_ = c;
+}
+
+void BoxMap::merge(const BoxMap &b) {
+    left_up_corner_.merge(b.left_up_corner_);
+    if (color_ == undefined_bc) {
+        color_ = b.color_;
+    } else {
+        std::cerr << "map::BoxMap::merge\n Re-announcement color of box!";
+    }
 }
 
 std::array<Point, 4> BoxMap::get_corners() const {
@@ -59,15 +70,6 @@ int fdiv(double a, double b) {
         buff -= b;
     }
     return --k;
-}
-
-int sign(double a) {
-    if (a < 0) {
-        return -1;
-    } else if (a > 0) {
-        return +1;
-    }
-    return 0;
 }
 
 bool Map::add_box(const Point &p) {
@@ -118,15 +120,17 @@ box_corner_type get_box_corner_type(const std::vector<std::pair<Point, line_t>> 
             return right_down_bt;
         } else if (j == (points.size() - 1)) {
             return left_up_bt;
-        } else {
+        } else if ((points.size() >= 3) &&
+            (position_relative_line(points[j + 1].first, points[j - 1].first, points[j].first) == 1)){
             return right_up_bt;
         }
     } else if ((points[j].first.get_x() < 0) && (points[j].first.get_y() > 0)) {
         if (j == 0) {
             return left_down_bt;
-        } else if (j == (points.size() - 1)) {
+        } else if (j == (points.size() - 1)){
             return right_up_bt;
-        } else {
+        } else if ((points.size() >= 3) &&
+            (position_relative_line(points[j + 1].first, points[j - 1].first, points[j].first) == -1)){
             return right_down_bt;
         }
     } else if ((points[j].first.get_x() > 0) && (points[j].first.get_y() > 0)) {
@@ -134,7 +138,8 @@ box_corner_type get_box_corner_type(const std::vector<std::pair<Point, line_t>> 
             return left_up_bt;
         } else if (j == (points.size() - 1)) {
             return right_down_bt;
-        } else {
+        } else if ((points.size() >= 3) &&
+            (position_relative_line(points[j + 1].first, points[j - 1].first, points[j].first) == -1)){
             return left_down_bt;
         }
     } else {
@@ -142,10 +147,12 @@ box_corner_type get_box_corner_type(const std::vector<std::pair<Point, line_t>> 
             return right_up_bt;
         } else if (j == (points.size() - 1)) {
             return left_down_bt;
-        } else {
+        } else if ((points.size() >= 3) &&
+            (position_relative_line(points[j + 1].first, points[j - 1].first, points[j].first) == 1)){
             return left_up_bt;
         }
     }
+    return undef_bt;
 }
 
 void Map::add_death_outline(const std::vector<Point> &outline) {
@@ -286,15 +293,16 @@ void Map::lines_detection(const std::vector<std::vector<std::pair<Point, line_t>
     bool is_fiend_start_line = false;
     for (int i = 0; i < points.size(); i++) {
         for (int j = 0; j < (points[i].size() - 1); j++) {
-            if ((points[i][j].first.get_x() < 0) && (points[i][j + 1].first.get_x()) >= 0) {
-                is_fiend_start_line = true;
-                min_dist_x_ind = std::make_pair(i, j);
-                break;
-            }
-            if (((points[i][j].second == border_lt)
-                || (points[i][j].second == box_lt)) && (min_dist_x > fabs(points[i][j].first.get_x()))) {
-                min_dist_x = fabs(points[i][j].first.get_x());
-                min_dist_x_ind = std::make_pair(i, j);
+            if ((points[i][j].second == border_lt) || (points[i][j].second == box_lt)){
+                if ((points[i][j].first.get_x() < 0) && (points[i][j + 1].first.get_x()) >= 0) {
+                    is_fiend_start_line = true;
+                    min_dist_x_ind = std::make_pair(i, j);
+                    break;
+                }
+                if (min_dist_x > fabs(points[i][j].first.get_x())) {
+                    min_dist_x = fabs(points[i][j].first.get_x());
+                    min_dist_x_ind = std::make_pair(i, j);
+                }
             }
         }
         if (is_fiend_start_line) {
@@ -484,7 +492,11 @@ void Map::lines_detection(const std::vector<std::vector<std::pair<Point, line_t>
                 }
                 parking_detected_line_.back().push_back(rot_points[i][j].first);
             }else if (rot_points[i][j].second == box_lt) {
-                Point offset_cub = type_box_corner2offset[get_box_corner_type(rot_points[i], j)];
+                box_corner_type type = get_box_corner_type(rot_points[i], j);
+                if (type == undef_bt) {
+                    continue;
+                }
+                Point offset_cub = type_box_corner2offset[type];
                 if ((j + 1) < rot_points[i].size()) {
                     add_boxes_in_robot_pos(rot_points[i][j].first + offset_cub,
                                            rot_points[i][j + 1].first + offset_cub);
@@ -589,4 +601,145 @@ Map::Map(const std::vector<std::vector<std::pair<Point, line_t>>> &p, show_img_d
 }
 Map::Map(const std::vector<PolarPoint> &p, show_img_debug debug) {
     lines_detection(detected_lines_and_types(p), debug);
+}
+
+std::pair<int, double> Map::get_nearby_box(const Point &p) {
+    std::pair<int, double> ans = std::make_pair(-1, field_sett::max_field_width);
+    for (int i = 0; i < boxes_.size(); i++) {
+        if (ans.second > p.dist(boxes_[i].get_left_corner_point())) {
+            ans.first = i;
+            ans.second = p.dist(boxes_[i].get_left_corner_point());
+        }
+    }
+    return ans;
+}
+
+Point right_turn(const Point &p, const Point &offset) {
+    return {offset.get_x() - p.get_y(), p.get_x()};
+}
+
+Point double_turn(const Point &p, const Point &offset) {
+    Point a = p - offset;
+    return {-a.get_x() + offset.get_x(), -a.get_y() + offset.get_y()};
+}
+
+Point left_turn(const Point &p, const Point &offset) {
+    return {p.get_y(), offset.get_y() - p.get_x()};
+}
+
+MassPoint mass_save_turn(const MassPoint &p, Point (* turn)(const Point &p, const Point &offset), const Point &offset) {
+    auto mass = p.get_mass();
+    MassPoint ans = turn(p, offset);
+    ans.set_mass(mass);
+    return ans;
+}
+
+std::pair<int, int> right_turn_death_zone(const std::pair<int, int> &p,
+                                    int n = field_sett::number_field_unit) {
+    return std::make_pair(n - p.second - 1, p.first);
+}
+
+std::pair<int, int> double_turn_death_zone(const std::pair<int, int> &p,
+                                          int n = field_sett::number_field_unit) {
+    return std::make_pair(p.first, n - p.second - 1);
+}
+
+std::pair<int, int> left_turn_death_zone(const std::pair<int, int> &p,
+                                          int n = field_sett::number_field_unit) {
+    return std::make_pair(p.second, n - p.first - 1);
+}
+
+void Map::turn(int a) {
+    if ((a < 0 ) || (a > 3)) {
+        std::cerr << "Map::turn:: Wrong boundaries: expect 0 <= a <= 3; a = "
+                  << a << std::endl;
+    }
+    if (a == 0)
+        return;
+    a--;
+    Point (* turns[])(const Point &p, const Point &offset) = {right_turn, double_turn, left_turn};
+    const Point boxes_offset[3] = {{-field_sett::climate_box_width, 0},
+                                   {-field_sett::climate_box_width, -field_sett::climate_box_height},
+                                   {0, -field_sett::climate_box_height}};
+    Point offset_field(field_sett::max_field_width, field_sett::max_field_height);
+    for (int i = 0; i < box_count_; i++) {
+        boxes_[i].set_left_corner_point(mass_save_turn(boxes_[i].get_left_corner_point(), turns[a], offset_field) + boxes_offset[a]);
+    }
+    parking_zone_circles_.first = turns[a](parking_zone_circles_.first, offset_field);
+    parking_zone_circles_.second = turns[a](parking_zone_circles_.second, offset_field);
+    parking_zone_back_ = turns[a](parking_zone_back_, offset_field);
+    for (int i = 0; i < parking_detected_line_.size(); i++) {
+        for (int  j = 0; j < parking_detected_line_[i].size(); j++) {
+            parking_detected_line_[i][j] = (turns[a](parking_detected_line_[i][j], offset_field));
+        }
+    }
+    std::pair<int, int> (* turns_dz[])(const std::pair<int, int> &p, int n) = {right_turn_death_zone, double_turn_death_zone, left_turn_death_zone};
+    auto dz = death_zone_;
+    for (int i = 0; i < death_zone_.size(); i++) {
+        for (int j = 0; j < death_zone_[i].size(); j++) {
+            std::pair<int, int> new_ind = turns_dz[a](std::make_pair(i, j), death_zone_.size());
+            death_zone_[new_ind.first][new_ind.second] = dz[i][j];
+        }
+    }
+    Point pos = turns[a](position_, offset_field);
+    position_.set_x(pos.get_x());
+    position_.set_y(pos.get_y());
+    position_.add_angle(M_PI_2 * (a + 1));
+}
+
+bool Map::in_death_zone(const Point &point) {
+    auto ind = get_field_unit(point);
+    return death_zone_[ind.first][ind.second];
+}
+
+bool Map::merge(const Map &a) {
+    //TODO: учесть парковку
+    Map m = a;
+    auto normal_boxes = get_boxes_normal();
+    size_t count_same = 0;
+    std::pair<int, std::set<int>> same;
+    std::set<int> used_boxes;
+    for (int i = 0; i < 4; i++) {
+        bool same_all = true;
+        for (auto j : normal_boxes) {
+            auto nearly = m.get_nearby_box(j);
+            bool in_death = m.in_death_zone(j);
+            if ((nearly.second > (field_sett::size_field_unit / 2.)) && !in_death) {
+                same_all = false;
+                break;
+            }
+            if (!in_death) {
+                used_boxes.insert(nearly.first);
+            }
+        }
+        auto m_normal_box = m.get_boxes_normal();
+        for (int j = 0; (j < m_normal_box.size()) && same_all; j++) {
+            if ((used_boxes.find(j) == used_boxes.end()) && !in_death_zone(m_normal_box[j])) {
+                same_all = false;
+                break;
+            }
+        }
+        if (same_all) {
+            count_same++;
+            same.first = i;
+            same.second = used_boxes;
+        }
+        show_debug_img("", m.get_img());
+        m.turn();
+    }
+    if (count_same != 1) {
+        return false;
+    }
+    m.turn(same.first);
+    position_ = m.position_;
+    for (int i = 0; i < m.box_count_; i++) {
+        add_box(m.boxes_[i].get_left_corner_point());
+        //boxes_[i].merge(m.boxes_[m.get_nearby_box(boxes_[i].get_left_corner_point()).first]);
+    }
+    for (int i = 0; i < death_zone_.size(); i++) {
+        for (int j = 0; j < death_zone_[i].size(); j++) {
+            death_zone_[i][j] = death_zone_[i][j] && m.death_zone_[i][j];
+        }
+    }
+    return true;
 }

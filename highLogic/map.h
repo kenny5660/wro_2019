@@ -41,6 +41,8 @@ class BoxMap {
     MassPoint add_left_corner_point(const MassPoint &p) { left_up_corner_.merge(p); }
     MassPoint add_left_corner_point(const Point &p) { left_up_corner_.merge(MassPoint(p)); }
 
+    void merge(const BoxMap &);
+
     std::array<Point, 4> get_corners() const;
 
     void set_color(const box_color_t);
@@ -57,13 +59,16 @@ class Map {
     Map(const std::vector<std::vector<std::pair<Point, line_t>>> &, show_img_debug debug = nullptr);
     Map(const std::vector<PolarPoint> &, show_img_debug debug = nullptr);
 
+    bool merge(const Map &m);
+
+
     std::array<Point, 3> get_parking_zone();
     std::vector<std::vector<Point>> get_parking_zone_line();
     std::vector<Point> get_boxes_normal();
     std::array<std::array<bool, field_sett::number_field_unit>,
                field_sett::number_field_unit> get_death_zone();
     RobotPoint get_position() { return position_; }
-    cv::Mat get_img(int width, int height);
+    cv::Mat get_img(int width = 400, int height = 400);
 
  private:
     bool add_box(const Point &p);
@@ -73,6 +78,11 @@ class Map {
     std::pair <int, int> get_field_unit(const Point &p);
     Point normal_point(const Point &p);
     void lines_detection(const std::vector<std::vector<std::pair<Point, line_t>>> &, show_img_debug debug = nullptr);
+
+    std::pair<int, double> get_nearby_box(const Point &p);
+    void turn(int = 1);
+
+    bool in_death_zone(const Point &);
 
     std::pair<Point, Point> parking_zone_circles_ = std::make_pair(Point(), Point());
     Point parking_zone_back_;
