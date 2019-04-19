@@ -8,13 +8,13 @@
 
 
 
-TEST(DemoTestGroup, SuccessfulTest1)
+TEST(DemoTestGroup, SuccessfulTest1g)
 {
 	//This test should succeed
     EXPECT_EQ(1, 1);
 }
 
-TEST(DemoTestGroup, SuccessfulTest2)
+TEST(DemoTestGroup, SuccessfulTest2g)
 {
 	//This test should succeed;
 	printf("Hello from Test #2");

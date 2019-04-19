@@ -17,7 +17,7 @@ void KangarooMotor::MoveTime(int speed, int msec)
 int KangarooMotor::GetCurEnc() const
 {
 	auto params =	kangaroo_drv_->CmdGet(chnl_, KangarooDriver::kGetPos);
-	return params.first;
+	return params.first*inverted_coef_;
 }
 
 int  KangarooMotor::GetCurEncDeg() const
