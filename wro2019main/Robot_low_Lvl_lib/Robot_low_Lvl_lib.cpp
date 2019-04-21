@@ -10,6 +10,7 @@
 int start_robot()
 {
 	RobotGardener robot;
+	robot.Init();
 	robot.GetOmni()->Move(std::make_pair(15000, 0), 0);
 	robot.Delay(700);
 	robot.GetOmni()->Stop();

@@ -32,10 +32,16 @@ TEST(DemoTestGroup, SuccessfulTest2)
 TEST_GROUP(HardwareTestGroup)
 {
 };
+TEST(HardwareTestGroup, Init_robot_test)
+{
+	RobotGardener robot;
+	robot.Init();
+}
 
 TEST(HardwareTestGroup, Motors_for_omni_test)
 {
 	RobotGardener robot;
+	robot.Init();
 	std::shared_ptr<Motor> motor_front(robot.GetOmni()->GetMotor(OmniWheels::MotorDir::FRONT));
 	std::shared_ptr<Motor> motor_left(robot.GetOmni()->GetMotor(OmniWheels::MotorDir::LEFT));
 	std::shared_ptr<Motor> motor_back(robot.GetOmni()->GetMotor(OmniWheels::MotorDir::BACK));

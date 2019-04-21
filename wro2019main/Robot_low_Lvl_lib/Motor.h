@@ -65,6 +65,7 @@ public:
 	
 	//@brief Set encoder to 0
 	virtual void ResetEnc(){throw std::runtime_error("Not implemented");}
+	virtual ~Motor() {}
 };
 
 class KangarooMotor : public Motor {
