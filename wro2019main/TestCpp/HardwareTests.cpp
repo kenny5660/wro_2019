@@ -37,6 +37,21 @@ TEST(HardwareTestGroup, Init_robot_test)
 	RobotGardener robot;
 	robot.Init();
 }
+TEST(HardwareTestGroup, Indicator_led_test)
+{
+	RobotGardener robot;
+	robot.Init();
+	robot.GetIndicator()->Display(Indicator::RED);
+	robot.Delay(1000);
+	robot.GetIndicator()->Display(Indicator::GREEN);
+	robot.Delay(1000);
+	robot.GetIndicator()->Display(Indicator::D_BLUE);
+	robot.Delay(1000);
+	robot.GetIndicator()->Display(Indicator::ORANGE);
+	robot.Delay(1000);
+	robot.GetIndicator()->Display(Indicator::WHITE);
+	robot.Delay(1000);
+}
 
 TEST(HardwareTestGroup, Motors_for_omni_test)
 {

@@ -1,5 +1,9 @@
 #include "Indicator.h"
 
+void Indicator::Display(DisplayEnum disp)
+{
+	throw std::runtime_error("Not implemented");
+}
 
 void RgbLed::Display(DisplayEnum disp)
 {
@@ -16,4 +20,5 @@ RgbLed::RgbLed(std::shared_ptr<MyRio_Aio>  ao_R,
 	, ao_G_(ao_G_)
 	, ao_B_(ao_B_)
 {
+	Display(Indicator::OFF);
 }

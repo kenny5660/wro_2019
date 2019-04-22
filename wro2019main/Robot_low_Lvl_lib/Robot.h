@@ -20,7 +20,9 @@ public:
 	RobotGardener();
 	void Init() override;
 	std::shared_ptr<OmniWheels> GetOmni();
+	std::shared_ptr<Indicator> GetIndicator();
+	~RobotGardener();
 private:
-	std::shared_ptr<OmniWheels> omni;
-	std::shared_ptr<Indicator> indicator;
+	std::shared_ptr<OmniWheels> omni_;
+	std::shared_ptr<Indicator> indicator_;
 };
