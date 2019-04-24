@@ -15,7 +15,7 @@ public:
 	// stop all wheels
 	virtual void Stop(){throw std::runtime_error("Not implemented");}
 	virtual std::shared_ptr<Motor> GetMotor(MotorDir motor_dir){throw std::runtime_error("Not implemented");}
-	
+	virtual ~OmniWheels() { };
 };
 
 class OmniWheels4Squre : public OmniWheels

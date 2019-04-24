@@ -63,7 +63,7 @@ void KangarooDriver::CmdStart(uint8_t chnl)
 	uint16_t crc = crc14(data_packet, 5);
 	data_packet[5] = crc & 0x7F;
 	data_packet[6] = crc >> 7 & 0x7F;
-	Uart_Write(uart_.get(), data_packet, 7);	
+	uart_->Send(data_packet, 7);	
 }
 
 void KangarooDriver::CmdHome(uint8_t chnl)
@@ -82,7 +82,7 @@ void KangarooDriver::CmdHome(uint8_t chnl)
 	uint16_t crc = crc14(data_packet, 5);
 	data_packet[5] = crc & 0x7F;
 	data_packet[6] = crc >> 7 & 0x7F;
-	Uart_Write(uart_.get(), data_packet, 7);
+	uart_->Send(data_packet, 7);
 }
 void  KangarooDriver::CmdMoveSpeed(uint8_t chnl, uint8_t type, int speed)
 {
@@ -116,7 +116,7 @@ void  KangarooDriver::CmdMoveSpeed(uint8_t chnl, uint8_t type, int speed)
 	uint16_t crc = crc14(data_packet, 6 + lengthValue);
 	data_packet[6 + lengthValue] = crc & 0x7F;
 	data_packet[7 + lengthValue] = crc >> 7 & 0x7F;
-	Uart_Write(uart_.get(), data_packet, 8 + lengthValue);
+	uart_->Send(data_packet, 8 + lengthValue);
 }
 
 
@@ -161,7 +161,7 @@ void KangarooDriver::CmdMovePos(uint8_t chnl, uint8_t type, int pos, int limit_s
 	uint16_t crc = crc14(data_packet, 6 + lengthValue + lengthSpeed);
 	data_packet[6 + lengthValue + lengthSpeed] = crc & 0x7F;
 	data_packet[7 + lengthValue + lengthSpeed] = crc >> 7 & 0x7F;
-	Uart_Write(uart_.get(), data_packet, 8 + lengthValue + lengthSpeed);
+	uart_->Send(data_packet, 8 + lengthValue + lengthSpeed);
 }
 
 std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
@@ -186,8 +186,8 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 	uint16_t crc = crc14(data_packet, 6);
 	data_packet[6] = crc & 0x7F;
 	data_packet[7] = crc >> 7 & 0x7F;
-	Uart_Clear(uart_.get());
-	Uart_Write(uart_.get(), data_packet, 8);
+	uart_->Clear();
+	uart_->Send(data_packet, 8);
 
 
 	uint8_t data_packet_reply[15];
@@ -195,7 +195,7 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 	uint8_t data_header[3];
 	uint8_t bitpack_Value[5];  // Зачем это?
 	uint8_t crc14[2];
-	int read_status = Uart_Read(uart_.get(), packet_header, 3);
+	int read_status = uart_->Get(packet_header, 3) ;
 	if (packet_header[0] != addr_ || packet_header[1] != kCmdGetReply)
 	{
 		throw std::runtime_error("Read error, kangaroo driver!");
@@ -205,10 +205,10 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 		throw std::runtime_error("Read error, kangaroo driver!");
 		return std::make_pair(0,flags);
 	}
-	Uart_Read(uart_.get(), data_header, 3);
-	Uart_Read(uart_.get(), bitpack_Value, packet_header[2] - 3);
+	uart_->Get(data_header, 3);
+	uart_->Get(bitpack_Value, packet_header[2] - 3);
 
-	Uart_Read(uart_.get(), crc14, 2);
+	uart_->Get(crc14, 2);
 	flags = data_header[1];
 	int value = 0;
 	int sign = 1;
@@ -222,7 +222,9 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 	return std::make_pair(value, flags); 
 }
 
-KangarooDriver::KangarooDriver(std::shared_ptr<MyRio_Uart> _uart, uint8_t _addr): uart_(_uart), addr_(_addr)
+KangarooDriver::KangarooDriver(std::shared_ptr<Uart> _uart, uint8_t _addr)
+	: uart_(_uart)
+	, addr_(_addr)
 {
 	CmdGet('1', kGetPos);
 }

@@ -243,3 +243,5 @@ int32_t Uart_Clear(MyRio_Uart* port)
 
     return status;
 }
+
+

@@ -1,9 +1,13 @@
 #include "Robot.h"
+#include "Uart.h"
 #include  <exception>
 extern NiFpga_Session myrio_session;
 RobotGardener::RobotGardener()
 {
-
+	NiFpga_Status status_rio = MyRio_Open();
+	if (MyRio_IsNotSuccess(status_rio)) {
+		throw std::runtime_error("Error open MyRio!");
+	}
 	
 }
 
@@ -12,8 +16,6 @@ std::shared_ptr<OmniWheels> RobotGardener::GetOmni()
 	return omni_;
 }
 
-void Robot::Init()
-{throw std::runtime_error("Not implemented");}
 void Robot::Delay(int msec)
 {
 	struct timespec tw = { msec / 1000, (msec % 1000) * 1000000 };
@@ -24,13 +26,8 @@ void Robot::Delay(int msec)
 
 void RobotGardener::Init()
 {
-	NiFpga_Status status_rio = MyRio_Open();
-	if (MyRio_IsNotSuccess(status_rio)) {
-		throw std::runtime_error("Error open MyRio!");
-	}
-	std::shared_ptr<MyRio_Uart> uart_A(new MyRio_Uart { "ASRL1::INSTR", 0, 0 });
-	int status  = Uart_Open(uart_A.get(), 115200, 8, Uart_StopBits1_0, Uart_ParityNone);
-	if (status != 0) throw std::runtime_error("Can't open uart A");
+	
+	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A,115200));
 	std::shared_ptr<KangarooDriver> kangarooDriver1(new KangarooDriver(uart_A, 135));
 	std::shared_ptr<KangarooDriver> kangarooDriver2(new KangarooDriver(uart_A, 130));
 	std::shared_ptr<KangarooMotor> motor_front(new KangarooMotor(kangarooDriver1, '2', false));
@@ -49,10 +46,20 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio {AOB_1VAL, AOB_1WGHT, AOB_1OFST, AOSYSGO, NiFpga_False, 0.85, 0}), //G
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio {AOA_1VAL, AOA_1WGHT, AOA_1OFST, AOSYSGO, NiFpga_False, 0.85, 0})//B
 		));
-	
+	dist_sensors_[DIST_LEFT] = std::shared_ptr<Sharp2_15>(
+		new Sharp2_15(std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_0VAL, AIA_0WGHT, AIA_0OFST, AOSYSGO, NiFpga_False, 1, 0 })));
+	dist_sensors_[DIST_RIGHT]  = std::shared_ptr<Sharp2_15>(
+		new Sharp2_15(std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_3VAL, AIA_3WGHT, AIA_3OFST, AOSYSGO, NiFpga_False, 1, 0 })));
+	dist_sensors_[DIST_C_LEFT]  = std::shared_ptr<Sharp2_15>(
+		new Sharp2_15(std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 })));
+	dist_sensors_[DIST_C_RIGHT]  = std::shared_ptr<Sharp2_15>(
+		new Sharp2_15(std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 })));
 }
 
-
+RobotGardener::~RobotGardener()
+{
+	MyRio_Close();
+}
 Robot::~Robot()
 {
 }
@@ -64,7 +71,10 @@ std::shared_ptr<Indicator> RobotGardener::GetIndicator()
 }
 
 
-RobotGardener::~RobotGardener()
+
+
+
+std::shared_ptr<DistanceSensor> RobotGardener::GetDistSensor(DistSensorEnum dist_sensor)
 {
-	MyRio_Close();
+	return dist_sensors_[dist_sensor];
 }
