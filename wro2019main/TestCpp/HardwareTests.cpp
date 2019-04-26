@@ -47,6 +47,28 @@ TEST_GROUP(HardwareTestGroup)
 TEST(HardwareTestGroup, Init_robot_test)
 {	
 }
+TEST(HardwareTestGroup, Servo_getDeg_test)
+{	
+	robot->GetMan()->GetServoLow()->Disable();
+	int deg  = robot->GetMan()->GetServoLow()->GetDegrees();
+	int deg2  = robot->GetMan()->GetServoLow()->GetDegrees();
+	int deg3  = robot->GetMan()->GetServoLow()->GetDegrees();
+	std::cout  << "deg = " << deg << " deg2 = " << deg2 << " deg3 = " << deg3 << std::endl;
+}
+TEST(HardwareTestGroup, Servo_setDeg_test)
+{	
+	const int d1 = 140, d2 = 220 , d3 = 260;
+	robot->GetMan()->GetServoLow()->SetDegrees(d1,true);
+	int deg  = robot->GetMan()->GetServoLow()->GetDegrees();
+	DOUBLES_EQUAL(deg, d1, 3);
+	robot->GetMan()->GetServoLow()->SetDegrees(d2, true);
+	int deg2  = robot->GetMan()->GetServoLow()->GetDegrees();
+	DOUBLES_EQUAL(deg2, d2,3);
+	robot->GetMan()->GetServoLow()->SetDegrees(d3, true);
+	int deg3  = robot->GetMan()->GetServoLow()->GetDegrees();
+	DOUBLES_EQUAL(deg3, d3,3);
+	std::cout  << "deg = " << deg << " deg2 = " << deg2 << " deg3 = " << deg3 << std::endl;
+}
 TEST(HardwareTestGroup, Dist_sensors_test)
 {
 	while (1)

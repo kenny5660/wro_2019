@@ -1,5 +1,5 @@
 #include "Kangaroo.h"
-
+#include <string>
 void KangarooDriver::CmdMoveToPos(uint8_t chnl, int pos, int limit_speed)
 {
 	CmdMovePos(chnl, kMoveTypePos, pos, limit_speed);
@@ -196,13 +196,13 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 	uint8_t bitpack_Value[5];  // Зачем это?
 	uint8_t crc14[2];
 	int read_status = uart_->Get(packet_header, 3) ;
-	if (packet_header[0] != addr_ || packet_header[1] != kCmdGetReply)
+	if (packet_header[0] != addr_ || packet_header[1] != kCmdGetReply || read_status < VI_SUCCESS)
 	{
-		throw std::runtime_error("Read error, kangaroo driver!");
+		throw std::runtime_error(std::string("Read error, kangaroo driver! id  = ")+std::to_string(addr_));
 	}
 	if (packet_header[2] > 8) {
 		flags = -1;
-		throw std::runtime_error("Read error, kangaroo driver!");
+		throw std::runtime_error(std::string("Read error, kangaroo driver! id  = ") + std::to_string(addr_));
 		return std::make_pair(0,flags);
 	}
 	uart_->Get(data_header, 3);

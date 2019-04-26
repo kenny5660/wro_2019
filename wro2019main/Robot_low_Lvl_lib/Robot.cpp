@@ -27,7 +27,11 @@ void Robot::Delay(int msec)
 void RobotGardener::Init()
 {
 	
-	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A,115200));
+	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A, 115200));
+	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
+	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9,uart_B));
+	//std::shared_ptr<Servo> servo_up(new Servo_ocs251(2, uart_B));
+	man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low,nullptr));
 	std::shared_ptr<KangarooDriver> kangarooDriver1(new KangarooDriver(uart_A, 135));
 	std::shared_ptr<KangarooDriver> kangarooDriver2(new KangarooDriver(uart_A, 130));
 	std::shared_ptr<KangarooMotor> motor_front(new KangarooMotor(kangarooDriver1, '2', false));
@@ -77,4 +81,10 @@ std::shared_ptr<Indicator> RobotGardener::GetIndicator()
 std::shared_ptr<DistanceSensor> RobotGardener::GetDistSensor(DistSensorEnum dist_sensor)
 {
 	return dist_sensors_[dist_sensor];
+}
+
+
+std::shared_ptr<Manipulator> RobotGardener::GetMan()
+{
+	return man_;
 }

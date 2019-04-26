@@ -3,7 +3,7 @@
 #include "OmniWheels.h"
 #include "Indicator.h"
 #include "DistanceSensor.h"
-
+#include  "Manipulator.h"
 class Robot
 {
 public:
@@ -23,6 +23,7 @@ public:
 	void Init() override;
 	std::shared_ptr<OmniWheels> GetOmni();
 	std::shared_ptr<Indicator> GetIndicator();
+	std::shared_ptr<Manipulator> GetMan();
 	enum DistSensorEnum
 	{
 		DIST_LEFT    = 0,
@@ -33,6 +34,7 @@ public:
 	std::shared_ptr<DistanceSensor> GetDistSensor(DistSensorEnum dist_sensor);
 	~RobotGardener();
 private:
+	std::shared_ptr<Manipulator> man_;
 	std::shared_ptr<OmniWheels> omni_;
 	std::shared_ptr<Indicator> indicator_;
 	std::shared_ptr<DistanceSensor>dist_sensors_[4];
