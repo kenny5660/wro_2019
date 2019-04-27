@@ -33,7 +33,9 @@
  */
 
 #pragma once
-
+#include  <memory>
+#include "Uart.h"
+#include "DIO.h"
 
 #ifndef __cplusplus
 #error "The RPlidar SDK requires a C++ compiler to be built"
@@ -100,6 +102,7 @@ public:
     ///
     /// \param drivertype the connection type used by the driver. 
     static RPlidarDriver * CreateDriver(_u32 drivertype = DRIVER_TYPE_SERIALPORT);
+	static RPlidarDriver * CreateDriver(std::shared_ptr<Uart> uart, std::shared_ptr<MyRio_Dio> dtr);
 
     /// Dispose the RPLIDAR Driver Instance specified by the drv parameter
     /// Applications should invoke this interface when the driver instance is no longer used in order to free memory

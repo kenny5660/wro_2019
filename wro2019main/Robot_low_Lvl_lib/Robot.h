@@ -4,6 +4,8 @@
 #include "Indicator.h"
 #include "DistanceSensor.h"
 #include  "Manipulator.h"
+#include "RpLidar-sdk/include/rplidar.h"
+#include "logic_structures.h"
 class Robot
 {
 public:
@@ -11,6 +13,7 @@ public:
 	//@brief sleep(wait) 'msec' milliseconds
 	//@param msec milliseconds to wait
 	virtual void Delay(int msec);
+	virtual void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) = 0;
 	virtual  ~Robot();
 private:
 	
@@ -24,6 +27,8 @@ public:
 	std::shared_ptr<OmniWheels> GetOmni();
 	std::shared_ptr<Indicator> GetIndicator();
 	std::shared_ptr<Manipulator> GetMan();
+	std::shared_ptr<rp::standalone::rplidar::RPlidarDriver> GetLidar();
+	void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) override;
 	enum DistSensorEnum
 	{
 		DIST_LEFT    = 0,
@@ -33,9 +38,21 @@ public:
 	};
 	std::shared_ptr<DistanceSensor> GetDistSensor(DistSensorEnum dist_sensor);
 	~RobotGardener();
+
+
 private:
+	enum class LidarMod
+	{
+		k2k  = 0,
+		k4k  = 1,
+		k8k  = 2,
+		k4ks = 3
+	};
 	std::shared_ptr<Manipulator> man_;
 	std::shared_ptr<OmniWheels> omni_;
 	std::shared_ptr<Indicator> indicator_;
 	std::shared_ptr<DistanceSensor>dist_sensors_[4];
+	std::shared_ptr<rp::standalone::rplidar::RPlidarDriver> lidar;
+	const LidarMod kLidar_mode_ = LidarMod::k8k;
+	const size_t kLidarPoints_[4] = { 2048, 4096, 8192, 4096 }; 
 };

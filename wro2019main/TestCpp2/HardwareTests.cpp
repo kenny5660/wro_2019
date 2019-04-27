@@ -2,6 +2,7 @@
 #include <CppUTest/CommandLineTestRunner.h>
 #include <stdio.h>
 #include <iostream>
+
 /*
 	This is a very basic sample demonstrating the CppUTest framework.
 	Read more about CppUTest syntax here: https://cpputest.github.io/manual.html
@@ -48,10 +49,8 @@ TEST(HardwareTestGroup, Init_robot_test)
 }
 TEST(HardwareTestGroup, Lidar_test)
 {	
-	std::vector<PolarPoint> pps;
-	robot->GetLidarPolarPoints(pps);
-	pps.clear();
-	robot->GetLidarPolarPoints(pps);
+	//std::vector<PolarPoint> pps(4100);
+	//robot->GetLidarPolarPoints(pps);
 	return;
 }
 TEST(HardwareTestGroup, Servo_getDeg_test)

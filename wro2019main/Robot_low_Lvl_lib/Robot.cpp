@@ -28,10 +28,25 @@ void RobotGardener::Init()
 {
 	
 	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A, 115200));
-	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
-	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9,uart_B));
+	//std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
+	std::shared_ptr<MyRio_Dio> dtr_pin(new MyRio_Dio{DIOB_158DIR, DIOB_158OUT, DIOB_158IN,2});
+	
+	//lidar = std::shared_ptr<rp::standalone::rplidar::RPlidarDriver>(rp::standalone::rplidar::RPlidarDriver::CreateDriver(uart_B,dtr_pin));
+	
+	lidar = std::shared_ptr<rp::standalone::rplidar::RPlidarDriver>(rp::standalone::rplidar::RPlidarDriver::CreateDriver(rp::standalone::rplidar::DRIVER_TYPE_SERIALPORT));
+	lidar->connect("/dev/ttyS1", 115200);
+	lidar->startMotor();
+	std::vector<rp::standalone::rplidar::RplidarScanMode> scanModes;
+	rp::standalone::rplidar::RplidarScanMode scanMode;
+	int res  = lidar->getAllSupportedScanModes(scanModes);
+	if (IS_FAIL(res))
+	{
+		throw std::runtime_error("Lidar connection error!");
+	}
+	lidar->startScanExpress(false, scanModes[(int)kLidar_mode_].id, 0, &scanMode);
+	//std::shared_ptr<Servo> servo_low(new Servo_ocs251(9,uart_B));
 	//std::shared_ptr<Servo> servo_up(new Servo_ocs251(2, uart_B));
-	man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low,nullptr));
+	//man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low,nullptr));
 	std::shared_ptr<KangarooDriver> kangarooDriver1(new KangarooDriver(uart_A, 135));
 	std::shared_ptr<KangarooDriver> kangarooDriver2(new KangarooDriver(uart_A, 130));
 	std::shared_ptr<KangarooMotor> motor_front(new KangarooMotor(kangarooDriver1, '2', false));
@@ -62,6 +77,7 @@ void RobotGardener::Init()
 
 RobotGardener::~RobotGardener()
 {
+	lidar->disconnect();
 	MyRio_Close();
 }
 Robot::~Robot()
@@ -87,4 +103,32 @@ std::shared_ptr<DistanceSensor> RobotGardener::GetDistSensor(DistSensorEnum dist
 std::shared_ptr<Manipulator> RobotGardener::GetMan()
 {
 	return man_;
+}
+
+
+std::shared_ptr<rp::standalone::rplidar::RPlidarDriver> RobotGardener::GetLidar()
+{
+	return lidar;
+}
+
+
+void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
+{
+	int res;
+	rplidar_response_measurement_node_hq_t nodes[kLidarPoints_[(int)kLidar_mode_]];
+	size_t size_nodes = kLidarPoints_[(int)kLidar_mode_];
+	do
+	{
+		res = lidar->grabScanDataHq(nodes, size_nodes);
+	} while (IS_FAIL(res));
+	lidar->ascendScanData(nodes, size_nodes);
+	
+	for (int i = 0; i  < size_nodes;++i)
+	{
+		float angle_in_degrees = nodes[i].angle_z_q14 * 90.f / (1 << 14);
+		float distance_in_mm = nodes[i].dist_mm_q2 / (1 << 2);
+		PolarPoint pp(distance_in_mm, (double)angle_in_degrees / 180 * M_PI);
+		polar_points.push_back(pp);
+	}
+
 }

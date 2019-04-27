@@ -90,7 +90,7 @@ int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 
 	//uart_->Clear();
 	int status  = uart_->Get(data_packet_return, 6 + size);
-	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF || status < VI_SUCCESS) 
+	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF ||  uart_->isError()) 
 	{
 		throw std::runtime_error(std::string("Read error, Servo! id  = ") + std::to_string(id_));
 	}
@@ -137,7 +137,7 @@ void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 
 	uint8_t return_pucket[6];
 	int status = uart_->Get(return_pucket, 6);
-	if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF || status < VI_SUCCESS) 
+	if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF ||  uart_->isError()) 
 	{
 		throw std::runtime_error(std::string("Write error, Servo! id  = ") + std::to_string(id_));
 	}
@@ -180,7 +180,7 @@ int Servo_ocs251::Ping()
 
 	//uart_->Clear();
 	int status = uart_->Get(data_packet_return, 6);
-	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF || status < VI_SUCCESS) 
+	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF ||  uart_->isError()) 
 	{
 		throw std::runtime_error(std::string("Ping error, Servo! id  = ") + std::to_string(id_));
 	}
