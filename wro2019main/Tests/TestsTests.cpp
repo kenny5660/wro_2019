@@ -6,19 +6,15 @@
 	Read more about CppUTest syntax here: https://github.com/google/googletest
 */
 
-TEST(DemoTestGroup, FailingTest)
-{
-    EXPECT_EQ(1, 1);
-    EXPECT_EQ(1, 2);	//<= This test should fail here
-}
 
-TEST(DemoTestGroup, SuccessfulTest1)
+
+TEST(DemoTestGroup, SuccessfulTest1g)
 {
 	//This test should succeed
     EXPECT_EQ(1, 1);
 }
 
-TEST(DemoTestGroup, SuccessfulTest2)
+TEST(DemoTestGroup, SuccessfulTest2g)
 {
 	//This test should succeed;
 	printf("Hello from Test #2");

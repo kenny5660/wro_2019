@@ -9,10 +9,7 @@ OmniWheels4Squre::OmniWheels4Squre(
 	std::shared_ptr<Motor>motor_right)
 	: r_wheel_(r_wheel)
 	, r_body_(r_body)
-	, motor_left_(motor_left)
-	, motor_front_(motor_front)
-	, motor_right_(motor_right)
-	, motor_back_(motor_back)
+	, motors{motor_left, motor_front, motor_right, motor_back}
 {
 	
 }
@@ -25,17 +22,23 @@ void OmniWheels4Squre::Move(std::pair<double, double> vSpeed, double angular_spe
 	int w_back = (r_body_*angular_speed  + vSpeed.first) / r_wheel_; //w3 on picture 
 	int w_right = (r_body_*angular_speed + vSpeed.second) / r_wheel_; //w4 on picture 
 	
-	motor_front_->MoveContinue(w_front);
-	motor_left_->MoveContinue(w_left);
-	motor_back_->MoveContinue(w_back);
-	motor_right_->MoveContinue(w_right);
+	motors[(int)MotorDir::FRONT]->MoveContinue(w_front);
+	motors[(int)MotorDir::LEFT]->MoveContinue(w_left);
+	motors[(int)MotorDir::BACK]->MoveContinue(w_back);
+	motors[(int)MotorDir::RIGHT]->MoveContinue(w_right);
 }
 
 
 void OmniWheels4Squre::Stop()
 {
-	motor_front_->Stop();
-	motor_left_->Stop();
-	motor_back_->Stop();
-	motor_right_->Stop();
+	motors[(int)MotorDir::FRONT]->Stop();
+	motors[(int)MotorDir::LEFT]->Stop();
+	motors[(int)MotorDir::BACK]->Stop();
+	motors[(int)MotorDir::RIGHT]->Stop();
+}
+
+
+std::shared_ptr<Motor> OmniWheels4Squre::GetMotor(MotorDir motor_dir)
+{
+	return motors[(int)motor_dir];
 }

@@ -2,12 +2,12 @@
 #include <cstdint>
 #include <memory>
 #include <utility>
-#include "UART.h"
+#include "Uart.h"
 #include "MyRio.h"
 
 class KangarooDriver {
 public:
-	KangarooDriver(std::shared_ptr<MyRio_Uart> _uart, uint8_t _addr);
+	KangarooDriver(std::shared_ptr<Uart> _uart, uint8_t _addr);
 	// @brief Enable Channel  
 	// @param chnl Channel number   
 	void CmdStart(uint8_t chnl);
@@ -56,7 +56,7 @@ public:
 private:
 	void CmdMoveSpeed(uint8_t chnl, uint8_t type, int speed);
 	void CmdMovePos(uint8_t chnl, uint8_t type, int pos, int limit_speed);
-	std::shared_ptr<MyRio_Uart> uart_;
+	std::shared_ptr<Uart> uart_;
 	uint8_t addr_;
 	// @brief Computes a 14-bit CRC. 
 	// @param data The buffer to compute the CRC of.  

@@ -35,3 +35,4 @@ Tests/lidar_math/*.ld
 *.log
 *.alldeps
 /wro2019main/VisualGDB/Release
+/wro2019main/TestCpp/VisualGDB/VisualGDBCache/TestCpp-Debug
