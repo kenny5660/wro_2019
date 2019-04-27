@@ -532,6 +532,16 @@ int sign(double a) {
     return 0;
 }
 
+int fdiv(double a, double b) {
+    double buff = fabs(a);
+    int k = 0;
+    while (buff > 0) {
+        k++;
+        buff -= b;
+    }
+    return --k;
+}
+
 int position_relative_line(const Point &A, const Point &B, const Point &p,
                            double delta) {
     // -1 - ниже линии

@@ -62,16 +62,6 @@ std::array<Point, 4> BoxMap::get_corners() const {
                                     + Point(0, field_sett::climate_box_height)};
 }
 
-int fdiv(double a, double b) {
-    double buff = fabs(a);
-    int k = 0;
-    while (buff > 0) {
-        k++;
-        buff -= b;
-    }
-    return --k;
-}
-
 bool Map::add_box(const Point &p) {
     for (int i = 0; i < box_count_; i++) {
         if (boxes_[i].get_left_corner_point().dist(p)
@@ -213,36 +203,38 @@ void Map::delete_from_death_zone_circle(const Point &p, double r) {
     }
 }
 
-Map::Map(const Point &p_1, const Point &p_2, const Point &back) { // первая точка - правая точка
+Map::Map(const Point &p_1, const Point &p_2) { // первая точка - правая точка
     for (int i = 0; i < death_zone_.size(); i++) {
         std::fill(death_zone_[i].begin(), death_zone_[i].end(), true);
     }
     Point p1 = normal_point(p_1);
     Point p2(p_2 - (p_1 - p1));
     const int kPoint_offset = 12;
-    const Point point_offset[kPoint_offset] = { // последний элемент является фальшивым
-            {sin(atan(-3)) * field_sett::parking_zone_door_size, cos(atan(-3)) * field_sett::parking_zone_door_size},
-            {sin(atan(-2)) * field_sett::parking_zone_door_size, cos(atan(-2)) * field_sett::parking_zone_door_size},
-            {sin(atan(-1)) * field_sett::parking_zone_door_size, cos(atan(-1)) * field_sett::parking_zone_door_size},
-            {sin(atan(-1 / 2.)) * field_sett::parking_zone_door_size, cos(atan(-1 / 2.)) * field_sett::parking_zone_door_size},
-            {sin(atan(-1 / 3.)) * field_sett::parking_zone_door_size, cos(atan(-1 / 3.)) * field_sett::parking_zone_door_size},
-            {0, field_sett::parking_zone_door_size},
-            {sin(atan(1 / 3.)) * field_sett::parking_zone_door_size, cos(atan(1 / 3.)) * field_sett::parking_zone_door_size},
-            {sin(atan(1 / 2.)) * field_sett::parking_zone_door_size, cos(atan(1 / 2.)) * field_sett::parking_zone_door_size},
-            {sin(atan(1)) * field_sett::parking_zone_door_size, cos(atan(1)) * field_sett::parking_zone_door_size},
-            {sin(atan(2)) * field_sett::parking_zone_door_size, cos(atan(2)) * field_sett::parking_zone_door_size},
-            {sin(atan(3)) * field_sett::parking_zone_door_size, cos(atan(3)) * field_sett::parking_zone_door_size},
-            {field_sett::max_field_width, field_sett::max_field_height}
+    Point (* const point_offset[kPoint_offset])(double s1, double s2) = { // последний элемент является фальшивым
+            [](double s1, double s2){ return Point{sin(atan(-3)) * s1, cos(atan(-3)) * s2}; },
+            [](double s1, double s2){ return Point{sin(atan(-2)) * s1, cos(atan(-2)) * s2}; },
+            [](double s1, double s2){ return Point{sin(atan(-1)) * s1, cos(atan(-1)) * s2}; },
+            [](double s1, double s2){ return Point{sin(atan(-1 / 2.)) * s1, cos(atan(-1 / 2.)) * s2}; },
+            [](double s1, double s2){ return Point{sin(atan(-1 / 3.)) * s1, cos(atan(-1 / 3.)) * s2}; },
+            [](double s1, double s2){ return Point{0, s2}; },
+            [](double s1, double s2){ return Point{sin(atan(1 / 3.)) * s1, cos(atan(1 / 3.)) * s2}; },
+            [](double s1, double s2){ return Point{sin(atan(1 / 2.)) * s1, cos(atan(1 / 2.)) * s2}; },
+            [](double s1, double s2){ return Point{sin(atan(1)) * s1, cos(atan(1)) * s2}; },
+            [](double s1, double s2){ return Point{sin(atan(2)) * s1, cos(atan(2)) * s2}; },
+            [](double s1, double s2){ return Point{sin(atan(3)) * s1, cos(atan(3)) * s2}; },
+            [](double s1, double s2){ return Point{field_sett::max_field_width, field_sett::max_field_height}; }
         };
     double last_dist = field_sett::max_field_width;
     for (int i = 0; i < kPoint_offset; i++) {
-        Point bp = point_offset[i] + p1;
+        Point bp = point_offset[i](field_sett::parking_zone_door_size, field_sett::parking_zone_door_size) + p1;
         double dist = p2.dist(bp);
         if (dist >= last_dist) {
-            parking_zone_circles_ = std::make_pair(p1, point_offset[i - 1] + p1);
+            parking_zone_circles_ = std::make_pair(p1, point_offset[i - 1](field_sett::parking_zone_door_size, field_sett::parking_zone_door_size) + p1);
             delete_from_death_zone_circle(parking_zone_circles_.first);
             delete_from_death_zone_circle(parking_zone_circles_.second);
-            parking_zone_back_ = back;
+            auto p_off = point_offset[i - 1](field_sett::parking_zone_width_min, field_sett::parking_zone_width_min);
+            parking_zone_back_.first = parking_zone_circles_.first + Point{p_off.get_y(), p_off.get_x()};
+            parking_zone_back_.second = parking_zone_circles_.second + Point{p_off.get_y(), p_off.get_x()};
             return;
         }
         last_dist = dist;
@@ -510,8 +502,8 @@ void Map::lines_detection(const std::vector<std::vector<std::pair<Point, line_t>
     }
 }
 
-std::array<Point, 3> Map::get_parking_zone() {
-    return {parking_zone_circles_.first, parking_zone_circles_.second, parking_zone_back_};
+std::array<Point, 4> Map::get_parking_zone() const {
+    return {parking_zone_circles_.first, parking_zone_circles_.second, parking_zone_back_.first, parking_zone_back_.second};
 }
 
 cv::Mat Map::get_img(int width, int height) {
@@ -579,7 +571,7 @@ Point Map::normal_point(const Point &p) {
                  field_sett::size_field_unit * n.second);
 }
 
-std::vector<Point> Map::get_boxes_normal() {
+std::vector<Point> Map::get_boxes_normal() const {
     std::vector<Point> arr;
     for (int i = 0; i < box_count_; i++) {
         arr.push_back(normal_point(boxes_[i].get_left_corner_point()));
@@ -588,11 +580,11 @@ std::vector<Point> Map::get_boxes_normal() {
 }
 
 std::array<std::array<bool, field_sett::number_field_unit>,
-           field_sett::number_field_unit> Map::get_death_zone() {
+           field_sett::number_field_unit> Map::get_death_zone() const {
     return death_zone_;
 }
 
-std::vector<std::vector<Point>> Map::get_parking_zone_line() {
+std::vector<std::vector<Point>> Map::get_parking_zone_line() const {
     return parking_detected_line_;
 }
 
@@ -667,7 +659,8 @@ void Map::turn(int a) {
     }
     parking_zone_circles_.first = turns[a](parking_zone_circles_.first, offset_field);
     parking_zone_circles_.second = turns[a](parking_zone_circles_.second, offset_field);
-    parking_zone_back_ = turns[a](parking_zone_back_, offset_field);
+    parking_zone_back_.first = turns[a](parking_zone_back_.first, offset_field);
+    parking_zone_back_.second = turns[a](parking_zone_back_.second, offset_field);
     for (int i = 0; i < parking_detected_line_.size(); i++) {
         for (int  j = 0; j < parking_detected_line_[i].size(); j++) {
             parking_detected_line_[i][j] = (turns[a](parking_detected_line_[i][j], offset_field));
@@ -742,4 +735,37 @@ bool Map::merge(const Map &a) {
         }
     }
     return true;
+}
+
+bool Map::death_rect(const cv::Point2i &a, const cv::Point2i &b) {
+    cv::Point2i max(std::max(a.x, b.x), std::max(a.y, b.y));
+    cv::Point2i min(std::min(a.x, b.x), std::min(a.y, b.y));
+    if ((min.x < 0) || (max.x >= death_zone_.size()) || (min.y < 0) || (max.y >= death_zone_.front().size())) {
+        return false;
+    }
+    bool ans = true;
+    for (int i = min.x; i <= max.x; i++) {
+        for (int j = min.y; j <= max.y; j++) {
+            ans = ans && death_zone_[i][j];
+        }
+    }
+    return ans;
+}
+
+void Map::normal_death_zone() {
+    const cv::Point2i unit_size_box
+        (std::ceil(field_sett::climate_box_width / field_sett::size_field_unit - 1),
+         std::ceil(field_sett::climate_box_height / field_sett::size_field_unit - 1));
+    for (int i = 0; i < death_zone_.size(); i++) {
+        for (int j = 0; j < death_zone_[i].size(); j++) {
+            if ((i == 4) && (j == 7)) {
+                std::cout << " ";
+            }
+            death_zone_[i][j] =
+                   death_rect({i, j}, {i + unit_size_box.x, j + unit_size_box.y})
+                || death_rect({i, j}, {i - unit_size_box.x, j + unit_size_box.y})
+                || death_rect({i, j}, {i + unit_size_box.x, j - unit_size_box.y})
+                || death_rect({i, j}, {i - unit_size_box.x, j - unit_size_box.y});
+        }
+    }
 }
