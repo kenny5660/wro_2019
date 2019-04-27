@@ -10,6 +10,7 @@
 #include "../highLogic/lidar_math.h"
 #include "../highLogic/debug.h"
 #include "../highLogic/Map.h"
+#include "../highLogic/Move.h"
 
 #define PRECISION_LENGTH (0.1)
 #define PRECISION_ANGLE (0.001)

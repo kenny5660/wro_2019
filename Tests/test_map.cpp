@@ -69,15 +69,17 @@ std::string get_death_zone(const std::array<std::array<bool, field_sett::number_
 }
 
 TEST(MapCreateByPoints, Angle0) {
-    Map m({1200, 1200}, {1200, 1200 + field_sett::parking_zone_door_size}, {1340, 1545});
+    Map m({1200, 1200}, {1200, 1200 + field_sett::parking_zone_door_size});
     //show_debug_img("", m.get_img(400, 400));
     auto pz = m.get_parking_zone();
     EXPECT_NEAR(pz[0].get_x(), 1200, PRECISION_LENGTH);
     EXPECT_NEAR(pz[0].get_y(), 1200, PRECISION_LENGTH);
     EXPECT_NEAR(pz[1].get_x(), 1200, PRECISION_LENGTH);
     EXPECT_NEAR(pz[1].get_y(), 1200 + field_sett::parking_zone_door_size, PRECISION_LENGTH);
-    EXPECT_NEAR(pz[2].get_x(), 1340, PRECISION_LENGTH);
-    EXPECT_NEAR(pz[2].get_y(), 1545, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[2].get_x(), 1200 + field_sett::parking_zone_width_min, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[2].get_y(), 1200, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[3].get_x(), 1200 + field_sett::parking_zone_width_min, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[3].get_y(), 1200 + field_sett::parking_zone_door_size, PRECISION_LENGTH);
     EXPECT_EQ(get_death_zone(m.get_death_zone()), get_death_zone({{
               {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
               {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -102,15 +104,18 @@ TEST(MapCreateByPoints, Angle0) {
 }
 
 TEST(MapCreateByPoints, Angle6) {
-    Map m({962, 1199}, {961 - 328.114498122, 1202 + 106.610863059}, {1340, 1545});
+    // TODO:
+    Map m({962, 1199}, {961 - 328.114498122, 1202 + 106.610863059});
     //show_debug_img("", m.get_img(400, 400));
     auto pz = m.get_parking_zone();
     EXPECT_NEAR(pz[0].get_x(), 960, PRECISION_LENGTH);
     EXPECT_NEAR(pz[0].get_y(), 1200, PRECISION_LENGTH);
     EXPECT_NEAR(pz[1].get_x(), 960 - sin(atan(3)) * field_sett::parking_zone_door_size, PRECISION_LENGTH);
     EXPECT_NEAR(pz[1].get_y(), 1200 + cos(atan(3)) * field_sett::parking_zone_door_size, PRECISION_LENGTH);
-    EXPECT_NEAR(pz[2].get_x(), 1340, PRECISION_LENGTH);
-    EXPECT_NEAR(pz[2].get_y(), 1545, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[2].get_x(), 960 + cos(atan(3)) * field_sett::parking_zone_width_min, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[2].get_y(), 1200 - sin(atan(3)) * field_sett::parking_zone_width_min, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[3].get_x(), 960 - sin(atan(3)) * field_sett::parking_zone_door_size + cos(atan(3)) * field_sett::parking_zone_width_min, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[3].get_y(), 1200 + cos(atan(3)) * field_sett::parking_zone_door_size - sin(atan(3)) * field_sett::parking_zone_width_min, PRECISION_LENGTH);
     EXPECT_EQ(get_death_zone(m.get_death_zone()), get_death_zone({{
               {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
               {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
@@ -136,15 +141,17 @@ TEST(MapCreateByPoints, Angle6) {
 
 TEST(MapCreateByPoints, Angle_2) {
     Map m({960, 1202}, {961 + sin(atan(1 / 2.)) * field_sett::parking_zone_door_size,
-                        1202 + cos(atan(1 / 2.)) * field_sett::parking_zone_door_size}, {1340, 1545});
+                        1202 + cos(atan(1 / 2.)) * field_sett::parking_zone_door_size});
     //show_debug_img("", m.get_img(400, 400));
     auto pz = m.get_parking_zone();
     EXPECT_NEAR(pz[0].get_x(), 960, PRECISION_LENGTH);
     EXPECT_NEAR(pz[0].get_y(), 1200, PRECISION_LENGTH);
     EXPECT_NEAR(pz[1].get_x(), 960 + sin(atan(1 / 2.)) * field_sett::parking_zone_door_size, PRECISION_LENGTH);
     EXPECT_NEAR(pz[1].get_y(), 1200 + cos(atan(1 / 2.)) * field_sett::parking_zone_door_size, PRECISION_LENGTH);
-    EXPECT_NEAR(pz[2].get_x(), 1340, PRECISION_LENGTH);
-    EXPECT_NEAR(pz[2].get_y(), 1545, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[2].get_x(), 960 + cos(atan(1 / 2.)) * field_sett::parking_zone_width_min, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[2].get_y(), 1200 + sin(atan(1 / 2.)) * field_sett::parking_zone_width_min, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[3].get_x(), 960 + sin(atan(1 / 2.)) * field_sett::parking_zone_door_size + cos(atan(1 / 2.)) * field_sett::parking_zone_width_min, PRECISION_LENGTH);
+    EXPECT_NEAR(pz[3].get_y(), 1200 + cos(atan(1 / 2.)) * field_sett::parking_zone_door_size + sin(atan(1 / 2.)) * field_sett::parking_zone_width_min, PRECISION_LENGTH);
     EXPECT_EQ(get_death_zone(m.get_death_zone()), get_death_zone({{
               {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
               {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -527,4 +534,14 @@ TEST(Map, MergeRot3) {
                    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
                    {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1}
                }}));
+}
+
+TEST(Map, NormalDeathZone) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("MergeMapRot2/1.ld", points));
+    Map m(points);
+    show_debug_img("", m.get_img());
+    // TODO: учесть свободное пространство перед квадратом. Скрыть данную функцию. Добавить с учётом кводратов.
+    m.normal_death_zone();
+    show_debug_img("", m.get_img());
 }
