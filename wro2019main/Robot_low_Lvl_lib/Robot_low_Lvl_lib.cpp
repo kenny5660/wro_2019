@@ -4,13 +4,16 @@
 #include <chrono>
 #include <thread>
 #include "Robot.h"
-
+#include "debug.h"
 
 
 int start_robot()
 {
 	RobotGardener robot;
 	robot.Init();
+	std::vector<PolarPoint> pps;
+	robot.GetLidarPolarPoints(pps);
+	save_ld_data(pps, "real_robot");
 //	robot.GetOmni()->Move(std::make_pair(15000, 0), 0);
 //	robot.Delay(700);
 //	robot.GetOmni()->Stop();

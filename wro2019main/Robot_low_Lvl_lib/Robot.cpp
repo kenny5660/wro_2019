@@ -1,5 +1,6 @@
 #include "Robot.h"
 #include "Uart.h"
+#include "PWM.h"
 #include  <exception>
 extern NiFpga_Session myrio_session;
 RobotGardener::RobotGardener()
@@ -31,6 +32,34 @@ void RobotGardener::Init()
 	//std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
 	std::shared_ptr<MyRio_Dio> dtr_pin(new MyRio_Dio{DIOB_158DIR, DIOB_158OUT, DIOB_158IN,2});
 	
+	
+	
+	
+	uint8_t selectReg;
+	std::shared_ptr<MyRio_Pwm> pwm_lidar(new MyRio_Pwm{PWMB_2CNFG, PWMA_0CS, PWMA_0MAX, PWMA_0CMP, PWMA_0CNTR});
+	Pwm_Configure(pwm_lidar.get(),
+		Pwm_Invert | Pwm_Mode,
+		Pwm_NotInverted | Pwm_Enabled);
+	Pwm_ClockSelect(pwm_lidar.get(), Pwm_64x);
+	Pwm_CounterMaximum(pwm_lidar.get(), 1000);
+	Pwm_CounterCompare(pwm_lidar.get(), 400);
+	int status = NiFpga_ReadU8(myrio_session, SYSSELECTB, &selectReg);
+
+	/*
+	 * Set bit2 of the SYSSELECTA register to enable PWMA_0 functionality.
+	 * The functionality of the bit is specified in the documentation.
+	 */
+
+	selectReg = selectReg | (1 << 4);
+
+	/*
+	 * Write the updated value of the SYSSELECTA register.
+	 */
+	status = NiFpga_WriteU8(myrio_session, SYSSELECTB, selectReg);
+	
+		
+		
+		
 	//lidar = std::shared_ptr<rp::standalone::rplidar::RPlidarDriver>(rp::standalone::rplidar::RPlidarDriver::CreateDriver(uart_B,dtr_pin));
 	
 	lidar = std::shared_ptr<rp::standalone::rplidar::RPlidarDriver>(rp::standalone::rplidar::RPlidarDriver::CreateDriver(rp::standalone::rplidar::DRIVER_TYPE_SERIALPORT));
