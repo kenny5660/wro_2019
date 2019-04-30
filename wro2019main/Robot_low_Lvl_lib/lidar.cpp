@@ -25,7 +25,11 @@ lidar_ = std::shared_ptr<rp::standalone::rplidar::RPlidarDriver>(rp::standalone:
 	{
 		throw std::runtime_error("Lidar connection error!");
 	}
-	lidar_->startScanExpress(false, scanModes[(int)lidar_mode_].id, 0, &scanMode);
+	 res = lidar_->startScanExpress(false, scanModes[(int)lidar_mode_].id, 0, &scanMode);
+	if (IS_FAIL(res))
+	{
+		throw std::runtime_error("Lidar startScanExpress error!");
+	}
 }
 
 
@@ -47,11 +51,12 @@ bool LidarA1::GetScan(std::vector<Lidar::Point>& points)
 {
 	int res;
 	rplidar_response_measurement_node_hq_t nodes[kLidarPoints_[(int)lidar_mode_]];
-	size_t size_nodes = kLidarPoints_[(int)lidar_mode_];
+	size_t size_nodes;
 	do
 	{
+		size_nodes = kLidarPoints_[(int)lidar_mode_];
 		res = lidar_->grabScanDataHq(nodes, size_nodes);
-	} while (IS_FAIL(res));
+	} while (IS_FAIL(res) || size_nodes < 1);
 	lidar_->ascendScanData(nodes, size_nodes);
 	
 	for (int i = 0; i  < size_nodes; ++i)
@@ -61,6 +66,7 @@ bool LidarA1::GetScan(std::vector<Lidar::Point>& points)
 		Lidar::Point pp{distance_in_mm, (double)angle_in_degrees / 180 * M_PI,nodes[i].quality};
 		points.push_back(pp);
 	}
+	return true;
 }
 
 

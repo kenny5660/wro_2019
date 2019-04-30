@@ -32,7 +32,7 @@ void RobotGardener::Init()
 	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
 	std::shared_ptr<Pwm> pwm_lidar(new MyRioPwm(MyRioPwm::PWMB2));	
 	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar,LidarA1::LidarMod::k8k));
-
+	lidar_->StartScan(0.4);
 	//std::shared_ptr<Servo> servo_low(new Servo_ocs251(9,uart_B));
 	//std::shared_ptr<Servo> servo_up(new Servo_ocs251(2, uart_B));
 	//man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low,nullptr));

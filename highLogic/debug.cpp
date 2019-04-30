@@ -14,7 +14,7 @@ std::string get_log_name(const std::string &s) {
     char buffer[100];
     time(&rawtime);
     timeinfo = localtime(&rawtime);
-    strftime(buffer, sizeof(buffer), "%Y_%m_%d_%H_%M_%S_", timeinfo);
+	strftime(buffer, sizeof(buffer), "%H:%M:%S_%Y_%m_%d", timeinfo);
     return buffer + s;
 }
 
