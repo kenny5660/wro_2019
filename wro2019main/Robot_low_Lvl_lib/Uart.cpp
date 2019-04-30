@@ -60,3 +60,9 @@ bool MyRioUart::isError()
 {
 	return cur_status_ < VI_SUCCESS;
 }
+
+
+std::string MyRioUart::GetFilePath()
+{
+	return uart_enum_ == MyRioUart::UART_A ? "/dev/ttyS0" : "/dev/ttyS1";
+}

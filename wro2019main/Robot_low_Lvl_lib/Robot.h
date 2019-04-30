@@ -4,8 +4,9 @@
 #include "Indicator.h"
 #include "DistanceSensor.h"
 #include  "Manipulator.h"
-#include "RpLidar-sdk/include/rplidar.h"
 #include "logic_structures.h"
+#include "lidar.h"
+
 class Robot
 {
 public:
@@ -27,7 +28,7 @@ public:
 	std::shared_ptr<OmniWheels> GetOmni();
 	std::shared_ptr<Indicator> GetIndicator();
 	std::shared_ptr<Manipulator> GetMan();
-	std::shared_ptr<rp::standalone::rplidar::RPlidarDriver> GetLidar();
+	std::shared_ptr<Lidar> GetLidar();
 	void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) override;
 	enum DistSensorEnum
 	{
@@ -41,18 +42,11 @@ public:
 
 
 private:
-	enum class LidarMod
-	{
-		k2k  = 0,
-		k4k  = 1,
-		k8k  = 2,
-		k4ks = 3
-	};
+
 	std::shared_ptr<Manipulator> man_;
 	std::shared_ptr<OmniWheels> omni_;
 	std::shared_ptr<Indicator> indicator_;
 	std::shared_ptr<DistanceSensor>dist_sensors_[4];
-	std::shared_ptr<rp::standalone::rplidar::RPlidarDriver> lidar;
-	const LidarMod kLidar_mode_ = LidarMod::k8k;
-	const size_t kLidarPoints_[4] = { 2048, 4096, 8192, 4096 }; 
+	std::shared_ptr<Lidar> lidar_;
+
 };

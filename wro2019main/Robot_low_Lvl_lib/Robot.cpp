@@ -1,6 +1,6 @@
 #include "Robot.h"
 #include "Uart.h"
-#include "PWM.h"
+#include "Pwm.h"
 #include  <exception>
 extern NiFpga_Session myrio_session;
 RobotGardener::RobotGardener()
@@ -29,50 +29,10 @@ void RobotGardener::Init()
 {
 	
 	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A, 115200));
-	//std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
-	std::shared_ptr<MyRio_Dio> dtr_pin(new MyRio_Dio{DIOB_158DIR, DIOB_158OUT, DIOB_158IN,2});
-	
-	
-	
-	
-	uint8_t selectReg;
-	std::shared_ptr<MyRio_Pwm> pwm_lidar(new MyRio_Pwm{PWMB_2CNFG, PWMA_0CS, PWMA_0MAX, PWMA_0CMP, PWMA_0CNTR});
-	Pwm_Configure(pwm_lidar.get(),
-		Pwm_Invert | Pwm_Mode,
-		Pwm_NotInverted | Pwm_Enabled);
-	Pwm_ClockSelect(pwm_lidar.get(), Pwm_64x);
-	Pwm_CounterMaximum(pwm_lidar.get(), 1000);
-	Pwm_CounterCompare(pwm_lidar.get(), 400);
-	int status = NiFpga_ReadU8(myrio_session, SYSSELECTB, &selectReg);
+	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
+	std::shared_ptr<Pwm> pwm_lidar(new MyRioPwm(MyRioPwm::PWMB2));	
+	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar,LidarA1::LidarMod::k8k));
 
-	/*
-	 * Set bit2 of the SYSSELECTA register to enable PWMA_0 functionality.
-	 * The functionality of the bit is specified in the documentation.
-	 */
-
-	selectReg = selectReg | (1 << 4);
-
-	/*
-	 * Write the updated value of the SYSSELECTA register.
-	 */
-	status = NiFpga_WriteU8(myrio_session, SYSSELECTB, selectReg);
-	
-		
-		
-		
-	//lidar = std::shared_ptr<rp::standalone::rplidar::RPlidarDriver>(rp::standalone::rplidar::RPlidarDriver::CreateDriver(uart_B,dtr_pin));
-	
-	lidar = std::shared_ptr<rp::standalone::rplidar::RPlidarDriver>(rp::standalone::rplidar::RPlidarDriver::CreateDriver(rp::standalone::rplidar::DRIVER_TYPE_SERIALPORT));
-	lidar->connect("/dev/ttyS1", 115200);
-	lidar->startMotor();
-	std::vector<rp::standalone::rplidar::RplidarScanMode> scanModes;
-	rp::standalone::rplidar::RplidarScanMode scanMode;
-	int res  = lidar->getAllSupportedScanModes(scanModes);
-	if (IS_FAIL(res))
-	{
-		throw std::runtime_error("Lidar connection error!");
-	}
-	lidar->startScanExpress(false, scanModes[(int)kLidar_mode_].id, 0, &scanMode);
 	//std::shared_ptr<Servo> servo_low(new Servo_ocs251(9,uart_B));
 	//std::shared_ptr<Servo> servo_up(new Servo_ocs251(2, uart_B));
 	//man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low,nullptr));
@@ -106,7 +66,7 @@ void RobotGardener::Init()
 
 RobotGardener::~RobotGardener()
 {
-	lidar->disconnect();
+
 	MyRio_Close();
 }
 Robot::~Robot()
@@ -135,29 +95,20 @@ std::shared_ptr<Manipulator> RobotGardener::GetMan()
 }
 
 
-std::shared_ptr<rp::standalone::rplidar::RPlidarDriver> RobotGardener::GetLidar()
+std::shared_ptr<Lidar> RobotGardener::GetLidar()
 {
-	return lidar;
+	return lidar_;
 }
 
 
 void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 {
-	int res;
-	rplidar_response_measurement_node_hq_t nodes[kLidarPoints_[(int)kLidar_mode_]];
-	size_t size_nodes = kLidarPoints_[(int)kLidar_mode_];
-	do
+	std::vector<LidarA1::Point> points_lidar;
+	lidar_->GetScan(points_lidar);
+	for (auto it = points_lidar.begin(); it != points_lidar.end(); ++it)
 	{
-		res = lidar->grabScanDataHq(nodes, size_nodes);
-	} while (IS_FAIL(res));
-	lidar->ascendScanData(nodes, size_nodes);
-	
-	for (int i = 0; i  < size_nodes;++i)
-	{
-		float angle_in_degrees = nodes[i].angle_z_q14 * 90.f / (1 << 14);
-		float distance_in_mm = nodes[i].dist_mm_q2 / (1 << 2);
-		PolarPoint pp(distance_in_mm, (double)angle_in_degrees / 180 * M_PI);
-		polar_points.push_back(pp);
+		//TO DO filtering points
+		polar_points.emplace_back(it->r, it->ph);
 	}
 
 }
