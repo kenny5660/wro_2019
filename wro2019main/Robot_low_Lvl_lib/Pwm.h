@@ -33,6 +33,9 @@ public:
 		PWMC1 = 7
 	};
 	MyRioPwm(PwmPin pwmPin);
+	//@brief Create and Enable pwm
+    //@param freq frequency in Hz
+	//@param duty cycle in % (100% = 1, 50% = 0.5)
 	MyRioPwm(PwmPin pwmPin, int freq, double duty = 0);
 	void Enable(int freq, double duty = 0) override;
 	void Disable() override;
@@ -71,7 +74,7 @@ private:
 		1,
 		3, 
 	};
-	const int kMyRioFreq_ = 40000000; //Hz 
+	const int kMyRioFreq_ = 40000000;   //Hz 
 	const Pwm_ClockDivider kClkDiv_ = Pwm_8x;
 	const int kClkDivides_[8] = { 0, 1, 2, 4, 8, 16, 32, 64 };
 };

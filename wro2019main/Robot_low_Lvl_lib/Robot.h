@@ -6,7 +6,7 @@
 #include  "Manipulator.h"
 #include "logic_structures.h"
 #include "lidar.h"
-
+#include "Spi.h"
 class Robot
 {
 public:
