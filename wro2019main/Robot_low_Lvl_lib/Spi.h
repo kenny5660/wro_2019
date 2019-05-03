@@ -9,6 +9,7 @@ public:
     //@param speed in Hz(bit/sec)
 	virtual void SetSpeed(int speed) = 0;
 	virtual int GetSpeed() = 0;
+	virtual ~Spi() = 0;
 };
 
 class SpiMyRio : public Spi
@@ -35,19 +36,12 @@ public:
     //@param speed in Hz(bit/sec)
 	void SetSpeed(int speed) override;
 	int GetSpeed() override;
-	
+	virtual ~SpiMyRio();
 
 private:
 	SpiPort spi_port_;
 	void Enable(int speed);
-	void Disable(int speed);
+	void Disable();
 	void EditSysSelect(int bit);
-	const MyRio_Spi kMyRio_spi_regs_[2]
-	{
-		{SPIACNFG,SPIACNT,SPIADATO,SPIADATI,SPIAGO,SPIASTAT},
-		{SPIBCNFG, SPIBCNT, SPIBDATO, SPIBDATI, SPIBGO, SPIBSTAT}	
-	};
-	const uint32_t kMyRio_sysselect_reg_[2] = { SYSSELECTA, SYSSELECTB };
 	int speed_;
-	const int kMyRioFreq_ = 40000000; 
 };

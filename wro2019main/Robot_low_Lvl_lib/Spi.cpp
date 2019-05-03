@@ -1,6 +1,17 @@
 #include "Spi.h"
 #include <memory>
 extern NiFpga_Session myrio_session;
+
+const MyRio_Spi kMyRio_spi_regs_[2]
+{
+	{SPIACNFG, SPIACNT, SPIADATO, SPIADATI, SPIAGO, SPIASTAT},
+	{SPIBCNFG, SPIBCNT, SPIBDATO, SPIBDATI, SPIBGO, SPIBSTAT}	
+}
+;
+const uint32_t kMyRio_sysselect_reg_[2] = { SYSSELECTA, SYSSELECTB };
+
+const int kMyRioFreq_ = 40000000; 
+
 void SpiMyRio::Enable(int speed)
 {
 	EditSysSelect(0b11); // turn on spi
@@ -66,4 +77,13 @@ uint8_t SpiMyRio::Transmit(uint8_t data)
 	uint8_t read_buf_;
 	Transmit(&data, &read_buf_, 1);
 	return read_buf_;
+}
+void SpiMyRio::Disable()
+{
+	EditSysSelect(00);
+}
+
+SpiMyRio::~SpiMyRio()
+{
+	Disable();
 }
