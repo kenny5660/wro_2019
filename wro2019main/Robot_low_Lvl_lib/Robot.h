@@ -7,6 +7,7 @@
 #include "logic_structures.h"
 #include "lidar.h"
 #include "GPIO.h"
+#include "Camera.h"
 class Robot
 {
 public:
