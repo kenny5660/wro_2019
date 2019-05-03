@@ -9,7 +9,7 @@ public:
     //@param speed in Hz(bit/sec)
 	virtual void SetSpeed(int speed) = 0;
 	virtual int GetSpeed() = 0;
-	virtual ~Spi() = 0;
+	virtual ~Spi() {};
 };
 
 class SpiMyRio : public Spi
@@ -29,7 +29,7 @@ public:
 	};
 	//@brief Create and Enable spi
     //@param speed in  Hz(bit/sec) 310 min 20 000 000 max
-	SpiMyRio(SpiPort port, int speed);
+	SpiMyRio(SpiPort port, SpiSpeed speed);
 	void Transmit(const uint8_t*data, uint8_t *read_data, size_t size_d) override;
 	uint8_t Transmit(uint8_t data) override;
 	//@brief Set speed

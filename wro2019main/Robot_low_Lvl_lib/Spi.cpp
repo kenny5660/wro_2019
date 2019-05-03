@@ -32,10 +32,10 @@ void SpiMyRio::SetSpeed(int speed)
 
 
 SpiMyRio::SpiMyRio(SpiPort port, 
-	int speed)
+	SpiSpeed speed)
 	: spi_port_(port)
 {
-	Enable(speed);
+	Enable((int)speed);
 }
 void SpiMyRio::EditSysSelect(int bit)
 {
