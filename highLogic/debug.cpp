@@ -7,14 +7,14 @@
 #include <ctime>
 #include <chrono>
 #include <opencv2/imgproc.hpp>
-
+#include <fstream>
 std::string get_log_name(const std::string &s) {
     time_t rawtime;
     struct tm * timeinfo;
     char buffer[100];
     time(&rawtime);
     timeinfo = localtime(&rawtime);
-    strftime(buffer, sizeof(buffer), "%Y_%m_%d_%H_%M_%S_", timeinfo);
+	strftime(buffer, sizeof(buffer), "%H:%M:%S_%Y_%m_%d", timeinfo);
     return buffer + s;
 }
 
@@ -172,4 +172,15 @@ void add_robot_img_global(DebugFieldMat &mat,
     cv::line(mat, {int(p.get_x() * mat.zoom + mat.indent), int(p.get_y()*mat.zoom + mat.indent)},
              {int((p.get_x() * mat.zoom + mat.indent) + radius_line * cos(M_PI - p.get_angle()) ),
               int((p.get_y()*mat.zoom + mat.indent) - radius_line * sin(M_PI - p.get_angle()))}, {0, 0, 255}, 2);
+}
+
+void save_ld_data(const std::vector<PolarPoint> &p, const std::string &s) {
+	std::ofstream f;
+	f.open(log_path+ get_log_name(s) + ".ld");
+	bool d = f.is_open();
+	for (auto i : p)
+	{
+		f << i.get_r() << " " << i.get_f() << std::endl;
+	}
+	f.close();
 }

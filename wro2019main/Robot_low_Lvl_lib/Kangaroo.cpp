@@ -195,8 +195,8 @@ std::pair<int, uint8_t> KangarooDriver::CmdGet(uint8_t chnl, uint8_t type)
 	uint8_t data_header[3];
 	uint8_t bitpack_Value[5];  // Зачем это?
 	uint8_t crc14[2];
-	int read_status = uart_->Get(packet_header, 3) ;
-	if (packet_header[0] != addr_ || packet_header[1] != kCmdGetReply || read_status < VI_SUCCESS)
+	uart_->Get(packet_header, 3) ;
+	if (packet_header[0] != addr_ || packet_header[1] != kCmdGetReply || uart_->isError())
 	{
 		throw std::runtime_error(std::string("Read error, kangaroo driver! id  = ")+std::to_string(addr_));
 	}

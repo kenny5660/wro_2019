@@ -7,7 +7,7 @@ class Servo
 public:
 	virtual void Enable() = 0;
 	virtual void Disable() = 0;
-	virtual void SetDegrees(int deg,bool wait = false, uint16_t time = 0) = 0;
+	virtual void SetDegrees(double deg,bool wait = false, uint16_t time = 0) = 0;
 	virtual int GetDegrees() = 0;
 	virtual int GetLead()  = 0;
 	virtual bool IsLead() = 0;
@@ -17,10 +17,10 @@ public:
 class Servo_ocs251 : public Servo
 {
 public:
-	Servo_ocs251(uint8_t id, std::shared_ptr<Uart> uart);
+	Servo_ocs251(uint8_t id, std::shared_ptr<Uart> uart, double offset_deg_  = 0);
 	void Enable() override;
 	void Disable()override;
-	void SetDegrees(int deg, bool wait = false, uint16_t time = 0) override;
+	void SetDegrees(double deg, bool wait = false, uint16_t time = 0) override;
 	int GetDegrees()override;
 	int GetLead()  override;
 	bool IsLead() override;
@@ -33,8 +33,9 @@ private:
 	void WriteData(uint8_t addr, uint8_t* data, size_t size);
 	std::shared_ptr<Uart> uart_;
 	uint8_t id_;
-	int deg_offset;
-	
+	double offset_deg_;
+	const int kMaxServoDeg = 1023;  
+	const int kMinServoDeg = 0;  
 	const double SERVO_D_251_DEGREE_COEF = 0.322265625;
 	const double SERVO_D_LEAD_MID = 100; 
 	const uint8_t SERVO_D_INSTRUCTION_PING = 0x01;

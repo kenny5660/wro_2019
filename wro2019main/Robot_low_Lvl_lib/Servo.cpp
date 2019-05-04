@@ -1,10 +1,18 @@
 #include "Servo.h"
 #include  <string>
 #include <cmath>
-void Servo_ocs251::SetDegrees(int deg,bool wait, uint16_t time)
+void Servo_ocs251::SetDegrees(double deg,bool wait, uint16_t time)
 {
 	uint8_t data[4];
-	int servo_deg = (deg + deg_offset) / SERVO_D_251_DEGREE_COEF;
+	int servo_deg = (deg + offset_deg_) / SERVO_D_251_DEGREE_COEF;
+	if (servo_deg > kMaxServoDeg)
+	{
+		throw std::runtime_error("Error, servo angle more than it can!");
+	}
+	if (servo_deg < kMinServoDeg)
+	{
+		throw std::runtime_error("Error, servo angle less than it can!");
+	}
 	data[0] = (servo_deg >> 8) & 0xFF;
 	data[1] = servo_deg & 0xFF;
 
@@ -90,7 +98,7 @@ int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 
 	//uart_->Clear();
 	int status  = uart_->Get(data_packet_return, 6 + size);
-	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF || status < VI_SUCCESS) 
+	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF ||  uart_->isError()) 
 	{
 		throw std::runtime_error(std::string("Read error, Servo! id  = ") + std::to_string(id_));
 	}
@@ -137,7 +145,7 @@ void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 
 	uint8_t return_pucket[6];
 	int status = uart_->Get(return_pucket, 6);
-	if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF || status < VI_SUCCESS) 
+	if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF ||  uart_->isError()) 
 	{
 		throw std::runtime_error(std::string("Write error, Servo! id  = ") + std::to_string(id_));
 	}
@@ -148,10 +156,11 @@ void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 
 
 Servo_ocs251::Servo_ocs251(uint8_t id, 
-	std::shared_ptr<Uart> uart)
+	std::shared_ptr<Uart> uart,
+	double offset_deg_)
 	: uart_(uart)
 	, id_(id)
-	, deg_offset(0)
+	, offset_deg_(offset_deg_)
 {
 	if (Ping() != id_)
 	{
@@ -180,7 +189,7 @@ int Servo_ocs251::Ping()
 
 	//uart_->Clear();
 	int status = uart_->Get(data_packet_return, 6);
-	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF || status < VI_SUCCESS) 
+	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF ||  uart_->isError()) 
 	{
 		throw std::runtime_error(std::string("Ping error, Servo! id  = ") + std::to_string(id_));
 	}

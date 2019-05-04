@@ -45,7 +45,7 @@ extern NiFpga_Session myrio_session;
  *                      Pwm_Inverted. If mask sets Pwm_Mode, set one of
  *                      Pwm_Disabled, Pwm_Enabled.
  */
-void Pwm_Configure(MyRio_Pwm* channel, uint8_t mask,uint8_t settings)
+void Pwm_Configure( const MyRio_Pwm* channel, uint8_t mask,uint8_t settings)
 {
     NiFpga_Status status;
     uint8_t cnfgValue;
@@ -119,7 +119,7 @@ void Pwm_Configure(MyRio_Pwm* channel, uint8_t mask,uint8_t settings)
  *                      modify.
  * @param[in]  divider  The PWM waveform clock divider.
  */
-void Pwm_ClockSelect(MyRio_Pwm* channel, Pwm_ClockDivider divider)
+void Pwm_ClockSelect(const MyRio_Pwm* channel, Pwm_ClockDivider divider)
 {
     NiFpga_Status status;
 
@@ -152,7 +152,7 @@ void Pwm_ClockSelect(MyRio_Pwm* channel, Pwm_ClockDivider divider)
  *                      modify.
  * @param[in]  counterMax  The maximum counter value.
  */
-void Pwm_CounterMaximum(MyRio_Pwm* channel, uint16_t counterMax)
+void Pwm_CounterMaximum(const MyRio_Pwm* channel, uint16_t counterMax)
 {
     NiFpga_Status status;
 
@@ -189,7 +189,7 @@ void Pwm_CounterMaximum(MyRio_Pwm* channel, uint16_t counterMax)
  *                      modify.
  * @param[in]  counterCompare  The comparison counter value.
  */
-void Pwm_CounterCompare(MyRio_Pwm* channel, uint16_t counterCompare)
+void Pwm_CounterCompare(const MyRio_Pwm* channel, uint16_t counterCompare)
 {
     NiFpga_Status status;
 
@@ -213,7 +213,7 @@ void Pwm_CounterCompare(MyRio_Pwm* channel, uint16_t counterCompare)
  * depends on the waveform set by Pwm_Configure and the maximum counter value
  * set by Pwm_CounterMaximum.
  */
-uint16_t Pwm_Counter(MyRio_Pwm* channel)
+uint16_t Pwm_Counter(const MyRio_Pwm* channel)
 {
     NiFpga_Status status;
     uint16_t cntrValue;
@@ -235,3 +235,9 @@ uint16_t Pwm_Counter(MyRio_Pwm* channel)
 
     return cntrValue;
 }
+
+
+
+
+
+

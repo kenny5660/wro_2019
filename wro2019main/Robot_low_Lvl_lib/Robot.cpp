@@ -1,5 +1,6 @@
 #include "Robot.h"
 #include "Uart.h"
+#include "Pwm.h"
 #include  <exception>
 extern NiFpga_Session myrio_session;
 RobotGardener::RobotGardener()
@@ -29,9 +30,14 @@ void RobotGardener::Init()
 	
 	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A, 115200));
 	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
-	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9,uart_B));
+	std::shared_ptr<Spi> spi_A(std::make_shared<SpiMyRio>(SpiMyRio::SPIA, SpiMyRio::SpiSpeed::kSpeed05Mbit));
+	std::shared_ptr<Uart> uart_Bridge(std::make_shared<UartSc16is750>(spi_A, std::make_shared<GPIOmyRio>(GPIOmyRio::PortMyRio::A, 4), 115200));
+	std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
+	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar,LidarA1::LidarMod::k8k));
+	lidar_->StartScan(0.4);
+	//std::shared_ptr<Servo> servo_low(new Servo_ocs251(9,uart_B));
 	//std::shared_ptr<Servo> servo_up(new Servo_ocs251(2, uart_B));
-	man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low,nullptr));
+	//man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low,nullptr));
 	std::shared_ptr<KangarooDriver> kangarooDriver1(new KangarooDriver(uart_A, 135));
 	std::shared_ptr<KangarooDriver> kangarooDriver2(new KangarooDriver(uart_A, 130));
 	std::shared_ptr<KangarooMotor> motor_front(new KangarooMotor(kangarooDriver1, '2', false));
@@ -62,6 +68,7 @@ void RobotGardener::Init()
 
 RobotGardener::~RobotGardener()
 {
+
 	MyRio_Close();
 }
 Robot::~Robot()
@@ -87,4 +94,23 @@ std::shared_ptr<DistanceSensor> RobotGardener::GetDistSensor(DistSensorEnum dist
 std::shared_ptr<Manipulator> RobotGardener::GetMan()
 {
 	return man_;
+}
+
+
+std::shared_ptr<Lidar> RobotGardener::GetLidar()
+{
+	return lidar_;
+}
+
+
+void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
+{
+	std::vector<LidarA1::Point> points_lidar;
+	lidar_->GetScan(points_lidar);
+	for (auto it = points_lidar.begin(); it != points_lidar.end(); ++it)
+	{
+		//TO DO filtering points
+		polar_points.emplace_back(it->r, it->ph);
+	}
+
 }

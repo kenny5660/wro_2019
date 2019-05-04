@@ -6,7 +6,7 @@
  * All rights reserved.
  */
 
-#include "UART.h"
+#include "UARTRio.h"
 #include "visa.h"
 
 #define VisaDefaultTimeout 1000

@@ -70,32 +70,32 @@ typedef struct
 /**
  * Sets the PWM waveform and and invert configuration options.
  */
-void Pwm_Configure(MyRio_Pwm* channel, uint8_t mask, uint8_t settings);
+void Pwm_Configure(const MyRio_Pwm* channel, uint8_t mask, uint8_t settings);
 
 
 /**
  * Sets the PWM clock select divider, that is, the frequency of the PWM internal
  * clock.
  */
-void Pwm_ClockSelect(MyRio_Pwm* channel, Pwm_ClockDivider divider);
+	void Pwm_ClockSelect(const MyRio_Pwm* channel, Pwm_ClockDivider divider);
 
 
 /**
  * Sets the maximum value of the PWM counter.
  */
-void Pwm_CounterMaximum(MyRio_Pwm* channel, uint16_t counterMax);
+	void Pwm_CounterMaximum(const MyRio_Pwm* channel, uint16_t counterMax);
 
 
 /**
  * Sets the period of the PWM counter with output.
  */
-void Pwm_CounterCompare(MyRio_Pwm* channel, uint16_t counterCompare);
+	void Pwm_CounterCompare(const MyRio_Pwm* channel, uint16_t counterCompare);
 
 
 /**
  * Gets the value of the PWM counter.
  */
-uint16_t Pwm_Counter(MyRio_Pwm* channel);
+	uint16_t Pwm_Counter(const MyRio_Pwm* channel);
 
 #if NiFpga_Cpp
 }
