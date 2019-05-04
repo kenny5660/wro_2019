@@ -40,3 +40,33 @@ TEST(InitPositionFromCorner, ZeroLineUp) {
     EXPECT_NEAR(p.get_y(), 7.621, PRECISION_LENGTH);
     EXPECT_NEAR(p.get_angle(), degree2radian(58.18), PRECISION_ANGLE);
 }
+
+TEST(RealInit, Line) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Init_from_line.ld", points));
+    double dist;
+    auto p = init_pos(points, dist);
+    EXPECT_NEAR(p.first.get_x(), 2144, PRECISION_LENGTH_POS);
+    EXPECT_TRUE(std::isnan(p.first.get_y()));
+    EXPECT_NEAR(p.first.get_angle(), degree2radian(17.4), PRECISION_ANGLE_POS);
+}
+
+TEST(RealInit, LineDown) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Init_from_line_down.ld", points));
+    double dist;
+    auto p = init_pos(points, dist);
+    EXPECT_NEAR(p.first.get_x(), 1316, PRECISION_LENGTH_POS);
+    EXPECT_TRUE(std::isnan(p.first.get_y()));
+    EXPECT_NEAR(p.first.get_angle(), degree2radian(320), PRECISION_ANGLE_POS);
+}
+
+TEST(RealInit, Corner) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Init_from_corner.ld", points));
+    double dist;
+    auto p = init_pos(points, dist);
+    EXPECT_NEAR(p.first.get_x(), 1048, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(p.first.get_y(), 952, PRECISION_LENGTH_POS);
+    EXPECT_NEAR(p.first.get_angle(), degree2radian(42), PRECISION_ANGLE_POS);
+}

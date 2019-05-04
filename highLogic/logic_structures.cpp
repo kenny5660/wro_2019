@@ -153,3 +153,7 @@ void RobotPoint::merge(const RobotPoint &a) {
 void PolarPoint::set_f(double f) {
     f_ = angle_normalization(f);
 };
+
+double PolarPoint::angle_norm(double a) {
+    return angle_normalization(a);
+}

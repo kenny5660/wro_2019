@@ -113,6 +113,8 @@ class PolarPoint {
                      r_ * sin(ang));
     }
 
+    static double angle_norm(double);
+
  protected:
     double r_;
     double f_;

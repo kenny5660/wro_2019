@@ -42,6 +42,8 @@ int sign(double a);
 int fdiv(double a, double b);
 int position_relative_line(const Point &A, const Point &B, const Point &p,
                            double delta = field_sett::size_field_unit);
+std::pair<RobotPoint, std::pair<Point, Point>> init_pos(const std::vector<PolarPoint> &polar_points,
+                                                        double &dist);
 
 //---FOR TEST---//
 std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,
