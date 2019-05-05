@@ -44,6 +44,7 @@ int position_relative_line(const Point &A, const Point &B, const Point &p,
                            double delta = field_sett::size_field_unit);
 std::pair<RobotPoint, std::pair<Point, Point>> init_pos(const std::vector<PolarPoint> &polar_points,
                                                         double &dist);
+void data_filter(std::vector<PolarPoint> &p, double max_dist = field_sett::size_field_unit / 4.);
 
 //---FOR TEST---//
 std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,

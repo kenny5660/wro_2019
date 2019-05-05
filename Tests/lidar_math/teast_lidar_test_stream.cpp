@@ -38,6 +38,7 @@ TEST(StreamTest, getCorners) {
     cv::rectangle(mat, cv::Point(0, 0), cv::Point(debug_width_img, debug_height_img), cv::Scalar(255, 255,255 ), CV_FILLED);
     while (thr.joinable()) {
         if (!read(lidar_stream_name, p, "")) {
+            data_filter(p);
             std::vector<std::vector<Point>> corners = get_corners(p);
             cv::rectangle(mat, cv::Point(0, 0), cv::Point(debug_width_img, debug_height_img), cv::Scalar(0, 0,0 ), CV_FILLED);
             mat.zoom = 0;
@@ -63,6 +64,7 @@ TEST(StreamTest, detectTypeLine) {
                   CV_FILLED);
     while (thr.joinable()) {
         if (!read(lidar_stream_name, p, "")) {
+            data_filter(p);
             auto corners = line2line_type(get_corners(p));
             detect_boarder(corners);
             detected_parking_zone(corners);

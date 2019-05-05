@@ -662,3 +662,35 @@ std::pair<RobotPoint, std::pair<Point, Point>> init_pos(const std::vector<PolarP
              corners[second_boarder.second.first][second_boarder.second.second
                  + 1]}};
 }
+
+void data_filter(std::vector<PolarPoint> &p, double max_dist) {
+    const double min_lidar_dist = 1;
+    int start;
+    for (start = 0; start < p.size(); start++) {
+        if (p[start].get_r() != 0) {
+            break;
+        }
+    }
+    bool is_first = true;
+    for (int i = start; (i != start) || (is_first); i = (i + 1) % p.size()) {
+        is_first = false;
+        if (p[(i + 1) % p.size()].get_r() == 0) {
+            int k;
+            Point cp = p[i].to_cartesian();
+            for (k = i + 1; (k != start); k = ((k + 1) % p.size())) {
+                //(cp.dist(p[k].to_cartesian()) < max_dist)
+                if (p[k].get_r() != 0) {
+                    if (cp.dist(p[k].to_cartesian()) < max_dist) {
+                        p.erase(p.begin() + (i + 1), p.begin() + k);
+                    }
+                    break;
+                    // Eсли не устраевает 0 то тут рисовать прямую
+                }
+            }
+            if (k == start) {
+                std::cerr << "lidar_math::data_filter:\n Lidar don't work!" << std::endl;
+                return;
+            }
+        }
+    }
+}
