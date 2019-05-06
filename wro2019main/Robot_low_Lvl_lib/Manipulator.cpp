@@ -24,5 +24,30 @@ std::shared_ptr<Servo> Manipulator::GetServoUp()
 Manipulator::~Manipulator()
 {
 	servo_low_->Disable();
-	//servo_up_->Enable();
+	servo_up_->Disable();
+}
+
+
+void Manipulator::Home()
+{
+	servo_low_->SetDegrees(60);
+}
+
+
+void Manipulator::Out()
+{
+	servo_low_->SetDegrees(158);
+}
+
+
+void Manipulator::CatchRight()
+{
+
+	servo_up_->SetDegrees(198);
+}
+
+
+void Manipulator::CatchLeft()
+{
+	servo_up_->SetDegrees(241);
 }

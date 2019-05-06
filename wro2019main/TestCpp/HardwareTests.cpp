@@ -41,6 +41,10 @@ TEST_GROUP(HardwareTestGroup)
 		robot = std::shared_ptr<RobotGardener> (new RobotGardener());
 		robot->Init();
 	}
+	void teardown()
+	{
+		
+	}
 };
 
 
@@ -76,14 +80,27 @@ TEST(HardwareTestGroup, Lidar_test)
 TEST(HardwareTestGroup, Servo_getDeg_test)
 {	
 	robot->GetMan()->GetServoLow()->Disable();
-	int deg  = robot->GetMan()->GetServoLow()->GetDegrees();
-	int deg2  = robot->GetMan()->GetServoLow()->GetDegrees();
-	int deg3  = robot->GetMan()->GetServoLow()->GetDegrees();
-	std::cout  << "deg = " << deg << " deg2 = " << deg2 << " deg3 = " << deg3 << std::endl;
+	robot->GetMan()->GetServoUp()->Disable();
+	int degLow  = robot->GetMan()->GetServoLow()->GetDegrees();
+	int degUp = robot->GetMan()->GetServoUp()->GetDegrees();
+	
+	int deg2Low  = robot->GetMan()->GetServoLow()->GetDegrees();
+	int deg2Up  = robot->GetMan()->GetServoUp()->GetDegrees();
+	
+	int deg3Low  = robot->GetMan()->GetServoLow()->GetDegrees();
+	int deg3Up  = robot->GetMan()->GetServoUp()->GetDegrees();
+	std::cout  << "degLow = " << degLow << " deg2Low = " << deg2Low << " deg3Low = " << deg3Low << std::endl;
+}
+TEST(HardwareTestGroup, Mnipulator_test)
+{	
+	robot->GetMan()->Out();
+	robot->GetMan()->CatchLeft();
+	robot->GetMan()->Home();
+	robot->GetMan()->CatchRight();
 }
 TEST(HardwareTestGroup, Servo_setDeg_test)
 {	
-	const int d1 = 140, d2 = 220 , d3 = 260;
+	const int d1 = 60, d2 = 159 , d3 = 180;
 	robot->GetMan()->GetServoLow()->SetDegrees(d1,true);
 	int deg  = robot->GetMan()->GetServoLow()->GetDegrees();
 	DOUBLES_EQUAL(deg, d1, 3);
@@ -93,10 +110,35 @@ TEST(HardwareTestGroup, Servo_setDeg_test)
 	robot->GetMan()->GetServoLow()->SetDegrees(d3, true);
 	int deg3  = robot->GetMan()->GetServoLow()->GetDegrees();
 	DOUBLES_EQUAL(deg3, d3,3);
+	robot->GetMan()->GetServoLow()->SetDegrees(d1, true);
+
 	std::cout  << "deg = " << deg << " deg2 = " << deg2 << " deg3 = " << deg3 << std::endl;
+}
+TEST(HardwareTestGroup, Omni_move_test)
+{
+	robot->GetOmni()->Move(std::make_pair(0, 230), 0);
+    robot->Delay(1000);
+	robot->GetOmni()->Stop();
+	robot->GetOmni()->Move(std::make_pair(230, 0), 0);
+	robot->Delay(1000);
+	robot->GetOmni()->Stop();
+	robot->GetOmni()->Move(std::make_pair(0, 0), 90);
+	robot->Delay(1000);
+	robot->GetOmni()->Stop();
+}
+TEST(HardwareTestGroup, Aligin_by_Dist_test)
+{
+	robot->AlliginByDist(66,-4);
+}
+TEST(HardwareTestGroup, CatchCube_test)
+{
+	robot->CatchCube();
 }
 TEST(HardwareTestGroup, Dist_sensors_test)
 {
+	robot->GetMan()->GetServoLow()->Disable();
+	robot->GetMan()->GetServoUp()->Disable();
+	
 	while (1)
 	{
 		std::cout  << "Dist left = " << robot->GetDistSensor(RobotGardener::DIST_LEFT)->GetDistance() << std::endl;

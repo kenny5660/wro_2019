@@ -30,6 +30,9 @@ public:
 	std::shared_ptr<Indicator> GetIndicator();
 	std::shared_ptr<Manipulator> GetMan();
 	std::shared_ptr<Lidar> GetLidar();
+	void CatchCube();
+	void AlliginByDist(int dist,int offset_alg);
+	void AlliginRight();
 	void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) override;
 	enum DistSensorEnum
 	{

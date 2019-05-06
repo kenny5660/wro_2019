@@ -19,9 +19,10 @@ std::shared_ptr<OmniWheels> RobotGardener::GetOmni()
 
 void Robot::Delay(int msec)
 {
-	struct timespec tw = { msec / 1000, (msec % 1000) * 1000000 };
-	struct timespec tr;
-	nanosleep(&tw, &tr);
+	//	struct timespec tw = { msec / 1000, (msec % 1000) * 1000000 };
+	//	struct timespec tr;
+	//	nanosleep(&tw, &tr);
+		std::this_thread::sleep_for(std::chrono::milliseconds(msec));
 }
 
 
@@ -31,21 +32,24 @@ void RobotGardener::Init()
 	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A, 115200));
 	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
 	std::shared_ptr<Spi> spi_A(std::make_shared<SpiMyRio>(SpiMyRio::SPIA, SpiMyRio::SpiSpeed::kSpeed05Mbit));
+	
 	std::shared_ptr<Uart> uart_Bridge(std::make_shared<UartSc16is750>(spi_A, std::make_shared<GPIOmyRio>(GPIOmyRio::PortMyRio::A, 4), 115200));
+	
 	std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
 	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar,LidarA1::LidarMod::k8k));
 	lidar_->StartScan(0.4);
-	//std::shared_ptr<Servo> servo_low(new Servo_ocs251(9,uart_B));
-	//std::shared_ptr<Servo> servo_up(new Servo_ocs251(2, uart_B));
-	//man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low,nullptr));
+	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9, uart_Bridge));
+	std::shared_ptr<Servo> servo_up(new Servo_ocs251(5, uart_Bridge));
+	std::shared_ptr<Servo> servo_cam(new Servo_ocs251(8, uart_Bridge));
+	man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low, servo_up));
 	std::shared_ptr<KangarooDriver> kangarooDriver1(new KangarooDriver(uart_A, 135));
 	std::shared_ptr<KangarooDriver> kangarooDriver2(new KangarooDriver(uart_A, 130));
 	std::shared_ptr<KangarooMotor> motor_front(new KangarooMotor(kangarooDriver1, '2', false));
 	std::shared_ptr<KangarooMotor> motor_left(new KangarooMotor(kangarooDriver2, '1', true));
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver2, '2', false));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '1', true));
-	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50,
-		150,
+	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(51,
+		115,
 		motor_left,
 		motor_front,
 		motor_right,
@@ -64,15 +68,18 @@ void RobotGardener::Init()
 		new Sharp2_15(std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 })));
 	dist_sensors_[DIST_C_RIGHT]  = std::shared_ptr<Sharp2_15>(
 		new Sharp2_15(std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 })));
+	man_->CatchRight();
+	man_->Home();
 }
 
 RobotGardener::~RobotGardener()
 {
 
-	MyRio_Close();
+
 }
 Robot::~Robot()
 {
+	MyRio_Close();
 }
 
 
@@ -113,4 +120,76 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 		polar_points.emplace_back(it->r, it->ph);
 	}
 
+}
+
+
+void RobotGardener::CatchCube()
+{
+	const int kDist = 66;
+	const int kOfsetAngle = -2;
+	AlliginByDist(kDist, kOfsetAngle);
+	std::cout << "Dist left = " <<  GetDistSensor(DIST_LEFT)->GetDistance()<< std::endl;
+	AlliginRight();
+	std::cout << "Dist left = " <<  GetDistSensor(DIST_LEFT)->GetDistance() << std::endl;
+	man_->Out();
+}
+
+
+void RobotGardener::AlliginByDist(int dist,int offset_alg)
+{
+	std::shared_ptr<DistanceSensor> dist_left = GetDistSensor(DIST_C_LEFT);
+	std::shared_ptr<DistanceSensor> dist_right = GetDistSensor(DIST_C_RIGHT);
+	using namespace std::chrono;
+	const microseconds timeOut(200);
+	const double P_align = -7;
+	const double D_aligin = 8;
+	const double P_dist = -8;
+	const double D_dist = 4;
+	int alg_speed = 0;
+	int y_speed = 0;
+	int err_dist = INT_MAX;
+	int err_dist_old = 0;
+	int err_align_old = 0;
+	int err_align  = INT_MAX;
+	steady_clock::time_point startTime = steady_clock::now(); 
+	
+	while ((steady_clock::now() - startTime)  < timeOut)//(abs(err_align) > 2  || abs(err_dist) > 2)
+	{
+		err_align = dist_left->GetDistance() - dist_right->GetDistance() + offset_alg;
+		alg_speed = err_align*P_align + D_aligin*(err_align - err_align_old);
+		
+		err_dist = dist - dist_left->GetDistance();
+		y_speed = err_dist*P_dist + D_dist*(err_dist - err_dist_old);
+		err_dist_old = err_dist;
+		err_align_old = err_align;
+		GetOmni()->Move(std::make_pair(0, y_speed), alg_speed);
+		Delay(5);
+		if ((abs(err_align) > 2  || abs(err_dist) > 2))
+		{
+			 startTime = steady_clock::now(); 
+		}
+		
+	}
+	
+	GetOmni()->Stop();
+}
+
+
+void RobotGardener::AlliginRight()
+{
+	const int mid_dist = 130;
+	const int speed = 100;
+	std::shared_ptr<DistanceSensor> dist = GetDistSensor(DIST_LEFT);
+
+	if (dist->GetDistance() > mid_dist)
+	{
+		GetOmni()->Move(std::make_pair(speed, 0), 0);
+		while (dist->GetDistance() > mid_dist);
+	}
+	else
+	{
+		GetOmni()->Move(std::make_pair(-speed, 0), 0);
+		while (dist->GetDistance() < mid_dist) ;
+	}
+	GetOmni()->Stop();
 }

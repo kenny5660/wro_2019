@@ -122,6 +122,7 @@ int PwmMyRio::GetFreq()
 
 PwmMyRio::~PwmMyRio()
 {
-	Disable();
+	
+	//Disable();
 	
 }
