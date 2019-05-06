@@ -15,6 +15,7 @@
 #include <iostream>
 #include <vector>
 #include <array>
+#include <c++/set>
 #include "lidar_math.h"
 
 inline double get_side_triangle(double b, double c, double alpha) {
@@ -480,9 +481,9 @@ inline double det(double a, double b, double c, double d) {
 inline bool point_in_line(const Point &line_a, const Point &line_b, const Point &a) {
     const double accuracy = 0.1;
     return ((std::min(line_a.get_x(), line_b.get_x()) <= a.get_x() + accuracy)
-            && (std::max(line_a.get_x(), line_b.get_x() + accuracy) >= a.get_x())
+            && ((std::max(line_a.get_x(), line_b.get_x()) + accuracy) >= a.get_x())
             && (std::min(line_a.get_y(), line_b.get_y()) <= a.get_y() + accuracy)
-            && (std::max(line_a.get_y(), line_b.get_y() + accuracy) >= a.get_y()));
+            && ((std::max(line_a.get_y(), line_b.get_y()) + accuracy) >= a.get_y()));
 }
 
 Point get_line_cross(const Point &ap1, const Point &bp1, const Point &ap2, const Point &bp2) {
@@ -500,6 +501,8 @@ Point get_line_cross(const Point &ap1, const Point &bp1, const Point &ap2, const
     }
 
     Point ans = {(det(C1, B1, C2, B2) / det_p), ((det(A1, C1, A2, C2) / det_p))};
+    std::cout << point_in_line(ap1, bp1, ans) << std::endl;
+    std::cout << point_in_line(ap2, bp2, ans) << std::endl;
     if (point_in_line(ap1, bp1, ans) && point_in_line(ap2, bp2, ans)) {
         return ans;
     }
@@ -552,4 +555,142 @@ int position_relative_line(const Point &A, const Point &B, const Point &p,
     }
     double ans = (p.get_x() * (B.get_y() - A.get_y()) - A.get_x() * (B.get_y() - A.get_y()) + A.get_y() * (B.get_x() - A.get_x())) / (-A.get_x() + B.get_x());
     return sign(p.get_y() - ans);
+}
+
+std::pair<Point, std::pair<int, int>> get_cross_from_lines(const std::vector<std::vector<Point>> &points, const Point &a, const Point &b, const std::set<int> ignore_line = {}) {
+    Point p;
+    for (int i = 0; i < points.size(); i++) {
+        if (ignore_line.find(i) == ignore_line.end()) {
+            for (int j = 0; j < (points[i].size() - 1); j++) {
+                p = get_line_cross(points[i][j + 1], points[i][j], a, b);
+                if (!std::isnan(p.get_x())) {
+                    return {p, std::make_pair(i, j)};
+                }
+            }
+        }
+    }
+    std::cerr << "lidar_math::get_cross_from_lines: \n Not found!" << std::endl;
+    return {0, {0, 0}};
+}
+
+std::pair<RobotPoint, std::pair<Point, Point>> init_pos(const std::vector<PolarPoint> &polar_points,
+                                                       double &dist) {
+    auto corners = get_corners(polar_points);
+//    {
+//        DebugFieldMat mat;
+//        add_lines_img(mat, corners);
+//        show_debug_img("", mat);
+//    }
+    auto pz_lines = std::make_pair(get_cross_from_lines(corners, {0, 0}, {0, field_sett::max_field_width}).second,
+                                   get_cross_from_lines(corners, {0, 0}, {0, -field_sett::max_field_width}).second);
+    auto first_boarder = get_cross_from_lines(corners,
+                                              (corners[pz_lines.first.first][pz_lines.first.second] - corners[pz_lines.first.first][pz_lines.first.second + 1]) * field_sett::max_field_width,
+                                              corners[pz_lines.first.first][
+                                                  pz_lines.first.second + 1], {pz_lines.first.first});
+    auto second_boarder = get_cross_from_lines(corners,
+                                               (corners[pz_lines.second.first][pz_lines.second.second + 1] - corners[pz_lines.second.first][pz_lines.second.second]) * field_sett::max_field_width,
+                                               corners[pz_lines.second.first][
+                                                   pz_lines.second.second + 1], {pz_lines.second.first});
+    dist = std::min(first_boarder.first.dist(), second_boarder.first.dist());
+    RobotPoint pos;
+    //Поворот
+//    for (int i = 0; i < corners.size(); i++) {
+//        for (int j = 0; j < corners[i].size(); j++) {
+//            auto p = corners[i][j].to_polar();
+//            p.add_f(-M_PI / 2 - rot_ang);
+//            corners[i][j] = p.to_cartesian();
+//        }
+//    }
+//    {
+//        DebugFieldMat mat;
+//        add_lines_img(mat, corners);
+//        show_debug_img("", mat);
+//    }
+    ////
+    if ((first_boarder.second.first == second_boarder.second.first)
+        && (first_boarder.second.second == second_boarder.second.second)) {
+//        double a = corners[first_boarder.second.first][first_boarder.second.first].dist(corners[first_boarder.second.first][first_boarder.second.first + 1]);
+//        double b = corners[first_boarder.second.first][first_boarder.second.first].dist();
+//        double c = corners[first_boarder.second.first][first_boarder.second.first + 1].dist();
+        PolarPoint a =
+            corners[first_boarder.second.first][first_boarder.second.second].to_polar();
+        a.set_f(M_PI - a.get_f());
+        PolarPoint b =
+            corners[first_boarder.second.first][first_boarder.second.second
+                + 1].to_polar();
+        b.set_f(M_PI - b.get_f());
+        double offset_angle = (a.get_f() > M_PI) ? (a.get_f() - (2 * M_PI)) : (a.get_f());
+        pos = get_coordinates_from_line(b.get_r(),
+                                        a.get_r(),
+                                        PolarPoint::angle_norm(
+                                            b.get_f() - a.get_f()),
+                                        0,
+                                        left_field_margin);
+        pos.set_angle(M_PI_2 + atan2(corners[first_boarder.second.first][first_boarder.second.second].get_y() - corners[first_boarder.second.first][first_boarder.second.second + 1].get_y(),
+                            corners[first_boarder.second.first][first_boarder.second.second].get_x() - corners[first_boarder.second.first][first_boarder.second.second + 1].get_x()));
+    } else if ((first_boarder.second.first == second_boarder.second.first)
+        && (abs(first_boarder.second.second - second_boarder.second.second)
+            == 1)) {
+        PolarPoint a =
+            corners[second_boarder.second.first][second_boarder.second.second].to_polar();
+        a.set_f(M_PI - a.get_f());
+        PolarPoint b =
+            corners[second_boarder.second.first][second_boarder.second.second
+                + 1].to_polar();
+        b.set_f(M_PI - b.get_f());
+        PolarPoint c =
+            corners[second_boarder.second.first][second_boarder.second.second
+                + 2].to_polar();
+        c.set_f(M_PI - c.get_f());
+        pos = get_coordinates_from_corner(a.get_r(),
+                                          b.get_r(),
+                                          c.get_r(),
+                                          PolarPoint::angle_norm(
+                                              b.get_f() - a.get_f()),
+                                          PolarPoint::angle_norm(
+                                              c.get_f() - b.get_f()),
+                                          0,
+                                          top_left_corner);
+        pos.set_angle(M_PI_2 + atan2(corners[second_boarder.second.first][second_boarder.second.second].get_y() - corners[second_boarder.second.first][second_boarder.second.second + 1].get_y(),
+                                     corners[second_boarder.second.first][second_boarder.second.second].get_x() - corners[second_boarder.second.first][second_boarder.second.second + 1].get_x()));
+    } else {
+        std::cerr << "lidar_math::init_pos::\n Different line!" << std::endl;
+        return {};
+    }
+    return {pos,
+            {corners[first_boarder.second.first][first_boarder.second.second],
+             corners[second_boarder.second.first][second_boarder.second.second
+                 + 1]}};
+}
+
+void data_filter(std::vector<PolarPoint> &p, double max_dist) {
+    const double min_lidar_dist = 1;
+    int start;
+    for (start = 0; start < p.size(); start++) {
+        if (p[start].get_r() != 0) {
+            break;
+        }
+    }
+    bool is_first = true;
+    for (int i = start; (i != start) || (is_first); i = (i + 1) % p.size()) {
+        is_first = false;
+        if (p[(i + 1) % p.size()].get_r() == 0) {
+            int k;
+            Point cp = p[i].to_cartesian();
+            for (k = i + 1; (k != start); k = ((k + 1) % p.size())) {
+                //(cp.dist(p[k].to_cartesian()) < max_dist)
+                if (p[k].get_r() != 0) {
+                    if (cp.dist(p[k].to_cartesian()) < max_dist) {
+                        p.erase(p.begin() + (i + 1), p.begin() + k);
+                    }
+                    break;
+                    // Eсли не устраевает 0 то тут рисовать прямую
+                }
+            }
+            if (k == start) {
+                std::cerr << "lidar_math::data_filter:\n Lidar don't work!" << std::endl;
+                return;
+            }
+        }
+    }
 }
