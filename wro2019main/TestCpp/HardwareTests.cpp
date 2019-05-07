@@ -131,18 +131,44 @@ TEST(HardwareTestGroup, Servo_setDeg_test)
 
 	std::cout  << "deg = " << deg << " deg2 = " << deg2 << " deg3 = " << deg3 << std::endl;
 }
-TEST(HardwareTestGroup, Omni_move_test)
+TEST(HardwareTestGroup, Omni_move_speed_test)
 {
-	robot->GetOmni()->Move(std::make_pair(0, 230), 0);
+	robot->GetOmni()->MoveWithSpeed(std::make_pair(0, 230), 0);
     robot->Delay(1000);
 	robot->GetOmni()->Stop();
-	robot->GetOmni()->Move(std::make_pair(230, 0), 0);
+	robot->GetOmni()->MoveWithSpeed(std::make_pair(230, 0), 0);
 	robot->Delay(1000);
 	robot->GetOmni()->Stop();
-	robot->GetOmni()->Move(std::make_pair(0, 0), 90);
+	robot->GetOmni()->MoveWithSpeed(std::make_pair(0, 0), 90);
 	robot->Delay(1000);
 	robot->GetOmni()->Stop();
 }
+
+TEST(HardwareTestGroup, Omni_move_pos_inc_test)
+{
+	const int speed = 200;
+	robot->GetOmni()->MoveToPosInc(std::make_pair(0, 230), speed);
+	robot->GetOmni()->MoveToPosInc(std::make_pair(230, 0), speed);
+	robot->GetOmni()->MoveToPosInc(std::make_pair(-230, -230), speed);
+}
+
+TEST(HardwareTestGroup, Omni_move_trajectory_test)
+{
+	const int speed = 200;
+	std::vector<std::pair<int, int>> traj = { 
+		{0,115},
+		{0, 115},
+		{0, 115},
+		{0, 115}
+//		{0, -115},
+//		{0, -115},
+//		{0, -115},
+//		{0, -115}
+		};
+	
+	robot->GetOmni()->MoveTrajectory(traj, speed);
+}
+
 TEST(HardwareTestGroup, Aligin_by_Dist_test)
 {
 	robot->AlliginByDist(66,-4);

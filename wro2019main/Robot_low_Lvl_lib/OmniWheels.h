@@ -11,7 +11,9 @@ public:
 	// @brief Move wheels continualy
 	// @param vSpeed vector(x,y) of speed
 	// @param angular_speed  angular velocity
-	virtual void Move(std::pair<double, double> vSpeed, double angular_speed){throw std::runtime_error("Not implemented");}
+	virtual void MoveWithSpeed(std::pair<double, double> vSpeed, double angular_speed){throw std::runtime_error("Not implemented");}
+	virtual void MoveToPosInc(std::pair<double, double> vSpeed, double speed_limit) = 0;
+	virtual void MoveTrajectory(const std::vector<std::pair<int, int>> &tr, double speed) = 0;
 	// stop all wheels
 	virtual void Stop(){throw std::runtime_error("Not implemented");}
 	virtual std::shared_ptr<Motor> GetMotor(MotorDir motor_dir){throw std::runtime_error("Not implemented");}
@@ -30,12 +32,14 @@ public:
 	// @brief Move wheels continualy
 	// @param vSpeed vector(x,y) of speed, X axis is directed to right motor, Y axis is directed to front motor
 	// @param angular_speed  angular velocity
-	void Move(std::pair<double, double> vSpeed, double angular_speed) override;
+	void MoveWithSpeed(std::pair<double, double> vSpeed, double angular_speed) override;
+	void MoveToPosInc(std::pair<double, double> vSpeed, double speed_limit) override;
+	void MoveTrajectory(const std::vector<std::pair<int, int>> &tr, double speed) override;
 	void Stop() override;
 	std::shared_ptr<Motor> GetMotor(MotorDir motor_dir) override;
 private:
-	int r_wheel_;
-	int r_body_;
+	double r_wheel_;
+	double r_body_;
 	std::shared_ptr<Motor> motors[4];
 //	std::shared_ptr<Motor> motor_front_;
 //	std::shared_ptr<Motor> motor_left_;

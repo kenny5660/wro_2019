@@ -50,7 +50,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_left(new KangarooMotor(kangarooDriver2, '2', false));
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
-	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(51,
+	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(48,
 		115,
 		motor_left,
 		motor_front,
@@ -164,7 +164,7 @@ void RobotGardener::AlliginByDist(int dist,int offset_alg)
 		y_speed = err_dist*P_dist + D_dist*(err_dist - err_dist_old);
 		err_dist_old = err_dist;
 		err_align_old = err_align;
-		GetOmni()->Move(std::make_pair(0, y_speed), alg_speed);
+		GetOmni()->MoveWithSpeed(std::make_pair(0, y_speed), alg_speed);
 		Delay(5);
 		if ((abs(err_align) > 2  || abs(err_dist) > 2))
 		{
@@ -185,12 +185,12 @@ void RobotGardener::AlliginRight()
 
 	if (dist->GetDistance() > mid_dist)
 	{
-		GetOmni()->Move(std::make_pair(speed, 0), 0);
+		GetOmni()->MoveWithSpeed(std::make_pair(speed, 0), 0);
 		while (dist->GetDistance() > mid_dist);
 	}
 	else
 	{
-		GetOmni()->Move(std::make_pair(-speed, 0), 0);
+		GetOmni()->MoveWithSpeed(std::make_pair(-speed, 0), 0);
 		while (dist->GetDistance() < mid_dist) ;
 	}
 	GetOmni()->Stop();
@@ -208,7 +208,7 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	const int kDegServo = 268;
 	const int kmidDist  = 100;
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(DIST_C_LEFT);
-	omni_->Move(std::make_pair(0, 250),0);
+	omni_->MoveWithSpeed(std::make_pair(0, 250),0);
 	while (dist_sensor->GetDistance() < kmidDist);
 	omni_->Stop();
 	Delay(300);
