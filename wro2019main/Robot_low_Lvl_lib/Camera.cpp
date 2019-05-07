@@ -12,6 +12,7 @@ Camera::Camera(int num)
 	{
 		throw std::runtime_error("Error, camera isn't opened!");
 	}
+
 }
 
 
@@ -96,3 +97,16 @@ std::shared_ptr<cv::Mat> CameraRotate::GetFrame(double deg)
 
 
 
+
+
+void Camera::SetResolution(std::pair<int,int> res)
+{
+	vc_->set(CV_CAP_PROP_FRAME_WIDTH, res.first);
+	vc_->set(CV_CAP_PROP_FRAME_HEIGHT, res.second);
+}
+
+
+CameraRotate::~CameraRotate()
+{
+	servo_rot_->Disable();
+}

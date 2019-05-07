@@ -17,7 +17,7 @@ OmniWheels4Squre::OmniWheels4Squre(
 //formuls is from picture http://www-ist.massey.ac.nz/conferences/ICARA2004/files/Papers/Paper74_ICARA2004_425_428.pdf
 void OmniWheels4Squre::Move(std::pair<double, double> vSpeed, double angular_speed)
 {
-	angular_speed = angular_speed / 180 * M_PI;
+	angular_speed = -angular_speed / 180 * M_PI;
 	int w_front = ((r_body_*angular_speed - vSpeed.first) / r_wheel_) * 180 / M_PI;   //w1 on picture 
 	int w_left = ((r_body_*angular_speed  -  vSpeed.second) / r_wheel_) * 180 / M_PI;  //w2 on picture 
 	int w_back = ((r_body_*angular_speed  + vSpeed.first) / r_wheel_) * 180 / M_PI;  //w3 on picture 

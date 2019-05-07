@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <iostream>
 #include "debug.h"
+#include <opencv2/objdetect.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 /*
 	This is a very basic sample demonstrating the CppUTest framework.
 	Read more about CppUTest syntax here: https://cpputest.github.io/manual.html
@@ -51,14 +55,22 @@ TEST_GROUP(HardwareTestGroup)
 TEST(HardwareTestGroup, Init_robot_test)
 {	
 }
+
+TEST(HardwareTestGroup, Qrcode_get_test)
+{
+	std::shared_ptr<cv::Mat> frame = robot->GetQrCodeFrame();
+	cv::imwrite("Qrcode_test.jpg", *frame);
+	
+}
+
 TEST(HardwareTestGroup, Camera_test_get_frames)
 {
-	Camera cam(0);
+	std::shared_ptr<CameraRotate> cam_rot = robot->GetCamRot();
 	std::shared_ptr<cv::Mat> frame;
-	frame = cam.GetFrame();
+	frame = cam_rot->Camera::GetFrame();
 	cv::imwrite("test_frame.jpg", *frame);
 	std::this_thread::sleep_for(std::chrono::seconds(2));
-	frame = cam.GetFrame();
+	frame = cam_rot->Camera::GetFrame();
 	cv::imwrite("test_frame2.jpg", *frame);
 }
 TEST(HardwareTestGroup, Lidar_dump_to_file)
@@ -81,14 +93,19 @@ TEST(HardwareTestGroup, Servo_getDeg_test)
 {	
 	robot->GetMan()->GetServoLow()->Disable();
 	robot->GetMan()->GetServoUp()->Disable();
+	robot->GetCamRot()->GetServo()->Disable();
 	int degLow  = robot->GetMan()->GetServoLow()->GetDegrees();
 	int degUp = robot->GetMan()->GetServoUp()->GetDegrees();
-	
+	int deg_up = robot->GetCamRot()->GetServo()->GetDegrees();//268
+		
 	int deg2Low  = robot->GetMan()->GetServoLow()->GetDegrees();
 	int deg2Up  = robot->GetMan()->GetServoUp()->GetDegrees();
+	int deg2_up = robot->GetCamRot()->GetServo()->GetDegrees();
 	
 	int deg3Low  = robot->GetMan()->GetServoLow()->GetDegrees();
 	int deg3Up  = robot->GetMan()->GetServoUp()->GetDegrees();
+	int deg3_up = robot->GetCamRot()->GetServo()->GetDegrees();
+	
 	std::cout  << "degLow = " << degLow << " deg2Low = " << deg2Low << " deg3Low = " << deg3Low << std::endl;
 }
 TEST(HardwareTestGroup, Mnipulator_test)

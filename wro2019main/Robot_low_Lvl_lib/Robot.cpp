@@ -41,13 +41,15 @@ void RobotGardener::Init()
 	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9, uart_Bridge));
 	std::shared_ptr<Servo> servo_up(new Servo_ocs251(5, uart_Bridge));
 	std::shared_ptr<Servo> servo_cam(new Servo_ocs251(8, uart_Bridge));
+	cam_rot_ = std::make_shared<CameraRotate>(0, servo_cam);
+	//cam_rot_->SetResolution(std::make_pair(640, 480));
 	man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low, servo_up));
 	std::shared_ptr<KangarooDriver> kangarooDriver1(new KangarooDriver(uart_A, 135));
 	std::shared_ptr<KangarooDriver> kangarooDriver2(new KangarooDriver(uart_A, 130));
-	std::shared_ptr<KangarooMotor> motor_front(new KangarooMotor(kangarooDriver1, '2', false));
-	std::shared_ptr<KangarooMotor> motor_left(new KangarooMotor(kangarooDriver2, '1', true));
-	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver2, '2', false));
-	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '1', true));
+	std::shared_ptr<KangarooMotor> motor_front(new KangarooMotor(kangarooDriver2, '1', true));
+	std::shared_ptr<KangarooMotor> motor_left(new KangarooMotor(kangarooDriver2, '2', false));
+	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
+	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(51,
 		115,
 		motor_left,
@@ -74,7 +76,7 @@ void RobotGardener::Init()
 
 RobotGardener::~RobotGardener()
 {
-
+ 
 
 }
 Robot::~Robot()
@@ -192,4 +194,23 @@ void RobotGardener::AlliginRight()
 		while (dist->GetDistance() < mid_dist) ;
 	}
 	GetOmni()->Stop();
+}
+
+
+std::shared_ptr<CameraRotate> RobotGardener::GetCamRot()
+{
+	return cam_rot_;
+}
+
+
+std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
+{
+	const int kDegServo = 268;
+	const int kmidDist  = 100;
+	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(DIST_C_LEFT);
+	omni_->Move(std::make_pair(0, 300),0);
+	while (dist_sensor->GetDistance() < kmidDist);
+	omni_->Stop();
+	Delay(200);
+	return cam_rot_->GetFrame(kDegServo);
 }

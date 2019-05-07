@@ -30,9 +30,11 @@ public:
 	std::shared_ptr<Indicator> GetIndicator();
 	std::shared_ptr<Manipulator> GetMan();
 	std::shared_ptr<Lidar> GetLidar();
+	std::shared_ptr<CameraRotate> GetCamRot();
 	void CatchCube();
 	void AlliginByDist(int dist,int offset_alg);
 	void AlliginRight();
+	std::shared_ptr<cv::Mat> GetQrCodeFrame();
 	void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) override;
 	enum DistSensorEnum
 	{
@@ -47,6 +49,7 @@ public:
 
 private:
 
+	std::shared_ptr<CameraRotate> cam_rot_;
 	std::shared_ptr<Manipulator> man_;
 	std::shared_ptr<OmniWheels> omni_;
 	std::shared_ptr<Indicator> indicator_;

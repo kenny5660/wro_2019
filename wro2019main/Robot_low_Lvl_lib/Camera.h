@@ -12,6 +12,7 @@ class Camera
 public:
 	Camera(int num);
 	Camera(std::shared_ptr<cv::VideoCapture> vc);
+	void SetResolution(std::pair<int,int> res);
 	std::shared_ptr<cv::VideoCapture> GetVc();
 	virtual std::shared_ptr<cv::Mat> GetFrame();
 	virtual ~Camera();
@@ -35,6 +36,7 @@ public:
 	std::shared_ptr<Servo> GetServo();
 	void RotateTo(double deg);
 	virtual std::shared_ptr<cv::Mat> GetFrame(double deg);
+	virtual ~CameraRotate();
 private:
 	std::shared_ptr<Servo> servo_rot_;
 };

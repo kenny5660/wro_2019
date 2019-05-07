@@ -147,7 +147,8 @@ void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 	int status = uart_->Get(return_pucket, 6);
 	if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF ||  uart_->isError()) 
 	{
-		throw std::runtime_error(std::string("Write error, Servo! id  = ") + std::to_string(id_));
+		throw std::runtime_error(std::string("Write error, Servo! id  = ") + std::to_string(id_) 
+			+ std::string("Uart_err = ") + std::to_string(uart_->isError())) ;
 	}
 	uint8_t state = return_pucket[SERVO_D_PACKET_STATE];
 	free(data_packet);
