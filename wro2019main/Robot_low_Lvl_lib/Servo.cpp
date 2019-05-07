@@ -1,6 +1,7 @@
 #include "Servo.h"
 #include  <string>
 #include <cmath>
+#include <thread>
 void Servo_ocs251::SetDegrees(double deg,bool wait, uint16_t time)
 {
 	uint8_t data[4];
@@ -24,10 +25,11 @@ void Servo_ocs251::SetDegrees(double deg,bool wait, uint16_t time)
 		while (1)
 		{
 			int a = abs(deg - GetDegrees());
-			if (a < 4)
+			if (a < 5)
 			{
 				break;
 			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 	
 	}

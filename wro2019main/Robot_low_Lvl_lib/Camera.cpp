@@ -85,7 +85,7 @@ std::shared_ptr<Servo> CameraRotate::GetServo()
 
 void CameraRotate::RotateTo(double deg)
 {
-	servo_rot_->SetDegrees(deg);
+	servo_rot_->SetDegrees(deg,true);
 }
 
 
@@ -101,8 +101,10 @@ std::shared_ptr<cv::Mat> CameraRotate::GetFrame(double deg)
 
 void Camera::SetResolution(std::pair<int,int> res)
 {
+	mutex_update_frame_.lock();
 	vc_->set(CV_CAP_PROP_FRAME_WIDTH, res.first);
 	vc_->set(CV_CAP_PROP_FRAME_HEIGHT, res.second);
+	mutex_update_frame_.unlock();
 }
 
 

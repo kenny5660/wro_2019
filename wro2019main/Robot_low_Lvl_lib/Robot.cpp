@@ -42,7 +42,7 @@ void RobotGardener::Init()
 	std::shared_ptr<Servo> servo_up(new Servo_ocs251(5, uart_Bridge));
 	std::shared_ptr<Servo> servo_cam(new Servo_ocs251(8, uart_Bridge));
 	cam_rot_ = std::make_shared<CameraRotate>(0, servo_cam);
-	//cam_rot_->SetResolution(std::make_pair(640, 480));
+	cam_rot_->SetResolution(std::make_pair(1024, 768));
 	man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low, servo_up));
 	std::shared_ptr<KangarooDriver> kangarooDriver1(new KangarooDriver(uart_A, 135));
 	std::shared_ptr<KangarooDriver> kangarooDriver2(new KangarooDriver(uart_A, 130));
@@ -208,9 +208,9 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	const int kDegServo = 268;
 	const int kmidDist  = 100;
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(DIST_C_LEFT);
-	omni_->Move(std::make_pair(0, 300),0);
+	omni_->Move(std::make_pair(0, 250),0);
 	while (dist_sensor->GetDistance() < kmidDist);
 	omni_->Stop();
-	Delay(200);
+	Delay(300);
 	return cam_rot_->GetFrame(kDegServo);
 }
