@@ -43,6 +43,8 @@ class BoxMap {
 
     void merge(const BoxMap &);
 
+    Point get_box_indent();
+
     std::array<Point, 4> get_corners() const;
 
     void set_color(const box_color_t);
@@ -58,6 +60,7 @@ class Map {
     Map(const Point &p1, const Point &p2);
     Map(const std::vector<std::vector<std::pair<Point, line_t>>> &, show_img_debug debug = nullptr);
     Map(const std::vector<PolarPoint> &, show_img_debug debug = nullptr);
+    Map(const Point &p_1, const Point &p_2, const std::array<BoxMap, 3> &boxes, const RobotPoint &p);
 
     void normal_death_zone();
     bool merge(const Map &m);
@@ -87,6 +90,8 @@ class Map {
 
     bool in_death_zone(const Point &);
     bool death_rect(const cv::Point2i &a, const cv::Point2i &b);
+
+    void add_pz(const Point &p_1, const Point &p_2);
 
     std::pair<Point, Point> parking_zone_circles_ = std::make_pair(Point(), Point()); // главня точка - первая
     std::pair<Point, Point> parking_zone_back_; // ниже главной - первая
