@@ -102,8 +102,8 @@ std::shared_ptr<cv::Mat> CameraRotate::GetFrame(double deg)
 void Camera::SetResolution(std::pair<int,int> res)
 {
 	mutex_update_frame_.lock();
-	vc_->set(CV_CAP_PROP_FRAME_WIDTH, res.first);
-	vc_->set(CV_CAP_PROP_FRAME_HEIGHT, res.second);
+	vc_->set(cv::CAP_PROP_FRAME_WIDTH, res.first);
+	vc_->set(cv::CAP_PROP_FRAME_HEIGHT, res.second);
 	mutex_update_frame_.unlock();
 }
 

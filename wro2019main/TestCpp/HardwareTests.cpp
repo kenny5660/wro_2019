@@ -3,10 +3,8 @@
 #include <stdio.h>
 #include <iostream>
 #include "debug.h"
-#include <opencv2/objdetect.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+
+#include <opencv2/core.hpp>
 /*
 	This is a very basic sample demonstrating the CppUTest framework.
 	Read more about CppUTest syntax here: https://cpputest.github.io/manual.html
@@ -59,19 +57,20 @@ TEST(HardwareTestGroup, Init_robot_test)
 TEST(HardwareTestGroup, Qrcode_get_test)
 {
 	std::shared_ptr<cv::Mat> frame = robot->GetQrCodeFrame();
-	cv::imwrite("Qrcode_test.jpg", *frame);
+	cv::String str("Qrcode_test.jpg");
+	cv::imwrite(str, *frame);
 	
 }
 
 TEST(HardwareTestGroup, Camera_test_get_frames)
 {
-	std::shared_ptr<CameraRotate> cam_rot = robot->GetCamRot();
-	std::shared_ptr<cv::Mat> frame;
-	frame = cam_rot->Camera::GetFrame();
-	cv::imwrite("test_frame.jpg", *frame);
-	std::this_thread::sleep_for(std::chrono::seconds(2));
-	frame = cam_rot->Camera::GetFrame();
-	cv::imwrite("test_frame2.jpg", *frame);
+//	std::shared_ptr<CameraRotate> cam_rot = robot->GetCamRot();
+//	std::shared_ptr<cv::Mat> frame;
+//	frame = cam_rot->Camera::GetFrame();
+//	cv::imwrite("test_frame.jpg", *frame);
+//	std::this_thread::sleep_for(std::chrono::seconds(2));
+//	frame = cam_rot->Camera::GetFrame();
+//	cv::imwrite("test_frame2.jpg", *frame);
 }
 TEST(HardwareTestGroup, Lidar_dump_to_file)
 {	

@@ -58,7 +58,7 @@ void add_points_img(DebugFieldMat &mat, const std::vector<Point> &points, const 
         Point p = mat.get_zoom_point(i);
         if ((p.get_x() > 0) && (p.get_y() > 0) && (p.get_x() < mat.size().width)
             && (p.get_x() < mat.size().height))
-            cv::circle(mat, {int(std::round(p.get_x())), int(std::round(p.get_y()))}, 1, color, CV_FILLED);
+            cv::circle(mat, {int(std::round(p.get_x())), int(std::round(p.get_y()))}, 1, color, cv::FILLED);
     }
 }
 
@@ -87,10 +87,10 @@ void add_lines_img(DebugFieldMat &mat, const std::vector<std::vector<Point>> &po
                        {int(std::round(a.get_x())), int(std::round(a.get_y()))},
                        2,
                        color_corn,
-                       CV_FILLED);
+		        cv::FILLED);
         }
         Point b = mat.get_zoom_point(points[j].back());
-        cv::circle(mat, {int(std::round(b.get_x())), int(std::round(b.get_y()))}, 2, color_corn, CV_FILLED);
+	    cv::circle(mat, { int(std::round(b.get_x())), int(std::round(b.get_y())) }, 2, color_corn, cv::FILLED);
     }
 }
 
@@ -130,14 +130,14 @@ void add_lines_img(DebugFieldMat &mat,
                        {int(std::round(a.get_x())), int(std::round(a.get_y()))},
                        2,
                        color_corn,
-                       CV_FILLED);
+		        cv::FILLED);
             if (writing) {
                 cv::putText(mat,
                             "{" + std::to_string(int(std::round(points[j][i - 1].first.get_x()))) + ", "
                                 + std::to_string(int(std::round(points[j][i - 1].first.get_y()))) + "}",
                             {int(std::round(a.get_x())),
                              int(std::round(a.get_y()))},
-                            CV_FONT_HERSHEY_SIMPLEX, 0.3,
+		            cv::FONT_HERSHEY_SIMPLEX, 0.3,
                             {255, 255, 255});
             }
         }
@@ -146,21 +146,21 @@ void add_lines_img(DebugFieldMat &mat,
                    {int(std::round(b.get_x())), int(std::round(b.get_y()))},
                    2,
                    color_corn,
-                   CV_FILLED);
+		    cv::FILLED);
         if (writing) {
             cv::putText(mat,
                         "{" + std::to_string(int(std::round(points[j].back().first.get_x()))) + ", "
                             + std::to_string(int(std::round(points[j].back().first.get_y()))) + "}",
                         {int(std::round(b.get_x())),
                          int(std::round(b.get_y()))},
-                        CV_FONT_HERSHEY_SIMPLEX, 0.3,
+		        cv::FONT_HERSHEY_SIMPLEX, 0.3,
                         {255, 255, 255});
         }
     }
 }
 
 void add_point_img(DebugFieldMat &mat, const Point &p, const cv::Scalar &circle_color) {
-    cv::circle(mat, {int(mat.get_zoom_point(p).get_x()), int(mat.get_zoom_point(p).get_y())}, 3, {0, 0, 255}, CV_FILLED);
+	cv::circle(mat, { int(mat.get_zoom_point(p).get_x()), int(mat.get_zoom_point(p).get_y()) }, 3, { 0, 0, 255 }, cv::FILLED);
 }
 
 void add_robot_img_global(DebugFieldMat &mat,
@@ -168,7 +168,7 @@ void add_robot_img_global(DebugFieldMat &mat,
                           const cv::Scalar &circle_color) {
     RobotPoint p(r_p.get_x(), r_p.get_y(), r_p.get_angle());
     const double radius_line = 12;
-    cv::circle(mat, {int(p.get_x() * mat.zoom + mat.indent), int(p.get_y()*mat.zoom + mat.indent)}, 7, circle_color, CV_FILLED);
+	                          cv::circle(mat, { int(p.get_x() * mat.zoom + mat.indent), int(p.get_y()*mat.zoom + mat.indent) }, 7, circle_color, cv::FILLED);
     cv::line(mat, {int(p.get_x() * mat.zoom + mat.indent), int(p.get_y()*mat.zoom + mat.indent)},
              {int((p.get_x() * mat.zoom + mat.indent) + radius_line * cos(M_PI - p.get_angle()) ),
               int((p.get_y()*mat.zoom + mat.indent) - radius_line * sin(M_PI - p.get_angle()))}, {0, 0, 255}, 2);
