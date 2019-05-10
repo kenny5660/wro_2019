@@ -15,7 +15,7 @@
 #include <iostream>
 #include <vector>
 #include <array>
-#include <c++/set>
+#include <set>
 #include "lidar_math.h"
 
 inline double get_side_triangle(double b, double c, double alpha) {

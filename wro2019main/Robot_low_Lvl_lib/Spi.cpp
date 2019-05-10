@@ -85,5 +85,5 @@ void SpiMyRio::Disable()
 
 SpiMyRio::~SpiMyRio()
 {
-	Disable();
+//	Disable();
 }
