@@ -114,22 +114,14 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 
 void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 {
-	const double kLidarDegOffset = 45;
-	
 	std::vector<LidarA1::Point> points_lidar;
 	lidar_->GetScan(points_lidar);
 	for (auto it = points_lidar.begin(); it != points_lidar.end(); ++it)
 	{
 		//TO DO filtering points
-		
-		polar_points.emplace_back(it->r, it->ph + (kLidarDegOffset*180/M_PI));
+		polar_points.emplace_back(it->r, it->ph);
 	}
-	struct sort_class_PolarPoint
-	{
-		bool operator()(PolarPoint i, PolarPoint j)
-		{ return (i.get_f()  < j.get_f());}
-	} sort_object_PolarPoint;
-	std::sort(polar_points.begin(), polar_points.end(), sort_object_PolarPoint);
+
 }
 
 

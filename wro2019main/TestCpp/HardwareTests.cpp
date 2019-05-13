@@ -101,15 +101,6 @@ TEST(HardwareTestGroup, Lidar_dump_to_file)
 	std::vector<PolarPoint> pps;
 	robot->GetLidarPolarPoints(pps);
 	save_ld_data(pps, "real_robot");
-	DebugFieldMat mat;
-	cv::rectangle(mat, cv::Point(0, 0), cv::Point(debug_width_img, debug_height_img), cv::Scalar(0, 0, 0), cv::FILLED);
-	mat.zoom = 0;
-	std::vector<Point> buff;
-	for (auto i : pps) {
-		buff.push_back(i.to_cartesian(-M_PI, true));
-	}
-	add_points_img(mat, buff,cv::Scalar(0,255,0));
-	cv::imwrite("lidar_dump.jpg", mat);
 	return;
 }
 

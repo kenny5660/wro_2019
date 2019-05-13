@@ -8,7 +8,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgproc.hpp>
 #include <string>
-#include <set>
+#include <c++/set>
 #include "map.h"
 #include "settings.h"
 #include "lidar_math.h"
@@ -541,7 +541,7 @@ std::array<Point, 4> Map::get_parking_zone() const {
 
 cv::Mat Map::get_img(int width, int height) {
     cv::Mat img(width, height, CV_8UC3);
-    cv::rectangle(img, {0, 0}, {width, height}, cv::Scalar(255, 255, 255), cv::FILLED);
+    cv::rectangle(img, {0, 0}, {width, height}, cv::Scalar(255, 255, 255), CV_FILLED);
     const Point step_markup(width / field_sett::number_field_unit, height / field_sett::number_field_unit);
     const Point size_line(step_markup.get_x() / 10, step_markup.get_y() / 10);
     const cv::Scalar color_line(172,172,172);
@@ -561,10 +561,10 @@ cv::Mat Map::get_img(int width, int height) {
     auto b = get_boxes_normal();
     for (int i = 0; i < box_count_; i++) {
         Point p(b[i] * zoom);
-        cv::rectangle(img, {int(p.get_x()), int(p.get_y())}, {int(p.get_x() + field_sett::climate_box_width * zoom.get_x()), int(p.get_y() + field_sett::climate_box_height * zoom.get_y())}, box_color2color[boxes_[i].get_color()], cv::FILLED);
+        cv::rectangle(img, {int(p.get_x()), int(p.get_y())}, {int(p.get_x() + field_sett::climate_box_width * zoom.get_x()), int(p.get_y() + field_sett::climate_box_height * zoom.get_y())}, box_color2color[boxes_[i].get_color()], CV_FILLED);
     }
     const double radius_robot_line = 15;
-    cv::circle(img, {int(position_.get_x() * zoom.get_x()), int(position_.get_y() * zoom.get_y())}, 10, {0, 0, 0}, cv::FILLED);
+    cv::circle(img, {int(position_.get_x() * zoom.get_x()), int(position_.get_y() * zoom.get_y())}, 10, {0, 0, 0}, CV_FILLED);
     cv::line(img, {int(position_.get_x() * zoom.get_x()), int(position_.get_y() * zoom.get_y())},
              {int((position_.get_x() * zoom.get_x()) + radius_robot_line * cos(M_PI - position_.get_angle()) ),
               int((position_.get_y() * zoom.get_y()) - radius_robot_line * sin(M_PI - position_.get_angle()))}, {0, 0, 255}, 3);
@@ -584,7 +584,7 @@ cv::Mat Map::get_img(int width, int height) {
     for (int i = 0; i < death_zone_.size(); i++) {
         for (int j = 0; j < death_zone_[i].size(); j++) {
             if (death_zone_[i][j]) {
-                cv::rectangle(img, {int(i * field_sett::size_field_unit * zoom.get_x()), int(j * field_sett::size_field_unit * zoom.get_y())}, {int((i + 1) * field_sett::size_field_unit * zoom.get_x()), int((j + 1) * field_sett::size_field_unit * zoom.get_y())}, {0, 0, 0}, cv::FILLED);
+                cv::rectangle(img, {int(i * field_sett::size_field_unit * zoom.get_x()), int(j * field_sett::size_field_unit * zoom.get_y())}, {int((i + 1) * field_sett::size_field_unit * zoom.get_x()), int((j + 1) * field_sett::size_field_unit * zoom.get_y())}, {0, 0, 0}, CV_FILLED);
             }
         }
     }
