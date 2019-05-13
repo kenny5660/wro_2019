@@ -103,3 +103,22 @@ void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr
 	int start_pos_right = motors[(int)MotorDir::RIGHT]->GetCurEncDeg();
 	int b = 0;
 }
+
+
+void OmniWheels4Squre::Turn(double angl,int speed)
+{
+	int speed_limit = speed / r_wheel_ * 180 / M_PI;
+	int w_front = r_body_*angl;      //w1 on picture 
+	int w_left = r_body_*angl;      //w2 on picture 
+	int w_back = r_body_*angl;     //w3 on picture 
+	int w_right = r_body_*angl;       //w4 on picture 
+	
+	motors[(int)MotorDir::FRONT]->MoveIncDeg(speed_limit, w_front);
+	motors[(int)MotorDir::LEFT]->MoveIncDeg(speed_limit, w_left);
+	motors[(int)MotorDir::BACK]->MoveIncDeg(speed_limit, w_back);
+	motors[(int)MotorDir::RIGHT]->MoveIncDeg(speed_limit, w_right);
+	while (!motors[(int)MotorDir::FRONT]->IsReady() ||
+		   !motors[(int)MotorDir::LEFT]->IsReady() ||
+		   !motors[(int)MotorDir::BACK]->IsReady() ||
+		   !motors[(int)MotorDir::RIGHT]->IsReady()) ;
+}

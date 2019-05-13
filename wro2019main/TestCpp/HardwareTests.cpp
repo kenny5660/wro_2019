@@ -183,6 +183,27 @@ TEST(HardwareTestGroup, Omni_move_pos_inc_test)
 	robot->GetOmni()->MoveToPosInc(std::make_pair(230, 0), speed);
 	robot->GetOmni()->MoveToPosInc(std::make_pair(-230, -230), speed);
 }
+TEST(HardwareTestGroup, Robot_turn_test)
+{
+	robot->Turn(M_PI);
+	robot->Turn(-M_PI);
+	robot->Turn(M_PI/2);
+	robot->Turn(-M_PI/2);
+}
+TEST(HardwareTestGroup,Robot_go2_test)
+{
+	std::vector<Point> traj = { 
+		{ 0, 115 },
+		{ 0, 115 },
+		{ 0, 115 },
+		{ 0, 115 }
+//		{0, -115},
+//		{0, -115},
+//		{0, -115},
+//		{0, -115}
+	};
+	robot->Go2(traj);
+}
 
 TEST(HardwareTestGroup, Omni_move_trajectory_test)
 {

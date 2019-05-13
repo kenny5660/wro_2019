@@ -11,5 +11,5 @@
     #include "../wro2019main/Robot_low_Lvl_lib/Robot.h"
 #endif
 #include "debug.h"
-
+void do_alg_code(Robot &robot);
 #endif //LIDAR_MATH_ALG_H

@@ -305,3 +305,29 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 
 	return frame;
 }
+
+
+void RobotGardener::GetQRCode(cv::Mat &frame)
+{
+	frame = *GetQrCodeFrame();
+}
+
+
+void RobotGardener::Turn(double angle)
+{
+	
+	const int kRobot_rot_speed = 150;
+	omni_->Turn(angle, kRobot_rot_speed);
+}
+
+
+void RobotGardener::Go2(std::vector<Point> points)
+{
+	const int kRobot_mooving_speed = 250;
+	std::vector<std::pair<int, int>> traj;
+	for (auto it : points)
+	{
+		traj.emplace_back(it.get_x(),it.get_y());
+	}
+	omni_->MoveTrajectory(traj, kRobot_mooving_speed);
+}

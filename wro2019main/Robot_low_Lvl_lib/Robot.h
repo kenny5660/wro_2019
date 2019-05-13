@@ -25,6 +25,10 @@ public:
 	//@param side is side of manipulator which will be filled after catch (empty side of manipulator before catch)
 	virtual void CatchCube(CatchCubeSideEnum side) = 0;
 	virtual void Delay(int msec);
+	virtual void Go2(std::vector<Point>) = 0;
+	//@brief in radians
+	virtual void Turn(double angle) = 0;
+	virtual void GetQRCode(cv::Mat& frame) = 0;
 	virtual void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) = 0;
 	virtual  ~Robot();
 private:
@@ -44,8 +48,10 @@ public:
 	
 	void CatchCube(CatchCubeSideEnum side) override;
 	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg);
-	
+	void GetQRCode(cv::Mat &frame) override;
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();
+	void Turn(double angle) override;
+	void Go2(std::vector<Point>) override;
 	void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) override;
 	enum DistSensorEnum
 	{
@@ -59,6 +65,7 @@ public:
 
 
 private:
+	
 	void CatchLeft_();
 	void CatchRight_();
 	void AlliginHorizontal_(CatchCubeSideEnum side);
