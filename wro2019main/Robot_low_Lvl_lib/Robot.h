@@ -14,6 +14,15 @@ public:
 	virtual void Init() = 0;
 	//@brief sleep(wait) 'msec' milliseconds
 	//@param msec milliseconds to wait
+		enum class CatchCubeSideEnum
+	{
+		LEFT,
+		RIGHT
+	}
+	;
+	//@brief Ctach cube 
+	//@param side is side of manipulator which will be filled after catch (empty side of manipulator before catch)
+	virtual void CatchCube(CatchCubeSideEnum side);
 	virtual void Delay(int msec);
 	virtual void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) = 0;
 	virtual  ~Robot();
@@ -31,14 +40,8 @@ public:
 	std::shared_ptr<Manipulator> GetMan();
 	std::shared_ptr<Lidar> GetLidar();
 	std::shared_ptr<CameraRotate> GetCamRot();
-	enum class CatchCubeSideEnum
-	{
-		LEFT,
-		RIGHT
-	};
-	//@brief Ctach cube 
-	//@param side is side of manipulator which will be filled after catch (empty side of manipulator before catch)
-	void CatchCube(CatchCubeSideEnum side);
+	
+	void CatchCube(CatchCubeSideEnum side) override;
 	void AlliginByDist(int dist,int offset_alg);
 	void AlliginHorizontal();
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();
