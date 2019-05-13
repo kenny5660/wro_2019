@@ -40,13 +40,13 @@ public:
 	//@param side is side of manipulator which will be filled after catch (empty side of manipulator before catch)
 	void CatchCube(CatchCubeSideEnum side);
 	void AlliginByDist(int dist,int offset_alg);
-	void AlliginRight();
+	void AlliginHorizontal();
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();
 	void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) override;
 	enum DistSensorEnum
 	{
 		DIST_LEFT    = 0,
-		DIST_RIGHT   = 1,
+		DIST_TOP   = 1,
 		DIST_C_RIGHT = 2,
 		DIST_C_LEFT  = 3
 	};

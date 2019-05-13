@@ -205,9 +205,10 @@ TEST(HardwareTestGroup, Aligin_by_Dist_test)
 {
 	robot->AlliginByDist(66,-4);
 }
-TEST(HardwareTestGroup, CatchCube_test)
+TEST(HardwareTestGroup, CatchCube_Left_test)
 {
 	robot->CatchCube(RobotGardener::CatchCubeSideEnum::LEFT);
+	robot->Delay(500);
 }
 TEST(HardwareTestGroup, Dist_sensors_test)
 {
@@ -217,7 +218,7 @@ TEST(HardwareTestGroup, Dist_sensors_test)
 	while (1)
 	{
 		std::cout  << "Dist left = " << robot->GetDistSensor(RobotGardener::DIST_LEFT)->GetDistance() << std::endl;
-		std::cout  << "Dist right = " << robot->GetDistSensor(RobotGardener::DIST_RIGHT)->GetDistance() << std::endl;
+		std::cout  << "Dist top = " << robot->GetDistSensor(RobotGardener::DIST_TOP)->GetDistance() << std::endl;
 		std::cout  << "Dist center left = " << robot->GetDistSensor(RobotGardener::DIST_C_LEFT)->GetDistance() << std::endl;
 		std::cout  << "Dist center right = " << robot->GetDistSensor(RobotGardener::DIST_C_RIGHT)->GetDistance() << std::endl;
 		robot->Delay(100);
