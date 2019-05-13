@@ -56,6 +56,34 @@ TEST(BoxMap, GetPoint) {
     EXPECT_NEAR(corners[3].get_y(), 5 + field_sett::climate_box_height, PRECISION_LENGTH);
 }
 
+TEST(BoxMap, getBoxOffsetRight) {
+    BoxMap b(Point{field_sett::size_field_unit * 3, field_sett::size_field_unit * 10});
+    Point p = b.get_box_indent();
+    EXPECT_NEAR(p.get_x(), field_sett::size_field_unit * 7, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), field_sett::size_field_unit * 11, PRECISION_LENGTH);
+}
+
+TEST(BoxMap, getBoxOffsetLeft) {
+    BoxMap b(Point{field_sett::size_field_unit * 17, field_sett::size_field_unit * 10});
+    Point p = b.get_box_indent();
+    EXPECT_NEAR(p.get_x(), field_sett::size_field_unit * 15, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), field_sett::size_field_unit * 11, PRECISION_LENGTH);
+}
+
+TEST(BoxMap, getBoxOffsetDown) {
+    BoxMap b(Point{field_sett::size_field_unit * 7, field_sett::size_field_unit * 1});
+    Point p = b.get_box_indent();
+    EXPECT_NEAR(p.get_x(), field_sett::size_field_unit * 8, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), field_sett::size_field_unit * 5, PRECISION_LENGTH);
+}
+
+TEST(BoxMap, getBoxOffsetUp) {
+    BoxMap b(Point{field_sett::size_field_unit * 5, field_sett::size_field_unit * 17});
+    Point p = b.get_box_indent();
+    EXPECT_NEAR(p.get_x(), field_sett::size_field_unit * 6, PRECISION_LENGTH);
+    EXPECT_NEAR(p.get_y(), field_sett::size_field_unit * 15, PRECISION_LENGTH);
+}
+
 std::string get_death_zone(const std::array<std::array<bool, field_sett::number_field_unit>, field_sett::number_field_unit> &a) {
     std::string s;
     for (int i = 0; i < a.size(); i++) {

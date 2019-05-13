@@ -11,7 +11,7 @@
 namespace field_sett {
     const int truncation_field_error = 5;
 
-    const int max_field_width = 2400;
+    const int max_field_width = 2400 - (2 * 50);
     const int max_field_height = max_field_width;
     const int max_field = std::max(max_field_width, max_field_height);
     const int min_field = std::min(max_field_width, max_field_height);
@@ -31,6 +31,9 @@ namespace field_sett {
     const int climate_box_width = 230;
     const int climate_box_height = climate_box_width;
     const int climate_box_max = std::max(climate_box_height, climate_box_width);
+    const int climate_box_number_unit_offset = 4;
+    const double climate_box_offset =
+        field_sett::size_field_unit * climate_box_number_unit_offset;
 
     const int flower_cube_width = 48;
     const int flower_cube_height = flower_cube_width;

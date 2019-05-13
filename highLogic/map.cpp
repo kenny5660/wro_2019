@@ -52,6 +52,20 @@ void BoxMap::merge(const BoxMap &b) {
     }
 }
 
+Point BoxMap::get_box_indent() {
+    Point box_center = (Point)left_up_corner_ + Point{field_sett::climate_box_width / 2.,
+                                               field_sett::climate_box_height / 2.};
+    if ((box_center.get_x() < box_center.get_y()) && (box_center.get_x() < (field_sett::max_field_width - box_center.get_x())) && (box_center.get_x() < (field_sett::max_field_height - box_center.get_y()))) {
+        return box_center + Point{field_sett::climate_box_width / 2. + field_sett::climate_box_offset / 2., 0};
+    } else if ((box_center.get_y() < box_center.get_x()) && (box_center.get_y() < (field_sett::max_field_width - box_center.get_x())) && (box_center.get_y() < (field_sett::max_field_height - box_center.get_y()))) {
+        return box_center + Point{0, field_sett::climate_box_height / 2. + field_sett::climate_box_offset / 2.};
+    } else if (((field_sett::max_field_width - box_center.get_x()) < box_center.get_x()) && ((field_sett::max_field_width - box_center.get_x()) < box_center.get_y()) && ((field_sett::max_field_width - box_center.get_x()) < (field_sett::max_field_height - box_center.get_y()))) {
+        return box_center + Point{-field_sett::climate_box_width / 2. - field_sett::climate_box_offset / 2., 0};
+    } else {
+        return box_center + Point{0, -field_sett::climate_box_height / 2. - field_sett::climate_box_offset / 2.};
+    }
+}
+
 std::array<Point, 4> BoxMap::get_corners() const {
     return std::array<Point, 4>{left_up_corner_, left_up_corner_
         + Point(field_sett::climate_box_width, 0),
@@ -203,7 +217,7 @@ void Map::delete_from_death_zone_circle(const Point &p, double r) {
     }
 }
 
-Map::Map(const Point &p_1, const Point &p_2) { // первая точка - правая точка
+void Map::add_pz(const Point &p_1, const Point &p_2) {
     for (int i = 0; i < death_zone_.size(); i++) {
         std::fill(death_zone_[i].begin(), death_zone_[i].end(), true);
     }
@@ -211,19 +225,19 @@ Map::Map(const Point &p_1, const Point &p_2) { // первая точка - пр
     Point p2(p_2 - (p_1 - p1));
     const int kPoint_offset = 12;
     Point (* const point_offset[kPoint_offset])(double s1, double s2) = { // последний элемент является фальшивым
-            [](double s1, double s2){ return Point{sin(atan(-3)) * s1, cos(atan(-3)) * s2}; },
-            [](double s1, double s2){ return Point{sin(atan(-2)) * s1, cos(atan(-2)) * s2}; },
-            [](double s1, double s2){ return Point{sin(atan(-1)) * s1, cos(atan(-1)) * s2}; },
-            [](double s1, double s2){ return Point{sin(atan(-1 / 2.)) * s1, cos(atan(-1 / 2.)) * s2}; },
-            [](double s1, double s2){ return Point{sin(atan(-1 / 3.)) * s1, cos(atan(-1 / 3.)) * s2}; },
-            [](double s1, double s2){ return Point{0, s2}; },
-            [](double s1, double s2){ return Point{sin(atan(1 / 3.)) * s1, cos(atan(1 / 3.)) * s2}; },
-            [](double s1, double s2){ return Point{sin(atan(1 / 2.)) * s1, cos(atan(1 / 2.)) * s2}; },
-            [](double s1, double s2){ return Point{sin(atan(1)) * s1, cos(atan(1)) * s2}; },
-            [](double s1, double s2){ return Point{sin(atan(2)) * s1, cos(atan(2)) * s2}; },
-            [](double s1, double s2){ return Point{sin(atan(3)) * s1, cos(atan(3)) * s2}; },
-            [](double s1, double s2){ return Point{field_sett::max_field_width, field_sett::max_field_height}; }
-        };
+        [](double s1, double s2){ return Point{sin(atan(-3)) * s1, cos(atan(-3)) * s2}; },
+        [](double s1, double s2){ return Point{sin(atan(-2)) * s1, cos(atan(-2)) * s2}; },
+        [](double s1, double s2){ return Point{sin(atan(-1)) * s1, cos(atan(-1)) * s2}; },
+        [](double s1, double s2){ return Point{sin(atan(-1 / 2.)) * s1, cos(atan(-1 / 2.)) * s2}; },
+        [](double s1, double s2){ return Point{sin(atan(-1 / 3.)) * s1, cos(atan(-1 / 3.)) * s2}; },
+        [](double s1, double s2){ return Point{0, s2}; },
+        [](double s1, double s2){ return Point{sin(atan(1 / 3.)) * s1, cos(atan(1 / 3.)) * s2}; },
+        [](double s1, double s2){ return Point{sin(atan(1 / 2.)) * s1, cos(atan(1 / 2.)) * s2}; },
+        [](double s1, double s2){ return Point{sin(atan(1)) * s1, cos(atan(1)) * s2}; },
+        [](double s1, double s2){ return Point{sin(atan(2)) * s1, cos(atan(2)) * s2}; },
+        [](double s1, double s2){ return Point{sin(atan(3)) * s1, cos(atan(3)) * s2}; },
+        [](double s1, double s2){ return Point{field_sett::max_field_width, field_sett::max_field_height}; }
+    };
     double last_dist = field_sett::max_field_width;
     for (int i = 0; i < kPoint_offset; i++) {
         Point bp = point_offset[i](field_sett::parking_zone_door_size, field_sett::parking_zone_door_size) + p1;
@@ -240,6 +254,25 @@ Map::Map(const Point &p_1, const Point &p_2) { // первая точка - пр
         last_dist = dist;
     }
     std::cerr << "Create Map by Point: not found same point!" << std::endl;
+}
+
+Map::Map(const Point &p_1, const Point &p_2) { // первая точка - правая точка
+    add_pz(p_1, p_2);
+}
+
+Map::Map(const Point &p_1, const Point &p_2, const std::array<BoxMap, 3> &boxes, const RobotPoint &p) {
+    add_pz(p_1, p_2);
+    for (auto i : boxes) {
+        add_box(i.get_left_corner_point());
+        auto p_offset = get_field_unit(i.get_box_indent() - (field_sett::climate_box_offset / 2.));
+        for (int x = std::max(0, p_offset.first); x < std::min(p_offset.first + field_sett::climate_box_number_unit_offset, field_sett::number_field_unit); x++) {
+            for (int y = std::max(0, p_offset.second); y < std::min(p_offset.second + field_sett::climate_box_number_unit_offset, field_sett::number_field_unit); y++) {
+                death_zone_[x][y] = false;
+            }
+        }
+    }
+    normal_death_zone();
+    position_ = p;
 }
 
 std::vector<Point> get_corners_between_lines(const Point &a, const Point &b) {
