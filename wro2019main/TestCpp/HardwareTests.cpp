@@ -54,29 +54,62 @@ TEST(HardwareTestGroup, Init_robot_test)
 {	
 }
 
+void display(cv::Mat &im, cv::Mat &bbox, std::string str) {
+	using namespace cv;
+	int n = bbox.rows;
+	for (int i = 0; i < n; i++) {
+		line(
+		    im,
+			cv::Point2i(bbox.at<float>(i, 0), bbox.at<float>(i, 1)),
+			Point2i(bbox.at<float>((i + 1) % n, 0), bbox.at<float>((i + 1) % n, 1)),
+			Scalar(255, 0, 0),
+			3);
+	}
+	cv::putText(im,
+		str,
+		cv::Point2i(bbox.at<float>(0, 0) - 50, bbox.at<float>(0, 1) - 15),
+		FONT_ITALIC,
+		0.6,
+		Scalar(0, 0, 255));
+	// imshow("Result", im);
+}
 TEST(HardwareTestGroup, Qrcode_get_test)
-{
-	std::shared_ptr<cv::Mat> frame = robot->GetQrCodeFrame();
-	cv::String str("Qrcode_test.jpg");
-	cv::imwrite(str, *frame);
+{	std::shared_ptr<cv::Mat> frame = robot->GetQrCodeFrame();
+	cv::QRCodeDetector QrDetector;
+	cv::Mat bbox, rectifiedImage;
+	cv::imwrite("Qrcode_test.jpg", *frame);
+	std::string str = QrDetector.detectAndDecode(*frame, bbox, rectifiedImage);
+	CHECK(true);
+	CHECK(str.length() > 0);
+	display(*frame, bbox, str);
+	cv::imwrite("Qrcode_test_with_text.jpg", *frame);
 	
 }
 
 TEST(HardwareTestGroup, Camera_test_get_frames)
 {
-//	std::shared_ptr<CameraRotate> cam_rot = robot->GetCamRot();
-//	std::shared_ptr<cv::Mat> frame;
-//	frame = cam_rot->Camera::GetFrame();
-//	cv::imwrite("test_frame.jpg", *frame);
-//	std::this_thread::sleep_for(std::chrono::seconds(2));
-//	frame = cam_rot->Camera::GetFrame();
-//	cv::imwrite("test_frame2.jpg", *frame);
+	std::shared_ptr<CameraRotate> cam_rot = robot->GetCamRot();
+	std::shared_ptr<cv::Mat> frame;
+	frame = cam_rot->Camera::GetFrame();
+	cv::imwrite("test_frame.jpg", *frame);
+	std::this_thread::sleep_for(std::chrono::seconds(2));
+	frame = cam_rot->Camera::GetFrame();
+	cv::imwrite("test_frame2.jpg", *frame);
 }
 TEST(HardwareTestGroup, Lidar_dump_to_file)
 {	
 	std::vector<PolarPoint> pps;
 	robot->GetLidarPolarPoints(pps);
 	save_ld_data(pps, "real_robot");
+	DebugFieldMat mat;
+	cv::rectangle(mat, cv::Point(0, 0), cv::Point(debug_width_img, debug_height_img), cv::Scalar(0, 0, 0), cv::FILLED);
+	mat.zoom = 0;
+	std::vector<Point> buff;
+	for (auto i : pps) {
+		buff.push_back(i.to_cartesian(-M_PI, true));
+	}
+	add_points_img(mat, buff,cv::Scalar(0,255,0));
+	cv::imwrite("lidar_dump.jpg", mat);
 	return;
 }
 
@@ -172,9 +205,10 @@ TEST(HardwareTestGroup, Aligin_by_Dist_test)
 {
 	robot->AlliginByDist(66,-4);
 }
-TEST(HardwareTestGroup, CatchCube_test)
+TEST(HardwareTestGroup, CatchCube_Left_test)
 {
-	robot->CatchCube();
+	robot->CatchCube(RobotGardener::CatchCubeSideEnum::LEFT);
+	robot->Delay(500);
 }
 TEST(HardwareTestGroup, Dist_sensors_test)
 {
@@ -184,7 +218,7 @@ TEST(HardwareTestGroup, Dist_sensors_test)
 	while (1)
 	{
 		std::cout  << "Dist left = " << robot->GetDistSensor(RobotGardener::DIST_LEFT)->GetDistance() << std::endl;
-		std::cout  << "Dist right = " << robot->GetDistSensor(RobotGardener::DIST_RIGHT)->GetDistance() << std::endl;
+		std::cout  << "Dist top = " << robot->GetDistSensor(RobotGardener::DIST_TOP)->GetDistance() << std::endl;
 		std::cout  << "Dist center left = " << robot->GetDistSensor(RobotGardener::DIST_C_LEFT)->GetDistance() << std::endl;
 		std::cout  << "Dist center right = " << robot->GetDistSensor(RobotGardener::DIST_C_RIGHT)->GetDistance() << std::endl;
 		robot->Delay(100);

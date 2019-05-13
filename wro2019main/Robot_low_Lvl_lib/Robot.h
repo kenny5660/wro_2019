@@ -14,6 +14,15 @@ public:
 	virtual void Init() = 0;
 	//@brief sleep(wait) 'msec' milliseconds
 	//@param msec milliseconds to wait
+		enum class CatchCubeSideEnum
+	{
+		LEFT,
+		RIGHT
+	}
+	;
+	//@brief Ctach cube 
+	//@param side is side of manipulator which will be filled after catch (empty side of manipulator before catch)
+	virtual void CatchCube(CatchCubeSideEnum side);
 	virtual void Delay(int msec);
 	virtual void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) = 0;
 	virtual  ~Robot();
@@ -31,15 +40,16 @@ public:
 	std::shared_ptr<Manipulator> GetMan();
 	std::shared_ptr<Lidar> GetLidar();
 	std::shared_ptr<CameraRotate> GetCamRot();
-	void CatchCube();
+	
+	void CatchCube(CatchCubeSideEnum side) override;
 	void AlliginByDist(int dist,int offset_alg);
-	void AlliginRight();
+	void AlliginHorizontal();
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();
 	void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) override;
 	enum DistSensorEnum
 	{
 		DIST_LEFT    = 0,
-		DIST_RIGHT   = 1,
+		DIST_TOP   = 1,
 		DIST_C_RIGHT = 2,
 		DIST_C_LEFT  = 3
 	};
@@ -48,7 +58,8 @@ public:
 
 
 private:
-
+	void CatchLeft_();
+	void CatchRight_();
 	std::shared_ptr<CameraRotate> cam_rot_;
 	std::shared_ptr<Manipulator> man_;
 	std::shared_ptr<OmniWheels> omni_;
