@@ -75,6 +75,8 @@ class Map {
     RobotPoint get_position() const { return position_; }
     cv::Mat get_img(int width = 400, int height = 400);
 
+    void set_new_position(const RobotPoint &p) { position_ = p; }
+
     static Point normal_point(const Point &p);
     static std::pair <int, int> get_field_unit(const Point &p);
 

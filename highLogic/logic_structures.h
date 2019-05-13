@@ -130,6 +130,9 @@ class RobotPoint: public MassPoint {
 
     void merge(const RobotPoint &a);
 
+    bool is_defined() const { return (!std::isnan(x_)) && (!std::isnan(y_))
+                                     && (!std::isnan(angle_)); }
+
  protected:
     double angle_;
 
