@@ -31,6 +31,7 @@ void do_alg_code(Robot &robot) {
     for (auto i : boxes) {
         std::vector<Point> way;
         if(!go_to(map, i.get_box_indent(), way)) { // уточнить нужно ли отрицание
+
             // удаляем последние 2 точки т. к. робот не двумерная шкура и подъезжать в упор опансо
             way.pop_back();
             way.pop_back();
