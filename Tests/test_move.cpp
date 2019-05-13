@@ -17,7 +17,7 @@ TEST(Move, MakeWayDeath) {
     std::vector<PolarPoint> points;
     ASSERT_FALSE(read("MergeMapRot3/0.ld", points));
     Map m1(points);
-    //save_debug_img("", m1.get_img());
+    show_debug_img("P", m1.get_img());
     std::vector<Point> way;
     EXPECT_FALSE(go_to(m1, {1000, 500}, way));
     EXPECT_FALSE(way.empty());

@@ -46,4 +46,8 @@ namespace lidar_sett {
     const double corner_step = 1 / M_PI;
 }
 
+namespace robot_sett {
+    const double catch_flower_offset = 200; // TODO: Изменить
+}
+
 #endif //LIDAR_MATH_SETINGS_H
