@@ -114,7 +114,7 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 
 void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 {
-	const double kLidarDegOffset = 45;
+	const double kLidarDegOffset = -43.5;// 45;
 	
 	std::vector<LidarA1::Point> points_lidar;
 	lidar_->GetScan(points_lidar);
@@ -122,7 +122,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 	{
 		//TO DO filtering points
 		
-		polar_points.emplace_back(it->r, it->ph + (kLidarDegOffset*180/M_PI));
+		polar_points.emplace_back(it->r, it->ph + (kLidarDegOffset*M_PI/180));
 	}
 	struct sort_class_PolarPoint
 	{
@@ -133,24 +133,53 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 }
 
 
-void RobotGardener::CatchCube()
+void RobotGardener::CatchCube(CatchCubeSideEnum side)
 {
 	const int kDist = 60;
 	const int kOfsetAngle = 0;
 	const int speed = 200;
 	man_->CatchRight();
 	AlliginByDist(kDist, kOfsetAngle);
-	std::cout << "Dist left = " <<  GetDistSensor(DIST_LEFT)->GetDistance()<< std::endl;
-	AlliginRight();
-	std::cout << "Dist left = " <<  GetDistSensor(DIST_LEFT)->GetDistance() << std::endl;
+	switch (side)
+	{
+	case CatchCubeSideEnum::LEFT: CatchLeft_(); break;
+	case CatchCubeSideEnum::RIGHT: CatchRight_(); break;
+	default:
+		throw std::runtime_error("wrong CatchCubeSideEnum");
+		break;
+	}
+	
+}
+void RobotGardener::CatchLeft_()
+{
+	const int mid_dist = 200;
+	const int speed = 100;
+
+
+	std::shared_ptr<DistanceSensor> dist = GetDistSensor(DIST_LEFT);
+	std::cout << "Dist aligin left before = " <<  dist->GetDistance() << std::endl;
+	if (dist->GetDistance() > mid_dist)
+	{
+		GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
+		while (dist->GetDistance() > mid_dist) ;
+	}
+	else
+	{
+		GetOmni()->MoveWithSpeed(std::make_pair(0, speed), 0);
+		while (dist->GetDistance() < mid_dist) ;
+	}
+	GetOmni()->Stop();
+	std::cout << "Dist aligin left after = " <<  dist->GetDistance() << std::endl;
 	man_->Out(true);
 	omni_->MoveToPosInc(std::make_pair(0, 80), speed);
 	man_->CatchLeft(true);
 	omni_->MoveToPosInc(std::make_pair(0, 80), speed);
 	man_->Home();
+}
+void RobotGardener::CatchRight_()
+{
 	
 }
-
 
 void RobotGardener::AlliginByDist(int dist,int offset_alg)
 {
@@ -194,21 +223,7 @@ void RobotGardener::AlliginByDist(int dist,int offset_alg)
 
 void RobotGardener::AlliginRight()
 {
-	const int mid_dist = 200;
-	const int speed = 100;
-	std::shared_ptr<DistanceSensor> dist = GetDistSensor(DIST_LEFT);
 
-	if (dist->GetDistance() > mid_dist)
-	{
-		GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
-		while (dist->GetDistance() > mid_dist);
-	}
-	else
-	{
-		GetOmni()->MoveWithSpeed(std::make_pair(0,speed), 0);
-		while (dist->GetDistance() < mid_dist) ;
-	}
-	GetOmni()->Stop();
 }
 
 

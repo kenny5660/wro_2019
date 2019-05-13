@@ -207,7 +207,7 @@ TEST(HardwareTestGroup, Aligin_by_Dist_test)
 }
 TEST(HardwareTestGroup, CatchCube_test)
 {
-	robot->CatchCube();
+	robot->CatchCube(RobotGardener::CatchCubeSideEnum::LEFT);
 }
 TEST(HardwareTestGroup, Dist_sensors_test)
 {

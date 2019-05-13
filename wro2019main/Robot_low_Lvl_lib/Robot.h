@@ -31,7 +31,14 @@ public:
 	std::shared_ptr<Manipulator> GetMan();
 	std::shared_ptr<Lidar> GetLidar();
 	std::shared_ptr<CameraRotate> GetCamRot();
-	void CatchCube();
+	enum class CatchCubeSideEnum
+	{
+		LEFT,
+		RIGHT
+	};
+	//@brief Ctach cube 
+	//@param side is side of manipulator which will be filled after catch (empty side of manipulator before catch)
+	void CatchCube(CatchCubeSideEnum side);
 	void AlliginByDist(int dist,int offset_alg);
 	void AlliginRight();
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();
@@ -48,7 +55,8 @@ public:
 
 
 private:
-
+	void CatchLeft_();
+	void CatchRight_();
 	std::shared_ptr<CameraRotate> cam_rot_;
 	std::shared_ptr<Manipulator> man_;
 	std::shared_ptr<OmniWheels> omni_;
