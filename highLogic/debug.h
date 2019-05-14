@@ -18,7 +18,7 @@
 #endif
 
 const std::string log_out_text_file_name = "log.txt";
-std::ofstream log_text_out(log_path + log_out_text_file_name);
+
 
 const size_t debug_width_img = 500;
 const size_t debug_height_img = debug_width_img;

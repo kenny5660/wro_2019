@@ -45,7 +45,7 @@ public:
 	std::shared_ptr<Manipulator> GetMan();
 	std::shared_ptr<Lidar> GetLidar();
 	std::shared_ptr<CameraRotate> GetCamRot();
-	
+	void WaitStartButton();
 	void CatchCube(CatchCubeSideEnum side) override;
 	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg);
 	void GetQRCode(cv::Mat &frame) override;
@@ -68,12 +68,12 @@ private:
 	
 	void CatchLeft_();
 	void CatchRight_();
-	void AlliginHorizontal_(CatchCubeSideEnum side);
+	void AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum side_relative_cube);
 	std::shared_ptr<CameraRotate> cam_rot_;
 	std::shared_ptr<Manipulator> man_;
 	std::shared_ptr<OmniWheels> omni_;
 	std::shared_ptr<Indicator> indicator_;
 	std::shared_ptr<DistanceSensor>dist_sensors_[4];
 	std::shared_ptr<Lidar> lidar_;
-
+	
 };

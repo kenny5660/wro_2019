@@ -7,7 +7,7 @@
 #include <ctime>
 #include <chrono>
 #include <opencv2/imgproc.hpp>
-
+std::ofstream log_text_out(log_path + log_out_text_file_name);
 std::string get_log_name(const std::string &s) {
     time_t rawtime;
     struct tm * timeinfo;

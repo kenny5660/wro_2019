@@ -53,7 +53,10 @@ TEST_GROUP(HardwareTestGroup)
 TEST(HardwareTestGroup, Init_robot_test)
 {	
 }
-
+TEST(HardwareTestGroup, Start_button_test)
+{	
+	robot->WaitStartButton();
+}
 void display(cv::Mat &im, cv::Mat &bbox, std::string str) {
 	using namespace cv;
 	int n = bbox.rows;
@@ -142,10 +145,10 @@ TEST(HardwareTestGroup, Servo_getDeg_test)
 }
 TEST(HardwareTestGroup, Mnipulator_test)
 {	
-	robot->GetMan()->Out();
-	robot->GetMan()->CatchLeft();
+	robot->GetMan()->Out(true,200);
+	robot->GetMan()->CatchLeft(true, 200);
 	robot->GetMan()->Home();
-	robot->GetMan()->CatchRight();
+	robot->GetMan()->CatchRight(true, 600);
 }
 TEST(HardwareTestGroup, Servo_setDeg_test)
 {	
@@ -189,6 +192,8 @@ TEST(HardwareTestGroup, Robot_turn_test)
 	robot->Turn(-M_PI);
 	robot->Turn(M_PI/2);
 	robot->Turn(-M_PI/2);
+	robot->Turn(-M_PI / 2);
+	robot->Turn(M_PI / 2);
 }
 TEST(HardwareTestGroup,Robot_go2_test)
 {

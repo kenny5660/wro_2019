@@ -95,13 +95,20 @@ extern NiFpga_Session myrio_session;
 
 	  return NULL;
   }
-  void wait_start(void(*callBack)()){
+  void wait_start_call(void(*callBack)()){
 	  while (!startingg)
 	  {
 		  callBack();
 	  }
 	  startingg = 0;
   }
+
+void wait_start() {
+	while (!startingg)
+	{
+	}
+	startingg = 0;
+}
 int init_button() {
 	int32_t status;
 	const uint8_t IrqNumberConfigure = 3;
@@ -130,11 +137,7 @@ int init_button() {
 	* You must use this function before using all the other functions.
 	* After you finish using this function, the NI myRIO target is ready to be used.
 	*/
-	status = MyRio_Open();
-	if (MyRio_IsNotSuccess(status))
-	{
-		return status;
-	}
+
 
 	/*
 	* Configure the Button IRQ and return a status message to indicate if the configuration is successful,

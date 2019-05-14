@@ -247,8 +247,8 @@ void Map::add_pz(const Point &p_1, const Point &p_2) {
             delete_from_death_zone_circle(parking_zone_circles_.first);
             delete_from_death_zone_circle(parking_zone_circles_.second);
             auto p_off = point_offset[i - 1](field_sett::parking_zone_width_min, field_sett::parking_zone_width_min);
-            parking_zone_back_.first = parking_zone_circles_.first + Point{p_off.get_y(), p_off.get_x()};
-            parking_zone_back_.second = parking_zone_circles_.second + Point{p_off.get_y(), p_off.get_x()};
+            parking_zone_back_.first = parking_zone_circles_.first + Point{p_off.get_y(), -p_off.get_x()};
+            parking_zone_back_.second = parking_zone_circles_.second + Point{p_off.get_y(), -p_off.get_x()};
             return;
         }
         last_dist = dist;
