@@ -68,7 +68,7 @@ private:
 	
 	void CatchLeft_();
 	void CatchRight_();
-	void AlliginHorizontal_(CatchCubeSideEnum side);
+	void AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum side_relative_cube);
 	std::shared_ptr<CameraRotate> cam_rot_;
 	std::shared_ptr<Manipulator> man_;
 	std::shared_ptr<OmniWheels> omni_;

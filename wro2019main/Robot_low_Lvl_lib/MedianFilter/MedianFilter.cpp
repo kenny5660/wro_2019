@@ -226,3 +226,9 @@ MedianFilter::~MedianFilter()
 	free(sizeMap);
 	free(locationMap);
 }
+
+
+int MedianFilter::getWindowSize()
+{
+	return medFilterWin;
+}

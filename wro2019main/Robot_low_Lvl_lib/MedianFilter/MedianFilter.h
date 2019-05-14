@@ -45,6 +45,7 @@
          int getMax();
          int getMean();
          int getStDev();
+	   int getWindowSize();
 	   ~MedianFilter();
          /*
          void printData();		// used for debugging
