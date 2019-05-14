@@ -61,24 +61,33 @@ void do_alg_code(Robot &robot) {
         }
         if(!go_to(map, i.get_box_indent(), way)) { // уточнить нужно ли отрицание
             // удаляем последние 2 точки т. к. робот не двумерная шкура и подъезжать в упор опансо
-            way.pop_back();
-            way.pop_back();
-            {
-                write_log("Way in death zone. \n"
-                          "Go2: \n"
-                          " x = " + std::to_string(way.back().get_x()) +
-                    "\n y = " + std::to_string(way.back().get_y()));
-            }
-            robot.Go2(way);
-            std::vector<PolarPoint> lidar_data;
-            robot.GetLidarPolarPoints(lidar_data);
-            Map new_map(lidar_data);
-            RobotPoint new_position = new_map.get_position();
-            if (!(new_position.is_defined() && map.merge(new_map))) {
+            Point robot_p(0, 0);
+            do {
+                way.pop_back();
+                way.pop_back();
+                {
+                    write_log("Way in death zone. \n"
+                              "Go2: \n"
+                              " x = " + std::to_string(way.back().get_x()) +
+                        "\n y = " + std::to_string(way.back().get_y()));
+                }
+                robot.Go2(way);
+                std::vector<PolarPoint> lidar_data;
+                robot.GetLidarPolarPoints(lidar_data);
+                Map new_map(lidar_data);
+                RobotPoint new_position = new_map.get_position();
+                if (!(new_position.is_defined() && map.merge(new_map))) {
+                    write_log("!!!Pizdec, iata chast' echo ne napisanna!!!");
+                    return;
+                    // TODO: Чтобы в стену не уебнуться
+                }
+            } while (!go_to(map, i.get_box_indent(), way) && (way.size() > 1));
+            if (way.size() < 2) {
                 write_log("!!!Pizdec, iata chast' echo ne napisanna!!!");
                 return;
                 // TODO: Чтобы в стену не уебнуться
             }
+            robot.Go2(way);
         } else {
             {
                 write_log("Way founded.");
