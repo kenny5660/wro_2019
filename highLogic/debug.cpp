@@ -7,7 +7,7 @@
 #include <ctime>
 #include <chrono>
 #include <opencv2/imgproc.hpp>
-#include <fstream>
+
 std::string get_log_name(const std::string &s) {
     time_t rawtime;
     struct tm * timeinfo;
@@ -176,11 +176,15 @@ void add_robot_img_global(DebugFieldMat &mat,
 
 void save_ld_data(const std::vector<PolarPoint> &p, const std::string &s) {
 	std::ofstream f;
-	f.open(log_path+ get_log_name(s) + ".ld");
+	f.open(log_path + get_log_name(s) + ".ld");
 	bool d = f.is_open();
 	for (auto i : p)
 	{
 		f << i.get_r() << " " << i.get_f() << std::endl;
 	}
 	f.close();
+}
+
+void write_log(const std::string &s) {
+    log_text_out << get_log_name(": ") << s << std::endl;
 }

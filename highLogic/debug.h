@@ -6,6 +6,7 @@
 #define LIDAR_MATH_DEBUG_H
 
 #include <string>
+#include <fstream>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include "logic_structures.h"
@@ -16,6 +17,8 @@
 	const std::string log_path = "./log/";
 #endif
 
+const std::string log_out_text_file_name = "log.txt";
+std::ofstream log_text_out(log_path + log_out_text_file_name);
 
 const size_t debug_width_img = 500;
 const size_t debug_height_img = debug_width_img;
@@ -25,6 +28,8 @@ void show_debug_img(const std::string &s, const cv::Mat &img);
 void save_debug_img(const std::string &s, const cv::Mat &img);
 
 void clear_logs();
+
+void write_log(const std::string &s);
 
 class DebugFieldMat : public cv::Mat {
 public:
