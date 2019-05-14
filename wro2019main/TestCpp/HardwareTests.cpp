@@ -53,7 +53,10 @@ TEST_GROUP(HardwareTestGroup)
 TEST(HardwareTestGroup, Init_robot_test)
 {	
 }
-
+TEST(HardwareTestGroup, Start_button_test)
+{	
+	robot->WaitStartButton();
+}
 void display(cv::Mat &im, cv::Mat &bbox, std::string str) {
 	using namespace cv;
 	int n = bbox.rows;

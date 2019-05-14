@@ -18,7 +18,8 @@
 extern "C" {
 #endif
 
-	void wait_start(void(*callBack)());
+	void wait_start_call(void(*callBack)());
+	void wait_start();
 /**
  * Flags that indicate whether the Button IRQ is triggered by the rising edge, falling edge, or both edges.
  */

@@ -2,6 +2,7 @@
 #include "Uart.h"
 #include "Pwm.h"
 #include  <exception>
+#include <ButtonIRQ.h>
 extern NiFpga_Session myrio_session;
 RobotGardener::RobotGardener()
 {
@@ -73,6 +74,7 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	man_->CatchRight();
 	man_->Home();
+	init_button();
 }
 
 RobotGardener::~RobotGardener()
@@ -300,12 +302,14 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(DIST_LEFT);
 	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
 	omni_->MoveWithSpeed(std::make_pair(0, 250),0);
+	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist);
 	omni_->Stop();
 	Delay(100);
 	auto frame = cam_rot_->GetFrame(kDegServo);
 	
 	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
+	dist_c_sensor->GetRealDistance();
 	while (dist_c_sensor->GetDistance() < kmidDist) ;
 	omni_->Stop();
 
@@ -336,4 +340,10 @@ void RobotGardener::Go2(std::vector<Point> points)
 		traj.emplace_back(it.get_x(),it.get_y());
 	}
 	omni_->MoveTrajectory(traj, kRobot_mooving_speed);
+}
+
+
+void RobotGardener::WaitStartButton()
+{
+	wait_start();
 }

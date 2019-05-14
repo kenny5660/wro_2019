@@ -39,9 +39,9 @@ void do_alg_code(Robot &robot) {
         write_log("Start angle: " + std::to_string(start_angle));
     }
     robot.Turn(start_angle);
-    robot.Go2({0, out_way_offset});
+    robot.Go2({Point{0, out_way_offset}});
     start_position.set_angle(0);
-    start_position.set_y(start_position.get_y() + out_way_offset);
+    start_position.set_x(start_position.get_x() - out_way_offset);
     Map map(pz.first, pz.second, boxes, start_position);
     {
         write_log(
