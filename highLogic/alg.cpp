@@ -15,8 +15,14 @@ Point catch_flower_offset[4] = {
     {robot_sett::catch_flower_offset, 0}
 };
 
+Point catch_offset_driveway[4] = {
+    {-robot_sett::catch_offset_driveway, 0},
+    {0, -robot_sett::catch_offset_driveway},
+    {robot_sett::catch_offset_driveway, 0},
+    {0, robot_sett::catch_offset_driveway}
+};
+
 //TODO: смещение по другой оси
-//TODO: выезд с рамки
 
 void do_alg_code(Robot &robot) {
     const double out_way_offset = 300;
@@ -69,7 +75,7 @@ void do_alg_code(Robot &robot) {
         double need_rot_rad = need_rot * M_PI_2 - map.get_position().get_angle();
         robot.Turn(need_rot_rad);
         robot.CatchCube(side_catch);
-        Point offset_catch = map.get_position() + catch_flower_offset[need_rot] * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1));
+        Point offset_catch = map.get_position() + catch_offset_driveway[need_rot] + catch_flower_offset[need_rot] * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1));
         map.set_new_position(RobotPoint{offset_catch.get_x(), offset_catch.get_y(), need_rot_rad});
         side_catch = (side_catch == Robot::CatchCubeSideEnum::LEFT) ?
                      (Robot::CatchCubeSideEnum::RIGHT) :
