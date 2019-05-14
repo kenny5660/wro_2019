@@ -15,7 +15,12 @@ Point catch_flower_offset[4] = {
     {robot_sett::catch_flower_offset, 0}
 };
 
+//TODO: смещение по другой оси
+//TODO: выезд с рамки
+
 void do_alg_code(Robot &robot) {
+    const double out_way_offset = 300;
+
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
     cv::Mat QRCodeImg;
     robot.GetQRCode(QRCodeImg);
@@ -24,7 +29,9 @@ void do_alg_code(Robot &robot) {
     RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz);
     double start_angle = start_position.get_angle();
     robot.Turn(start_angle);
+    robot.Go2({0, out_way_offset});
     start_position.set_angle(0);
+    start_position.set_y(start_position.get_y() + out_way_offset);
     Map map(pz.first, pz.second, boxes, start_position);
     start_position.set_angle(start_angle);
     save_debug_img("QRCodeDetection", map.get_img());
