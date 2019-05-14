@@ -24,7 +24,7 @@ Point catch_offset_driveway[4] = {
 
 //TODO: анализ после мёртвой зоны
 
-void do_alg_code(Robot &robot) {
+void do_alg_code(Robot &robot, bool kamikaze_mode) {
     const double out_way_offset = 300;
 
     clear_logs();
@@ -59,7 +59,7 @@ void do_alg_code(Robot &robot) {
                       " x = " + std::to_string(i.get_box_indent().get_x()) +
                       "\n y = " + std::to_string(i.get_box_indent().get_y()));
         }
-        if(!go_to(map, i.get_box_indent(), way)) { // уточнить нужно ли отрицание
+        if(!go_to(map, i.get_box_indent(), way, kamikaze_mode)) {
             // удаляем последние 2 точки т. к. робот не двумерная шкура и подъезжать в упор опансо
             Point robot_p(0, 0);
             do {
