@@ -187,6 +187,5 @@ NiFpga_Status MyRio_Close()
         printf("Could not unload NiFpga library!\n");
         return status;
     }
-
     return status;
 }

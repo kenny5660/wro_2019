@@ -74,7 +74,7 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	man_->CatchRight();
 	man_->Home();
-	init_button();
+//	init_button();
 }
 
 RobotGardener::~RobotGardener()
@@ -305,9 +305,9 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist);
 	omni_->Stop();
-	Delay(100);
+	Delay(800);
 	auto frame = cam_rot_->GetFrame(kDegServo);
-	omni_->MoveToPosInc(std::make_pair(0, 100), 250);
+	omni_->MoveToPosInc(std::make_pair(0, 40), 250);
 //	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
 //	dist_c_sensor->GetRealDistance();
 //	while (dist_c_sensor->GetDistance() < kmidDist) ;

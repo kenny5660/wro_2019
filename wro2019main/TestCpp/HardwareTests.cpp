@@ -45,7 +45,7 @@ TEST_GROUP(HardwareTestGroup)
 	}
 	void teardown()
 	{
-		
+		int a = 0;
 	}
 };
 
