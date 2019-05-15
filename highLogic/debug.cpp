@@ -7,7 +7,9 @@
 #include <ctime>
 #include <chrono>
 #include <opencv2/imgproc.hpp>
+
 std::ofstream log_text_out(log_path + log_out_text_file_name);
+
 std::string get_log_name(const std::string &s) {
     time_t rawtime;
     struct tm * timeinfo;
@@ -41,6 +43,7 @@ void clear_logs() {
     std::system(command.c_str());
     command = create_dir_command + log_path;
     std::system(command.c_str());
+	log_text_out.open(log_path + log_out_text_file_name);
 }
 
 void add_points_img(DebugFieldMat &mat, const std::vector<Point> &points, const cv::Scalar &color) {

@@ -187,7 +187,7 @@ void bfs(mesh_t &m, const cv::Point &now, const cv::Point &end, std::vector<cv::
     }
 }
 
-bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, bool kamikaze_mode) {
+bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode) {
     mesh_t mesh = get_mesh(map);
     cv::Point start = point2corner(mesh, map.get_position());
     cv::Point end = point2corner(mesh, point);
@@ -212,6 +212,7 @@ bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, bool kam
             way.push_back(i);
         }
     }
+	end_point = { way.back().x * field_sett::size_field_unit, way.back().y * field_sett::size_field_unit };
     ans.emplace_back(way.front().x * field_sett::size_field_unit
                            - map.get_position().get_x(),
                        way.front().y * field_sett::size_field_unit
@@ -219,9 +220,6 @@ bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, bool kam
     for (int i = 1; i < way.size(); i++) {
         ans.emplace_back((way[i].x - way[i - 1].x) * field_sett::size_field_unit,
                            (way[i].y - way[i - 1].y) * field_sett::size_field_unit);
-    }
-    if (is_first_found) {
-        ans.push_back(point - map.get_position());
     }
     for (int i = 0; i <ans.size(); i++) {
         ans[i].set_x(-ans[i].get_x());

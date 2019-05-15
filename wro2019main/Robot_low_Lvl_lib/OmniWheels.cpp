@@ -88,9 +88,9 @@ void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr
 		//	abs(motors[(int)MotorDir::LEFT]->GetCurEncDeg() - start_pos_left) < abs(ang_left) ||
 		//	abs(motors[(int)MotorDir::BACK]->GetCurEncDeg() - start_pos_back) < abs(ang_back) ||
 			abs(motors[(int)MotorDir::RIGHT]->GetCurEncDeg() - start_pos_right) < abs(ang_right)) ;
-		Stop();
+		//Stop();
 		int a  = 1;
-		//MoveToPosInc(*(it), speed);
+//		MoveToPosInc(*(it), speed);
 	}
 	Stop();
 	MoveToPosInc(*(tr.end() - 1), speed);

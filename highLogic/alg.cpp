@@ -9,17 +9,17 @@
 #include <opencv2/core.hpp>
 
 Point catch_flower_offset[4] = {
-    {0, -robot_sett::catch_flower_offset},
     {-robot_sett::catch_flower_offset, 0},
     {0, robot_sett::catch_flower_offset},
-    {robot_sett::catch_flower_offset, 0}
+    {robot_sett::catch_flower_offset, 0},
+	{0, -robot_sett::catch_flower_offset}
 };
 
 Point catch_offset_driveway[4] = {
+	{0, -robot_sett::catch_offset_driveway},
     {-robot_sett::catch_offset_driveway, 0},
-    {0, -robot_sett::catch_offset_driveway},
-    {robot_sett::catch_offset_driveway, 0},
-    {0, robot_sett::catch_offset_driveway}
+    {0, robot_sett::catch_offset_driveway},
+    {robot_sett::catch_offset_driveway, 0}
 };
 
 //TODO: анализ после мёртвой зоны
@@ -59,7 +59,8 @@ void do_alg_code(Robot &robot, bool kamikaze_mode) {
                       " x = " + std::to_string(i.get_box_indent().get_x()) +
                       "\n y = " + std::to_string(i.get_box_indent().get_y()));
         }
-        if(!go_to(map, i.get_box_indent(), way, kamikaze_mode)) {
+	    Point end_point;
+	    if (!go_to(map, i.get_box_indent(), way, end_point, kamikaze_mode)) {
             // удаляем последние 2 точки т. к. робот не двумерная шкура и подъезжать в упор опансо
             Point robot_p(0, 0);
             do {
@@ -72,6 +73,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode) {
                         "\n y = " + std::to_string(way.back().get_y()));
                 }
                 robot.Go2(way);
+	            map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
                 std::vector<PolarPoint> lidar_data;
                 robot.GetLidarPolarPoints(lidar_data);
                 Map new_map(lidar_data);
@@ -81,37 +83,42 @@ void do_alg_code(Robot &robot, bool kamikaze_mode) {
                     return;
                     // TODO: Чтобы в стену не уебнуться
                 }
-            } while (!go_to(map, i.get_box_indent(), way) && (way.size() > 1));
+		    } while (!go_to(map, i.get_box_indent(), way, end_point) && (way.size() > 1));
             if (way.size() < 2) {
                 write_log("!!!Pizdec, iata chast' echo ne napisanna!!!");
                 return;
                 // TODO: Чтобы в стену не уебнуться
             }
             robot.Go2(way);
+	        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
         } else {
             {
                 write_log("Way founded.");
             }
             robot.Go2(way);
+	        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
         }
-        int need_rot = 0;
+        int need_rot = 1;
         Point buff_p = i.get_box_indent() - Point{field_sett::size_field_unit, field_sett::size_field_unit};
         if (fabs(buff_p.get_x() - i.get_left_corner_point().get_x()) < fabs(buff_p.get_y() - i.get_left_corner_point().get_y())) {
             if (i.get_left_corner_point().get_y() > buff_p.get_y()) {
-                need_rot = 3;
+                need_rot = 0;
             } else {
-                need_rot = 1;
+                need_rot = 2;
             }
         } else {
             if (i.get_left_corner_point().get_x() > buff_p.get_x()) {
-                need_rot = 2;
+                need_rot = 3;
             }
         }
-        double need_rot_rad = need_rot * M_PI_2 - map.get_position().get_angle();
+        double need_rot_rad = (need_rot) * M_PI_2 - map.get_position().get_angle();
+	    {
+		    write_log("Need rood: \n" + std::to_string(need_rot_rad));
+	    }
         robot.Turn(need_rot_rad);
         robot.CatchCube(side_catch);
         Point offset_catch = map.get_position() + catch_offset_driveway[need_rot] + catch_flower_offset[need_rot] * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1));
-        map.set_new_position(RobotPoint{offset_catch.get_x(), offset_catch.get_y(), need_rot_rad});
+        map.set_new_position(RobotPoint{offset_catch.get_x(), offset_catch.get_y(), -need_rot_rad +  map.get_position().get_angle()});
         side_catch = (side_catch == Robot::CatchCubeSideEnum::LEFT) ?
                      (Robot::CatchCubeSideEnum::RIGHT) :
                      (Robot::CatchCubeSideEnum::LEFT);

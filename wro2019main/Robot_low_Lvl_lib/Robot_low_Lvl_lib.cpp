@@ -21,6 +21,6 @@ int start_robot()
 		//TO DO output to log file
 	}
 	
-	do_alg_code(robot);
+	do_alg_code(robot, true);
 	return 0;
 }

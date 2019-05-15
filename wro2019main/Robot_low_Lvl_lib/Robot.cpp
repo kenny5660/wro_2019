@@ -247,7 +247,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 
 void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum side_relative_cube)
 {
-	const int mid_dist = 190;
+	const int mid_dist = 210;
 	const int big_dist = 400;
 	int speed = side == CatchCubeSideEnum::LEFT ? 200 : -200;
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);
@@ -333,7 +333,7 @@ void RobotGardener::Turn(double angle)
 
 void RobotGardener::Go2(std::vector<Point> points)
 {
-	const int kRobot_mooving_speed = 250;
+	const int kRobot_mooving_speed = 200;
 	std::vector<std::pair<int, int>> traj;
 	for (auto it : points)
 	{
