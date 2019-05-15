@@ -299,7 +299,7 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 {
 	const int kDegServo = 268;
 	const int kmidDist  = 200;
-	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(DIST_LEFT);
+	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
 	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
 	omni_->MoveWithSpeed(std::make_pair(0, 250),0);
 	dist_sensor->GetRealDistance();
@@ -307,11 +307,11 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	omni_->Stop();
 	Delay(100);
 	auto frame = cam_rot_->GetFrame(kDegServo);
-	
-	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
-	dist_c_sensor->GetRealDistance();
-	while (dist_c_sensor->GetDistance() < kmidDist) ;
-	omni_->Stop();
+	omni_->MoveToPosInc(std::make_pair(0, 100), 250);
+//	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
+//	dist_c_sensor->GetRealDistance();
+//	while (dist_c_sensor->GetDistance() < kmidDist) ;
+//	omni_->Stop();
 
 	return frame;
 }

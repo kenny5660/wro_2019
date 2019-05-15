@@ -12,7 +12,14 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-
+enum class QrDetectorTypeEnum
+{
+	CV,
+	ZBAR
+}
+;
+const QrDetectorTypeEnum kQrDetectorType = QrDetectorTypeEnum::ZBAR;
+std::string qr_detect_frame(cv::Mat qr);
 RobotPoint qr_detect(cv::Mat qr, std::array<BoxMap, 3> &boxes_pos, std::pair<Point, Point> &pz);
 
 #endif //LIDAR_MATH_CV_H

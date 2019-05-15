@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "debug.h"
-
+#include "CV.h"
 #include <opencv2/core.hpp>
 /*
 	This is a very basic sample demonstrating the CppUTest framework.
@@ -57,36 +57,13 @@ TEST(HardwareTestGroup, Start_button_test)
 {	
 	robot->WaitStartButton();
 }
-void display(cv::Mat &im, cv::Mat &bbox, std::string str) {
-	using namespace cv;
-	int n = bbox.rows;
-	for (int i = 0; i < n; i++) {
-		line(
-		    im,
-			cv::Point2i(bbox.at<float>(i, 0), bbox.at<float>(i, 1)),
-			Point2i(bbox.at<float>((i + 1) % n, 0), bbox.at<float>((i + 1) % n, 1)),
-			Scalar(255, 0, 0),
-			3);
-	}
-	cv::putText(im,
-		str,
-		cv::Point2i(bbox.at<float>(0, 0) - 50, bbox.at<float>(0, 1) - 15),
-		FONT_ITALIC,
-		0.6,
-		Scalar(0, 0, 255));
-	// imshow("Result", im);
-}
+
 TEST(HardwareTestGroup, Qrcode_get_test)
 {	std::shared_ptr<cv::Mat> frame = robot->GetQrCodeFrame();
-	cv::QRCodeDetector QrDetector;
-	cv::Mat bbox, rectifiedImage;
 	cv::imwrite("Qrcode_test.jpg", *frame);
-	std::string str = QrDetector.detectAndDecode(*frame, bbox, rectifiedImage);
-	CHECK(true);
-	CHECK(str.length() > 0);
-	display(*frame, bbox, str);
-	cv::imwrite("Qrcode_test_with_text.jpg", *frame);
-	
+	std::string str = qr_detect_frame(*frame);
+	cv::putText(*frame,str,cv::Point2i(100,100),cv::FONT_ITALIC,0.6,cv::Scalar(0, 0, 255));
+	cv::imwrite("Qrcode_test_with_text.jpg", *frame);	
 }
 
 TEST(HardwareTestGroup, Camera_test_get_frames)
