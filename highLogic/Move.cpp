@@ -187,16 +187,17 @@ void bfs(mesh_t &m, const cv::Point &now, const cv::Point &end, std::vector<cv::
     }
 }
 
-bool go_to(const Map &map, const Point &point, std::vector<Point> &ans) {
+bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, bool kamikaze_mode) {
     mesh_t mesh = get_mesh(map);
     cv::Point start = point2corner(mesh, map.get_position());
     cv::Point end = point2corner(mesh, point);
     std::vector<cv::Point> way;
     bool is_found = false;
     mesh_t mesh_buff = mesh;
-    bfs(mesh_buff, start, end, way, is_found);
-    bool is_first_found = is_found;
-    if (!is_found) {
+    bool is_first_found;
+    bfs(mesh_buff, start, end, way, is_found, (kamikaze_mode) ? (wall_t) : (undif_t));
+    is_first_found = is_found;
+    if (!is_found && !kamikaze_mode) {
         std::vector<cv::Point> buff_way;
         mesh_buff = mesh;
         bfs(mesh_buff, start, end, buff_way, is_found, wall_t);
