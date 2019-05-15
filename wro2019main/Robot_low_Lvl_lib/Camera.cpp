@@ -41,6 +41,7 @@ void Camera::UpdateFrameThread()
 		mutex_update_frame_.lock();
 		(*vc_) >> (*frame_cur_);
 		mutex_update_frame_.unlock();
+		cv::waitKey(50);
 	}
 }
 
