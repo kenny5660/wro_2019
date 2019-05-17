@@ -66,7 +66,7 @@ void RobotGardener::Init()
 	dist_sensors_[DIST_LEFT] = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_0VAL, AIA_0WGHT, AIA_0OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_TOP]  = std::make_shared<Sharp2_15>(
-		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_3VAL, AIA_3WGHT, AIA_3OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
+		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_3VAL, AIA_3WGHT, AIA_3OFST, AOSYSGO, NiFpga_False, 1, 0 }), 30);
 	dist_sensors_[DIST_C_LEFT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
@@ -179,8 +179,8 @@ void RobotGardener::CatchRight_()
 	man_->CatchRight();
 	man_->Out(true);
 	omni_->MoveToPosInc(std::make_pair(0, 135), speed);
-	omni_->MoveToPosInc(std::make_pair(6, 0), speed);
-	man_->CatchLeft(true);
+	omni_->MoveToPosInc(std::make_pair(10, 0), speed);
+	man_->CatchLeft(true,150);
 	omni_->MoveToPosInc(std::make_pair(0, 80), speed);
 	man_->Home();
 }
@@ -266,11 +266,13 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 		while (dist->GetDistance() > mid_dist)
 		{
 			
-			std::cout << "Dist aligin after = " <<  dist->GetDistance() << std::endl;
+			std::cout << "Dist aligin  > mid_dist  = " <<  dist->GetDistance() << std::endl;
 			if (dist_left->GetDistance() > mid_dist || side_relative_cube == CatchCubeSideEnum::LEFT)
 			{
 				std::cout << "go right = " << std::endl;
 				GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
+				Delay(100);
+				dist->GetRealDistance();
 				while (dist->GetDistance() > mid_dist) ;
 				std::cout << "Dist after1 left edge = " <<  dist->GetDistance() << std::endl;
 				omni_->MoveToPosInc(std::make_pair(0, -60), speed);
@@ -303,15 +305,17 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 {
 	const int kDegServo = 268;
 	const int kmidDist  = 200;
+	AlliginByDist(48,0);
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
 	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
 	omni_->MoveWithSpeed(std::make_pair(0, 250),0);
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist);
 	omni_->Stop();
-	Delay(800);
+	Delay(200);
 	auto frame = cam_rot_->GetFrame(kDegServo);
 	omni_->MoveToPosInc(std::make_pair(0, 40), 250);
+	cv::imwrite("Qrcode_test.jpg", *frame);
 //	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
 //	dist_c_sensor->GetRealDistance();
 //	while (dist_c_sensor->GetDistance() < kmidDist) ;

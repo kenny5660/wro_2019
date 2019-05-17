@@ -6,7 +6,7 @@ int Sharp2_15::GetDistance()
 {
 	uint16_t analog = Aio_Read(analog_in_.get());
 	int dist = kPowerCoeffC*pow(analog >> 2,kPowerCoeffP); 
-	std::this_thread::sleep_for(std::chrono::microseconds(10));
+	std::this_thread::sleep_for(std::chrono::microseconds(100));
 	return  m_filter_.in(dist); 
 } 
 void Sharp2_15::SkipWindow()

@@ -60,7 +60,7 @@ TEST(HardwareTestGroup, Start_button_test)
 
 TEST(HardwareTestGroup, Qrcode_get_test)
 {	std::shared_ptr<cv::Mat> frame = robot->GetQrCodeFrame();
-	cv::imwrite("Qrcode_test.jpg", *frame);
+	
 	std::string str = qr_detect_frame(*frame);
 	cv::putText(*frame,str,cv::Point2i(100,100),cv::FONT_ITALIC,0.6,cv::Scalar(0, 0, 255));
 	cv::imwrite("Qrcode_test_with_text.jpg", *frame);	
@@ -78,6 +78,7 @@ TEST(HardwareTestGroup, Camera_test_get_frames)
 }
 TEST(HardwareTestGroup, Lidar_dump_to_file)
 {	
+	robot->Delay(2000);
 	std::vector<PolarPoint> pps;
 	robot->GetLidarPolarPoints(pps);
 	save_ld_data(pps, "real_robot");
