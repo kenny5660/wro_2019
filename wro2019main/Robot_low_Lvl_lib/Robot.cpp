@@ -2,7 +2,7 @@
 #include "Uart.h"
 #include "Pwm.h"
 #include  <exception>
-#include <ButtonIRQ.h>
+
 extern NiFpga_Session myrio_session;
 RobotGardener::RobotGardener()
 {
@@ -29,11 +29,10 @@ void Robot::Delay(int msec)
 
 void RobotGardener::Init()
 {
-	
+	start_but_ = std::make_shared<ButtonOnMyrio>();
 	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A, 115200));
 	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
 	std::shared_ptr<Spi> spi_A(std::make_shared<SpiMyRio>(SpiMyRio::SPIA, SpiMyRio::SpiSpeed::kSpeed05Mbit));
-	
 	std::shared_ptr<Uart> uart_Bridge(std::make_shared<UartSc16is750>(spi_A, std::make_shared<GPIOmyRio>(GPIOmyRio::PortMyRio::A, 4), 115200));
 	
 	std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
@@ -74,13 +73,18 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	man_->CatchRight();
 	man_->Home();
-//	init_button();
+	indicator_->Display(Indicator::WHITE);
+	Delay(400);
+	indicator_->Display(Indicator::OFF);
+	Delay(400);
+	indicator_->Display(Indicator::WHITE);
+	WaitStartButton();
+	
 }
 
 RobotGardener::~RobotGardener()
 {
- 
-
+	indicator_->Display(Indicator::OFF);
 }
 Robot::~Robot()
 {
@@ -345,5 +349,5 @@ void RobotGardener::Go2(std::vector<Point> points)
 
 void RobotGardener::WaitStartButton()
 {
-	wait_start();
+	start_but_->WaitDown();
 }

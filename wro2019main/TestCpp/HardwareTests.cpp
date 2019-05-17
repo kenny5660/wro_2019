@@ -120,11 +120,11 @@ TEST(HardwareTestGroup, Servo_getDeg_test)
 	
 	std::cout  << "degLow = " << degLow << " deg2Low = " << deg2Low << " deg3Low = " << deg3Low << std::endl;
 }
-TEST(HardwareTestGroup, Mnipulator_test)
+TEST(HardwareTestGroup, Manipulator_test)
 {	
-	robot->GetMan()->Out(true,200);
-	robot->GetMan()->CatchLeft(true, 200);
-	robot->GetMan()->Home();
+	robot->GetMan()->Out(true,300);
+	robot->GetMan()->CatchLeft(true, 300);
+	robot->GetMan()->Home(true);
 	robot->GetMan()->CatchRight(true, 600);
 }
 TEST(HardwareTestGroup, Servo_setDeg_test)
@@ -263,4 +263,32 @@ TEST(HardwareTestGroup, Motors_for_omni_test)
 	DOUBLES_EQUAL((double)kDegs, (double)motor_right->GetCurEncDeg(), 5);
 		
 	robot->Delay(500);
+}
+
+TEST_GROUP(BUttonTestGroup)
+{
+
+	std::shared_ptr<Button> but_start;
+	void setup()
+	{
+		int status;
+		IGNORE_ALL_LEAKS_IN_TEST();
+		status = MyRio_Open();
+		if (MyRio_IsNotSuccess(status))
+		{
+			FAIL_TEST("MyRio open Is Not Success");
+		}
+		but_start = std::make_shared<ButtonOnMyrioIrq>();
+		//init_button();
+	}
+	void teardown()
+	{
+		int a = 0;
+		MyRio_Close();
+	}
+};
+TEST(BUttonTestGroup, button_test)
+{	
+	
+	but_start->WaitDown();
 }

@@ -17,8 +17,8 @@ void Servo_ocs251::SetDegrees(double deg,bool wait, uint16_t time)
 	data[0] = (servo_deg >> 8) & 0xFF;
 	data[1] = servo_deg & 0xFF;
 
-	data[2] = time & 0xFF;
-	data[3] = (time >> 8) & 0xFF;
+	data[3] = time & 0xFF;
+	data[2] = (time >> 8) & 0xFF;
 	WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
 	if (wait)
 	{

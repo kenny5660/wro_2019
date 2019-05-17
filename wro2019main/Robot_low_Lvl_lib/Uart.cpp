@@ -111,7 +111,7 @@ int UartSc16is750::Send(const uint8_t* const data, const size_t nData)
 int UartSc16is750::Get(uint8_t* const data, const size_t nData)
 {
 	using namespace std::chrono;
-	const microseconds timeOut(1000);
+	const milliseconds timeOut(1000);
 	for (int i = 0; i < nData; ++i)
 	{
 		steady_clock::time_point startTime = steady_clock::now(); 

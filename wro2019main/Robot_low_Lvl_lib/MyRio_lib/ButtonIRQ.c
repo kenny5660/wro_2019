@@ -37,6 +37,12 @@ extern NiFpga_Session myrio_session;
  * @param[in]  type         The trigger type that you want to use to increment the count.
  * @return the configuration status.
  */
+typedef struct
+{
+	NiFpga_IrqContext irqContext; /* IRQ context reserved by Irq_ReserveContext() */
+	NiFpga_Bool irqThreadRdy; /* IRQ thread ready flag */
+	uint8_t irqNumber; /* IRQ number value */
+} ThreadResource;
 
  ThreadResource irqThread0;
  pthread_t thread;
@@ -103,7 +109,7 @@ extern NiFpga_Session myrio_session;
 	  startingg = 0;
   }
 
-void wait_start() {
+void wait_button() {
 	while (!startingg)
 	{
 	}
@@ -113,7 +119,7 @@ int init_button() {
 	int32_t status;
 	const uint8_t IrqNumberConfigure = 3;
 	const uint32_t CountConfigure = 1;
-	const Irq_Button_Type TriggerTypeConfigure = Irq_Button_RisingEdge;
+	const Irq_Button_Type TriggerTypeConfigure = Irq_Button_FallingEdge;
 
 	printf("Button Input IRQ:\n");
 
@@ -176,7 +182,8 @@ int init_button() {
 
 		return status;
 	}
-
+	printf("Button Input IRQ: configure complite\n");
+	fflush(stdout);
 
 
 }
