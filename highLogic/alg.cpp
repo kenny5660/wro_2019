@@ -6,6 +6,7 @@
 #include "map.h"
 #include "CV.h"
 #include "Move.h"
+#include "lidar_math.h"
 #include <opencv2/core.hpp>
 
 Point catch_flower_offset[4] = {
@@ -15,14 +16,49 @@ Point catch_flower_offset[4] = {
 	{0, -robot_sett::catch_flower_offset}
 };
 
-Point catch_offset_driveway[4] = {
-	{0, -robot_sett::catch_offset_driveway},
-    {-robot_sett::catch_offset_driveway, 0},
-    {0, robot_sett::catch_offset_driveway},
-    {robot_sett::catch_offset_driveway, 0}
-};
-
 //TODO: анализ после мёртвой зоны
+
+int turn2box(Robot &robot, BoxMap &box, Map &map) {
+    int need_rot = 1;
+    Point buff_p = box.get_box_indent() - Point{field_sett::size_field_unit, field_sett::size_field_unit};
+    if (fabs(buff_p.get_x() - box.get_left_corner_point().get_x()) < fabs(buff_p.get_y() - box.get_left_corner_point().get_y())) {
+        if (box.get_left_corner_point().get_y() > buff_p.get_y()) {
+            need_rot = 0;
+        } else {
+            need_rot = 2;
+        }
+    } else {
+        if (box.get_left_corner_point().get_x() > buff_p.get_x()) {
+            need_rot = 3;
+        }
+    }
+    double need_rot_rad = (need_rot) * M_PI_2 - map.get_position().get_angle();
+    {
+        write_log("Need rood: \n" + std::to_string(need_rot_rad));
+    }
+    robot.Turn(need_rot_rad);
+    map.set_new_position(RobotPoint{map.get_position().get_x(), map.get_position().get_y(),
+                                    -need_rot_rad +  map.get_position().get_angle()});
+    return need_rot;
+}
+
+void box_connect(Robot &robot) {
+    std::vector<PolarPoint> lidar_data;
+    robot.GetLidarPolarPoints(lidar_data);
+
+    // TODO: !!! Если коробок больше одной передать первым параметром
+    // длину, вторым какой нам нужен, а так же взять данные с камеры.
+
+    Point center = position_box_side(lidar_data, 1, 1);
+    robot.Go2({{-(field_sett::climate_box_offset / 2 - center.get_y()), 0}});
+    robot.Go2({{0, -center.get_x()}});
+}
+
+void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch) {
+    box_connect(robot);
+    robot.CatchCube(side_catch);
+    robot.Go2({{-robot_sett::catch_offset_driveway, 0}});
+}
 
 void do_alg_code(Robot &robot, bool kamikaze_mode) {
     const double out_way_offset = 300;
@@ -54,6 +90,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode) {
     save_debug_img("QRCodeDetection", map.get_img());
     for (auto i : boxes) {
         std::vector<Point> way;
+        int need_rot = turn2box(robot, i, map);
         {
             write_log("Found way to: \n"
                       " x = " + std::to_string(i.get_box_indent().get_x()) +
@@ -98,27 +135,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode) {
             robot.Go2(way);
 	        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
         }
-        int need_rot = 1;
-        Point buff_p = i.get_box_indent() - Point{field_sett::size_field_unit, field_sett::size_field_unit};
-        if (fabs(buff_p.get_x() - i.get_left_corner_point().get_x()) < fabs(buff_p.get_y() - i.get_left_corner_point().get_y())) {
-            if (i.get_left_corner_point().get_y() > buff_p.get_y()) {
-                need_rot = 0;
-            } else {
-                need_rot = 2;
-            }
-        } else {
-            if (i.get_left_corner_point().get_x() > buff_p.get_x()) {
-                need_rot = 3;
-            }
-        }
-        double need_rot_rad = (need_rot) * M_PI_2 - map.get_position().get_angle();
-	    {
-		    write_log("Need rood: \n" + std::to_string(need_rot_rad));
-	    }
-        robot.Turn(need_rot_rad);
-        robot.CatchCube(side_catch);
-        Point offset_catch = map.get_position() + catch_offset_driveway[need_rot] + catch_flower_offset[need_rot] * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1));
-        map.set_new_position(RobotPoint{offset_catch.get_x(), offset_catch.get_y(), -need_rot_rad +  map.get_position().get_angle()});
+        catch_box(robot, side_catch);
+        Point offset_catch = map.get_position() + catch_flower_offset[need_rot] * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1));
+        map.set_new_position(RobotPoint{offset_catch.get_x(), offset_catch.get_y(), map.get_position().get_angle()});
         side_catch = (side_catch == Robot::CatchCubeSideEnum::LEFT) ?
                      (Robot::CatchCubeSideEnum::RIGHT) :
                      (Robot::CatchCubeSideEnum::LEFT);
