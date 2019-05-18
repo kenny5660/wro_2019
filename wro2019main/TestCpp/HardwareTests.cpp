@@ -5,10 +5,7 @@
 #include "debug.h"
 #include "CV.h"
 #include <opencv2/core.hpp>
-/*
-	This is a very basic sample demonstrating the CppUTest framework.
-	Read more about CppUTest syntax here: https://cpputest.github.io/manual.html
-*/
+
 
 TEST_GROUP(DemoTestGroup)
 {
@@ -124,6 +121,8 @@ TEST(HardwareTestGroup, Servo_getDeg_test)
 TEST(HardwareTestGroup, Manipulator_test)
 {	
 	robot->GetMan()->Out(true,300);
+	robot->GetMan()->Middle(true);
+	std::cout  << "Dist top = " << robot->GetDistSensor(RobotGardener::DIST_TOP)->GetRealDistance() << std::endl;
 	robot->GetMan()->CatchLeft(true, 300);
 	robot->GetMan()->Home(true);
 	robot->GetMan()->CatchRight(true, 600);
