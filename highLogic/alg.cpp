@@ -6,6 +6,7 @@
 #include "map.h"
 #include "CV.h"
 #include "Move.h"
+#include "lidar_math.h"
 #include <opencv2/core.hpp>
 
 Point catch_flower_offset[4] = {
@@ -41,7 +42,20 @@ int turn2box(Robot &robot, BoxMap &box, Map &map) {
     return need_rot;
 }
 
+void box_connect(Robot &robot) {
+    std::vector<PolarPoint> lidar_data;
+    robot.GetLidarPolarPoints(lidar_data);
+
+    // TODO: !!! Если коробок больше одной передать первым параметром
+    // длину, вторым какой нам нужен, а так же взять данные с камеры.
+
+    Point center = position_box_side(lidar_data, 1, 1);
+    robot.Go2({{-(field_sett::climate_box_offset / 2 - center.get_y()), 0}});
+    robot.Go2({{0, -center.get_x()}});
+}
+
 void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch) {
+    box_connect(robot);
     robot.CatchCube(side_catch);
     robot.Go2({{-robot_sett::catch_offset_driveway, 0}});
 }
