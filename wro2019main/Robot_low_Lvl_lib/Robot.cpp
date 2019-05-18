@@ -1,6 +1,7 @@
 #include "Robot.h"
 #include "Uart.h"
 #include "Pwm.h"
+#include "lidar_math.h"
 #include  <exception>
 
 extern NiFpga_Session myrio_session;
@@ -67,7 +68,7 @@ void RobotGardener::Init()
 	dist_sensors_[DIST_LEFT] = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_0VAL, AIA_0WGHT, AIA_0OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_TOP]  = std::make_shared<Sharp2_15>(
-		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_3VAL, AIA_3WGHT, AIA_3OFST, AOSYSGO, NiFpga_False, 1, 0 }), 30);
+		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_3VAL, AIA_3WGHT, AIA_3OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_LEFT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
@@ -138,6 +139,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 		{ return (i.get_f()  < j.get_f());}
 	} sort_object_PolarPoint;
 	std::sort(polar_points.begin(), polar_points.end(), sort_object_PolarPoint);
+	data_filter(polar_points);
 }
 
 
@@ -252,15 +254,14 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 
 void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum side_relative_cube)
 {
-	const int mid_dist = 210;
-	const int big_dist = 400;
+	const int mid_dist = 110;
 	int speed = side == CatchCubeSideEnum::LEFT ? 200 : -200;
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);
 	std::shared_ptr<DistanceSensor> dist_left =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_LEFT) : GetDistSensor(DIST_C_RIGHT);
 	std::shared_ptr<DistanceSensor> dist_right =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_RIGHT) : GetDistSensor(DIST_C_LEFT);
-	std::cout << "Dist aligin before = " <<  dist->GetRealDistance() << std::endl;
 	man_->Middle(true);
 	Delay(100);
+	std::cout << "Dist aligin before = " <<  dist->GetRealDistance() << std::endl;
 	if (dist->GetRealDistance() > mid_dist)
 	{
 		GetOmni()->MoveWithSpeed(std::make_pair(0, speed), 0);
