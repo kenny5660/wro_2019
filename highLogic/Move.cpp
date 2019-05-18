@@ -173,12 +173,41 @@ void bfs(mesh_t &m, const cv::Point &now, const cv::Point &end, std::vector<cv::
         return;
     }
     m[now.x][now.y] = step_t;
-    for (int i = (end.x > now.x) ? (1) : (-1); (end.x > now.x) ? (i >= -1) : (i <= 1); (end.x > now.x) ? (i--) : (i++)) {
-        for (int j = (end.y > now.y) ? (1) : (-1); (end.y > now.y) ? (j >= -1) : (j <= 1); (end.y > now.y) ? (j--) : (j++)) {
-            if ((i == 0) && (j == 0)) {
-                continue;
+    if (now.x == end.x) {
+        for (int i = (end.y > now.y) ? (1) : (-1);
+             (end.y > now.y) ? (i >= -1) : (i <= 1);
+             (end.y > now.y) ? (i--) : (i++)) {
+            for (int j = (end.x > now.x) ? (1) : (-1);
+                 (end.x > now.x) ? (j >= -1) : (j <= 1);
+                 (end.x > now.x) ? (j--) : (j++)) {
+                if ((i == 0) && (j == 0)) {
+                    continue;
+                }
+                bfs(m,
+                    cv::Point(now.x + j, now.y + i),
+                    end,
+                    p,
+                    is_found,
+                    stop_t);
             }
-            bfs(m, cv::Point(now.x + i, now.y + j), end, p, is_found, stop_t);
+        }
+    } else {
+        for (int i = (end.x > now.x) ? (1) : (-1);
+             (end.x > now.x) ? (i >= -1) : (i <= 1);
+             (end.x > now.x) ? (i--) : (i++)) {
+            for (int j = (end.y > now.y) ? (1) : (-1);
+                 (end.y > now.y) ? (j >= -1) : (j <= 1);
+                 (end.y > now.y) ? (j--) : (j++)) {
+                if ((i == 0) && (j == 0)) {
+                    continue;
+                }
+                bfs(m,
+                    cv::Point(now.x + i, now.y + j),
+                    end,
+                    p,
+                    is_found,
+                    stop_t);
+            }
         }
     }
     //Зеленский выйгпал выборы!;
