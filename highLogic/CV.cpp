@@ -123,12 +123,12 @@ RobotPoint qr_detect(cv::Mat qr, std::array<BoxMap, 3> &boxes_pos, std::pair<Poi
     Point pz_p2 = letter2coordinat(s[5], s[7]);
     int rot = 0;
     if (fabs(pz_p1.get_y() - pz_p2.get_y()) > fabs(pz_p1.get_x() - pz_p2.get_x())) {
-        if (pz_p1.get_y() < (field_sett::max_field_height / 2.)) {
+	    if (pz_p1.get_y() < pz_p2.get_y()) {
             rot = 3;
         } else {
             rot = 1;
         }
-    } else if (pz_p1.get_x() > (field_sett::max_field_height / 2.)) {
+	} else if (pz_p1.get_x() > pz_p2.get_x()) {
         rot = 2;
     }
     pz_p1 = rot2point[rot](pz_p1);
@@ -148,5 +148,5 @@ RobotPoint qr_detect(cv::Mat qr, std::array<BoxMap, 3> &boxes_pos, std::pair<Poi
         boxes_pos[i] = BoxMap(rot2point[rot](p) + offset_box_rot[rot]);
     }
     Point robot_pos = pz.first + Point{field_sett::parking_zone_door_size * sin(ang) / 2., -field_sett::parking_zone_door_size * cos(ang) / 2.};
-    return {robot_pos.get_x(), robot_pos.get_y(), ang - M_PI};
+	return { robot_pos.get_x(), robot_pos.get_y(), (fabs(ang) < 0.02) ? (0) : (ang - M_PI) };
 }

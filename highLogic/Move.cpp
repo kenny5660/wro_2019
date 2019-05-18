@@ -223,8 +223,8 @@ bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, Point &e
     }
     // Мега костыль!!! фильтер
     for (int i = 0; i < way.size() - 2; i++) {
-        if (way[i].y == way[i + 2].y) {
-            way[i + 1].y = way[i].y;
+        if (way[i].x == way[i + 2].x) {
+            way[i + 1].x = way[i].x;
         }
     }
     //

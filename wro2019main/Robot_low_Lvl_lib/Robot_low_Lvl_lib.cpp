@@ -10,16 +10,10 @@
 int start_robot()
 {
 	RobotGardener robot;
-	try
-	{
-	
+
 
 		robot.Init();
-	}
-		catch (std::runtime_error e)
-	{
-		//TO DO output to log file
-	}
+
 	
 	do_alg_code(robot, true);
 	return 0;

@@ -50,7 +50,7 @@ namespace lidar_sett {
 
 namespace robot_sett {
     const double catch_flower_offset = 115;
-    const double catch_offset_driveway = 46;
+    const double catch_offset_driveway = 80;
 }
 
 #endif //LIDAR_MATH_SETINGS_H

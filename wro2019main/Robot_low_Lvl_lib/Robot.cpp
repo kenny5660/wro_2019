@@ -39,9 +39,11 @@ void RobotGardener::Init()
 	std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
 	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar,LidarA1::LidarMod::k8k));
 	lidar_->StartScan(0.4);
-	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9, uart_Bridge));
-	std::shared_ptr<Servo> servo_up(new Servo_ocs251(5, uart_Bridge));
+	
 	std::shared_ptr<Servo> servo_cam(new Servo_ocs251(8, uart_Bridge));
+	std::shared_ptr<Servo> servo_up(new Servo_ocs251(5, uart_Bridge));
+	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9, uart_Bridge));
+
 	cam_rot_ = std::make_shared<CameraRotate>(0, servo_cam);
 	cam_rot_->SetResolution(std::make_pair(1024, 768));
 	man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low, servo_up));
@@ -182,7 +184,7 @@ void RobotGardener::CatchRight_()
 	man_->CatchLeft();
 	omni_->MoveToPosInc(std::make_pair(0, 110), speed);
 	man_->Out(true);
-	omni_->MoveToPosInc(std::make_pair(0, -110), speed);
+	omni_->MoveToPosInc(std::make_pair(0, -107), speed);
 	omni_->MoveToPosInc(std::make_pair(5, 0), speed);
 	man_->CatchRight(true, 200);
 	omni_->MoveToPosInc(std::make_pair(0, -40), speed);
@@ -344,7 +346,9 @@ void RobotGardener::GetQRCode(cv::Mat &frame)
 
 void RobotGardener::Turn(double angle)
 {
-	
+	const double pi2 = 2 * M_PI;
+	angle = (fmod(fmod(angle, pi2) + pi2, pi2));
+	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
 	const int kRobot_rot_speed = 150;
 	omni_->Turn(angle, kRobot_rot_speed);
 }
