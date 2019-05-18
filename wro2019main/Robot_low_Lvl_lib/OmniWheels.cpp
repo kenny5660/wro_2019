@@ -71,7 +71,7 @@ int Sign(int a)
 void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr, double speed)
 {
 
-	for (auto it = tr.begin(); it != tr.end() - 1; ++it)
+	for (auto it = tr.begin(); it != tr.end(); ++it)
 	{
 		int start_pos_front = motors[(int)MotorDir::FRONT]->GetCurEncDeg();
 		int start_pos_left = motors[(int)MotorDir::LEFT]->GetCurEncDeg();
@@ -94,7 +94,7 @@ void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr
 //		MoveToPosInc(*(it), speed);
 	}
 	Stop();
-	MoveToPosInc(*(tr.end() - 1), speed);
+	//MoveToPosInc(*(tr.end() - 1), speed);
 }
 
 
