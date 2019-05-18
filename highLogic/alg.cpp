@@ -88,7 +88,8 @@ void do_alg_code(Robot &robot, bool kamikaze_mode) {
     }
     start_position.set_angle(start_angle);
     save_debug_img("QRCodeDetection", map.get_img());
-    for (auto i : boxes) {
+    std::array<BoxMap, 2> boxes_for_sort_alg = {boxes[0], boxes[1]};
+    for (auto i : boxes_for_sort_alg) {
         std::vector<Point> way;
         int need_rot = turn2box(robot, i, map);
         {
