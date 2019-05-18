@@ -217,6 +217,7 @@ TEST(HardwareTestGroup, Dist_sensors_test)
 {
 	robot->GetMan()->GetServoLow()->Disable();
 	robot->GetMan()->GetServoUp()->Disable();
+	robot->GetMan()->Middle();
 	
 	while (1)
 	{

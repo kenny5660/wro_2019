@@ -43,13 +43,13 @@ void Manipulator::Out(bool wait, int time)
 void Manipulator::CatchRight(bool wait,int time)
 {
 
-	servo_up_->SetDegrees(197, wait,time);
+	servo_up_->SetDegrees(199, wait,time);
 }
 
 
 void Manipulator::CatchLeft(bool wait, int time)
 {
-	servo_up_->SetDegrees(237, wait, time);
+	servo_up_->SetDegrees(236, wait, time);
 }
 
 
