@@ -41,7 +41,7 @@ void Camera::UpdateFrameThread()
 		mutex_update_frame_.lock();
 		(*vc_) >> (*frame_cur_);
 		mutex_update_frame_.unlock();
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	}
 }
 
@@ -87,6 +87,7 @@ std::shared_ptr<Servo> CameraRotate::GetServo()
 void CameraRotate::RotateTo(double deg)
 {
 	servo_rot_->SetDegrees(deg,true);
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
 

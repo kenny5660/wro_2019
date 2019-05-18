@@ -14,6 +14,7 @@ SC16IS750::SC16IS750(std::shared_ptr<Spi> spi, std::shared_ptr<GPIO> ss_pin):
 
 void SC16IS750::begin(uint32_t baud)
 {
+
 	//    //Serial.println("1111111111111111");
 	//	if ( protocol == SC16IS750_PROTOCOL_I2C) {
 	//	//Serial.println("22222222222222");
@@ -34,6 +35,7 @@ void SC16IS750::begin(uint32_t baud)
 	{
 		std::runtime_error("Error connection to SC16IS750 by spi!");
 	}
+
     ResetDevice();
     FIFOEnable(1);
 	SetBaudrate(baud);

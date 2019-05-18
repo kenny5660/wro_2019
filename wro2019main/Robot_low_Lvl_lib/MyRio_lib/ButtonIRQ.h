@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 	void wait_start_call(void(*callBack)());
-	void wait_start();
+	void wait_button();
 /**
  * Flags that indicate whether the Button IRQ is triggered by the rising edge, falling edge, or both edges.
  */
@@ -29,12 +29,7 @@ typedef enum
     Irq_Button_FallingEdge,     /**< IRQ is triggered by the falling edge */
     Irq_Button_Edge             /**< IRQ is triggered by both the rising and falling edge */
 } Irq_Button_Type;
-typedef struct
-{
-	NiFpga_IrqContext irqContext;      /* IRQ context reserved by Irq_ReserveContext() */
-	NiFpga_Bool irqThreadRdy;           /* IRQ thread ready flag */
-	uint8_t irqNumber;                 /* IRQ number value */
-} ThreadResource;
+
 
 /**
  * Registers and settings for a particular button IRQ I/O.

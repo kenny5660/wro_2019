@@ -5,10 +5,7 @@
 #include "debug.h"
 #include "CV.h"
 #include <opencv2/core.hpp>
-/*
-	This is a very basic sample demonstrating the CppUTest framework.
-	Read more about CppUTest syntax here: https://cpputest.github.io/manual.html
-*/
+
 
 TEST_GROUP(DemoTestGroup)
 {
@@ -60,7 +57,7 @@ TEST(HardwareTestGroup, Start_button_test)
 
 TEST(HardwareTestGroup, Qrcode_get_test)
 {	std::shared_ptr<cv::Mat> frame = robot->GetQrCodeFrame();
-	cv::imwrite("Qrcode_test.jpg", *frame);
+	
 	std::string str = qr_detect_frame(*frame);
 	cv::putText(*frame,str,cv::Point2i(100,100),cv::FONT_ITALIC,0.6,cv::Scalar(0, 0, 255));
 	cv::imwrite("Qrcode_test_with_text.jpg", *frame);	
@@ -78,6 +75,7 @@ TEST(HardwareTestGroup, Camera_test_get_frames)
 }
 TEST(HardwareTestGroup, Lidar_dump_to_file)
 {	
+	robot->Delay(2000);
 	std::vector<PolarPoint> pps;
 	robot->GetLidarPolarPoints(pps);
 	save_ld_data(pps, "real_robot");
@@ -120,11 +118,13 @@ TEST(HardwareTestGroup, Servo_getDeg_test)
 	
 	std::cout  << "degLow = " << degLow << " deg2Low = " << deg2Low << " deg3Low = " << deg3Low << std::endl;
 }
-TEST(HardwareTestGroup, Mnipulator_test)
+TEST(HardwareTestGroup, Manipulator_test)
 {	
-	robot->GetMan()->Out(true,200);
-	robot->GetMan()->CatchLeft(true, 200);
-	robot->GetMan()->Home();
+	robot->GetMan()->Out(true,300);
+	robot->GetMan()->Middle(true);
+	std::cout  << "Dist top = " << robot->GetDistSensor(RobotGardener::DIST_TOP)->GetRealDistance() << std::endl;
+	robot->GetMan()->CatchLeft(true, 300);
+	robot->GetMan()->Home(true);
 	robot->GetMan()->CatchRight(true, 600);
 }
 TEST(HardwareTestGroup, Servo_setDeg_test)
@@ -263,4 +263,32 @@ TEST(HardwareTestGroup, Motors_for_omni_test)
 	DOUBLES_EQUAL((double)kDegs, (double)motor_right->GetCurEncDeg(), 5);
 		
 	robot->Delay(500);
+}
+
+TEST_GROUP(BUttonTestGroup)
+{
+
+	std::shared_ptr<Button> but_start;
+	void setup()
+	{
+		int status;
+		IGNORE_ALL_LEAKS_IN_TEST();
+		status = MyRio_Open();
+		if (MyRio_IsNotSuccess(status))
+		{
+			FAIL_TEST("MyRio open Is Not Success");
+		}
+		but_start = std::make_shared<ButtonOnMyrioIrq>();
+		//init_button();
+	}
+	void teardown()
+	{
+		int a = 0;
+		MyRio_Close();
+	}
+};
+TEST(BUttonTestGroup, button_test)
+{	
+	
+	but_start->WaitDown();
 }

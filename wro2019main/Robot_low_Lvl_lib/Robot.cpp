@@ -2,7 +2,7 @@
 #include "Uart.h"
 #include "Pwm.h"
 #include  <exception>
-#include <ButtonIRQ.h>
+
 extern NiFpga_Session myrio_session;
 RobotGardener::RobotGardener()
 {
@@ -29,11 +29,10 @@ void Robot::Delay(int msec)
 
 void RobotGardener::Init()
 {
-	
+	start_but_ = std::make_shared<ButtonOnMyrio>();
 	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A, 115200));
 	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
 	std::shared_ptr<Spi> spi_A(std::make_shared<SpiMyRio>(SpiMyRio::SPIA, SpiMyRio::SpiSpeed::kSpeed05Mbit));
-	
 	std::shared_ptr<Uart> uart_Bridge(std::make_shared<UartSc16is750>(spi_A, std::make_shared<GPIOmyRio>(GPIOmyRio::PortMyRio::A, 4), 115200));
 	
 	std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
@@ -45,8 +44,9 @@ void RobotGardener::Init()
 	cam_rot_ = std::make_shared<CameraRotate>(0, servo_cam);
 	cam_rot_->SetResolution(std::make_pair(1024, 768));
 	man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low, servo_up));
-	std::shared_ptr<KangarooDriver> kangarooDriver1(new KangarooDriver(uart_A, 135));
+
 	std::shared_ptr<KangarooDriver> kangarooDriver2(new KangarooDriver(uart_A, 130));
+	std::shared_ptr<KangarooDriver> kangarooDriver1(new KangarooDriver(uart_A, 135));
 	std::shared_ptr<KangarooMotor> motor_front(new KangarooMotor(kangarooDriver2, '1', true));
 	std::shared_ptr<KangarooMotor> motor_left(new KangarooMotor(kangarooDriver2, '2', false));
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
@@ -67,20 +67,25 @@ void RobotGardener::Init()
 	dist_sensors_[DIST_LEFT] = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_0VAL, AIA_0WGHT, AIA_0OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_TOP]  = std::make_shared<Sharp2_15>(
-		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_3VAL, AIA_3WGHT, AIA_3OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
+		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_3VAL, AIA_3WGHT, AIA_3OFST, AOSYSGO, NiFpga_False, 1, 0 }), 30);
 	dist_sensors_[DIST_C_LEFT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	man_->CatchRight();
 	man_->Home();
-//	init_button();
+	indicator_->Display(Indicator::WHITE);
+	Delay(400);
+	indicator_->Display(Indicator::OFF);
+	Delay(400);
+	indicator_->Display(Indicator::WHITE);
+	WaitStartButton();
+	
 }
 
 RobotGardener::~RobotGardener()
 {
- 
-
+	indicator_->Display(Indicator::OFF);
 }
 Robot::~Robot()
 {
@@ -175,8 +180,8 @@ void RobotGardener::CatchRight_()
 	man_->CatchRight();
 	man_->Out(true);
 	omni_->MoveToPosInc(std::make_pair(0, 135), speed);
-	omni_->MoveToPosInc(std::make_pair(6, 0), speed);
-	man_->CatchLeft(true);
+	omni_->MoveToPosInc(std::make_pair(10, 0), speed);
+	man_->CatchLeft(true,150);
 	omni_->MoveToPosInc(std::make_pair(0, 80), speed);
 	man_->Home();
 }
@@ -254,7 +259,8 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 	std::shared_ptr<DistanceSensor> dist_left =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_LEFT) : GetDistSensor(DIST_C_RIGHT);
 	std::shared_ptr<DistanceSensor> dist_right =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_RIGHT) : GetDistSensor(DIST_C_LEFT);
 	std::cout << "Dist aligin before = " <<  dist->GetRealDistance() << std::endl;
-	
+	man_->Middle(true);
+	Delay(100);
 	if (dist->GetRealDistance() > mid_dist)
 	{
 		GetOmni()->MoveWithSpeed(std::make_pair(0, speed), 0);
@@ -262,11 +268,13 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 		while (dist->GetDistance() > mid_dist)
 		{
 			
-			std::cout << "Dist aligin after = " <<  dist->GetDistance() << std::endl;
+			std::cout << "Dist aligin  > mid_dist  = " <<  dist->GetDistance() << std::endl;
 			if (dist_left->GetDistance() > mid_dist || side_relative_cube == CatchCubeSideEnum::LEFT)
 			{
 				std::cout << "go right = " << std::endl;
 				GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
+				Delay(100);
+				dist->GetRealDistance();
 				while (dist->GetDistance() > mid_dist) ;
 				std::cout << "Dist after1 left edge = " <<  dist->GetDistance() << std::endl;
 				omni_->MoveToPosInc(std::make_pair(0, -60), speed);
@@ -299,15 +307,17 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 {
 	const int kDegServo = 268;
 	const int kmidDist  = 200;
+	AlliginByDist(48,0);
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
 	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
 	omni_->MoveWithSpeed(std::make_pair(0, 250),0);
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist);
 	omni_->Stop();
-	Delay(800);
+	Delay(200);
 	auto frame = cam_rot_->GetFrame(kDegServo);
 	omni_->MoveToPosInc(std::make_pair(0, 40), 250);
+	cv::imwrite("Qrcode_test.jpg", *frame);
 //	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
 //	dist_c_sensor->GetRealDistance();
 //	while (dist_c_sensor->GetDistance() < kmidDist) ;
@@ -345,5 +355,5 @@ void RobotGardener::Go2(std::vector<Point> points)
 
 void RobotGardener::WaitStartButton()
 {
-	wait_start();
+	start_but_->WaitDown();
 }

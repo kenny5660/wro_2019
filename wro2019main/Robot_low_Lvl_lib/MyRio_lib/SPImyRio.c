@@ -165,6 +165,7 @@ void Spi_Transmit(const MyRio_Spi* channel, uint16_t dataOut, uint16_t* dataIn)
      * Wait for the status register to be set, which indicates that the transfer
      * completed.
      */
+
     do
     {
         /*

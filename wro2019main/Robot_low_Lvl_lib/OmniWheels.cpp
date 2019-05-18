@@ -77,6 +77,7 @@ void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr
 		int start_pos_left = motors[(int)MotorDir::LEFT]->GetCurEncDeg();
 		int start_pos_back = motors[(int)MotorDir::BACK]->GetCurEncDeg();
 		int start_pos_right = motors[(int)MotorDir::RIGHT]->GetCurEncDeg();
+
 		int ang_front = ((-it->first) / r_wheel_) * 180 / M_PI;       //w1 on picture 
 		int ang_left = ((-it->second) / r_wheel_) * 180 / M_PI;      //w2 on picture 
 		int ang_back = ((it->first) / r_wheel_) * 180 / M_PI;      //w3 on picture 
@@ -88,20 +89,12 @@ void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr
 		//	abs(motors[(int)MotorDir::LEFT]->GetCurEncDeg() - start_pos_left) < abs(ang_left) ||
 		//	abs(motors[(int)MotorDir::BACK]->GetCurEncDeg() - start_pos_back) < abs(ang_back) ||
 			abs(motors[(int)MotorDir::RIGHT]->GetCurEncDeg() - start_pos_right) < abs(ang_right)) ;
-		//Stop();
+		Stop();
 		int a  = 1;
 //		MoveToPosInc(*(it), speed);
 	}
 	Stop();
 	MoveToPosInc(*(tr.end() - 1), speed);
-	
-	
-	
-	int start_pos_front = motors[(int)MotorDir::FRONT]->GetCurEncDeg();
-	int start_pos_left = motors[(int)MotorDir::LEFT]->GetCurEncDeg();
-	int start_pos_back = motors[(int)MotorDir::BACK]->GetCurEncDeg();
-	int start_pos_right = motors[(int)MotorDir::RIGHT]->GetCurEncDeg();
-	int b = 0;
 }
 
 
