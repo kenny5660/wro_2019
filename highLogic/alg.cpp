@@ -7,6 +7,7 @@
 #include "CV.h"
 #include "Move.h"
 #include "lidar_math.h"
+#include <iostream>
 #include <opencv2/core.hpp>
 
 Point catch_flower_offset[4] = {
@@ -19,17 +20,21 @@ Point catch_flower_offset[4] = {
 //TODO: анализ после мёртвой зоны
 
 int turn2box(Robot &robot, BoxMap &box, Map &map) {
-    int need_rot = 1;
-    Point buff_p = box.get_box_indent() - Point{field_sett::size_field_unit, field_sett::size_field_unit};
+    int need_rot = 0;
+    #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+        show_debug_img("", map.get_img());
+    #endif
+    Point buff_p = box.get_box_indent();
+    buff_p = buff_p - Point{field_sett::size_field_unit, field_sett::size_field_unit};
     if (fabs(buff_p.get_x() - box.get_left_corner_point().get_x()) < fabs(buff_p.get_y() - box.get_left_corner_point().get_y())) {
         if (box.get_left_corner_point().get_y() > buff_p.get_y()) {
-            need_rot = 0;
+            need_rot = 1;
         } else {
-            need_rot = 2;
+            need_rot = 3;
         }
     } else {
         if (box.get_left_corner_point().get_x() > buff_p.get_x()) {
-            need_rot = 3;
+            need_rot = 2;
         }
     }
     double need_rot_rad = (need_rot) * M_PI_2 - map.get_position().get_angle();
@@ -39,6 +44,9 @@ int turn2box(Robot &robot, BoxMap &box, Map &map) {
     robot.Turn(need_rot_rad);
     map.set_new_position(RobotPoint{map.get_position().get_x(), map.get_position().get_y(),
                                     -need_rot_rad +  map.get_position().get_angle()});
+    #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+        show_debug_img("", map.get_img());
+    #endif
     return need_rot;
 }
 
@@ -60,19 +68,22 @@ void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch) {
     robot.Go2({{-robot_sett::catch_offset_driveway, 0}});
 }
 
-void do_alg_code(Robot &robot, bool kamikaze_mode) {
+void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     const double out_way_offset = 300;
 
     clear_logs();
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
     cv::Mat QRCodeImg;
-    robot.GetQRCode(QRCodeImg);
+    if (s == "") {
+        robot.GetQRCode(QRCodeImg);
+    }
     std::array<BoxMap, 3> boxes;
     std::pair<Point, Point> pz;
-    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz);
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, s);
     double start_angle = start_position.get_angle();
     {
         write_log("Start angle: " + std::to_string(start_angle));
+        std::cout << start_angle << std::endl;
     }
     robot.Turn(start_angle);
     robot.Go2({Point{0, out_way_offset}});

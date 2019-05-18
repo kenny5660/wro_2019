@@ -116,9 +116,11 @@ std::string qr_detect_frame(cv::Mat qr)
 	return s;
 }
 
-RobotPoint qr_detect(cv::Mat qr, std::array<BoxMap, 3> &boxes_pos, std::pair<Point, Point> &pz) {
-	std::string s = qr_detect_frame(qr);
-
+RobotPoint qr_detect(cv::Mat qr, std::array<BoxMap, 3> &boxes_pos, std::pair<Point, Point> &pz, std::string start_s) {
+    std::string s = start_s;
+    if (s == "") {
+        s= qr_detect_frame(qr);
+    }
     Point pz_p1 = letter2coordinat(s[1], s[3]);
     Point pz_p2 = letter2coordinat(s[5], s[7]);
     int rot = 0;
