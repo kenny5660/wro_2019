@@ -145,7 +145,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 
 void RobotGardener::CatchCube(CatchCubeSideEnum side)
 {
-	const int kDist = 60;
+	const int kDist = 65;
 	const int kOfsetAngle = 0;
 	const int speed = 200;
 
@@ -169,23 +169,25 @@ void RobotGardener::CatchLeft_()
 	man_->CatchRight();
 	omni_->MoveToPosInc(std::make_pair(0, 45), speed);
 	man_->Out(true);
-	omni_->MoveToPosInc(std::make_pair(0, 110), speed);
-	omni_->MoveToPosInc(std::make_pair(8, 0), speed);
-	man_->CatchLeft(true);
-	omni_->MoveToPosInc(std::make_pair(0, 80), speed);
+	omni_->MoveToPosInc(std::make_pair(0, 100), speed);
+	omni_->MoveToPosInc(std::make_pair(6, 0), speed);
+	man_->CatchLeft(true,200);
+	omni_->MoveToPosInc(std::make_pair(0, 40), speed);
 	man_->Home();
 }
 void RobotGardener::CatchRight_()
 {
-	const int speed = 150;
+	const int speed = 170;
 
-	man_->CatchRight();
+	man_->CatchLeft();
+	omni_->MoveToPosInc(std::make_pair(0, 110), speed);
 	man_->Out(true);
-	omni_->MoveToPosInc(std::make_pair(0, 135), speed);
-	omni_->MoveToPosInc(std::make_pair(10, 0), speed);
-	man_->CatchLeft(true,150);
-	omni_->MoveToPosInc(std::make_pair(0, 80), speed);
+	omni_->MoveToPosInc(std::make_pair(0, -110), speed);
+	omni_->MoveToPosInc(std::make_pair(5, 0), speed);
+	man_->CatchRight(true, 200);
+	omni_->MoveToPosInc(std::make_pair(0, -40), speed);
 	man_->Home();
+
 }
 
 Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
@@ -200,14 +202,15 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 		GetOmni()->MoveWithSpeed(std::make_pair(0, -kSpeedPre), 0);
 		while (dist_left->GetDistance() - dist_right->GetDistance() > kDistDelta) ;
 		side_relative_cube = Robot::CatchCubeSideEnum::LEFT;
-		Delay(150);
+		omni_->MoveToPosInc(std::make_pair(0, -50), kSpeedPre);
+		//Delay(150);
 	}
 	if (dist_right->GetRealDistance() - dist_left->GetRealDistance() > kDistDelta)
 	{
 		GetOmni()->MoveWithSpeed(std::make_pair(0, kSpeedPre), 0);
 		while (dist_right->GetDistance() - dist_left->GetDistance() > kDistDelta) ;
 		side_relative_cube = Robot::CatchCubeSideEnum::RIGHT;
-		Delay(150);
+		omni_->MoveToPosInc(std::make_pair(0, 50), kSpeedPre);
 	}
 	
 	using namespace std::chrono;
@@ -272,13 +275,13 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 			std::cout << "Dist aligin  > mid_dist  = " <<  dist->GetDistance() << std::endl;
 			if (dist_left->GetDistance() > mid_dist || side_relative_cube == CatchCubeSideEnum::LEFT)
 			{
+				side_relative_cube =  CatchCubeSideEnum::LEFT;
 				std::cout << "go right = " << std::endl;
 				GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
-				Delay(100);
 				dist->GetRealDistance();
 				while (dist->GetDistance() > mid_dist) ;
 				std::cout << "Dist after1 left edge = " <<  dist->GetDistance() << std::endl;
-				omni_->MoveToPosInc(std::make_pair(0, -60), speed);
+				omni_->MoveToPosInc(std::make_pair(0, -30), speed);
 				dist->GetRealDistance();
 				std::cout << "Dist after left edge = " <<  dist->GetDistance() << std::endl;
 				GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
@@ -286,12 +289,17 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 				break;
 			}
 		}
-		std::cout << "Dist aligin after = " <<  dist->GetDistance() << std::endl;
+		if (side_relative_cube != CatchCubeSideEnum::LEFT)
+		{
+			omni_->MoveToPosInc(std::make_pair(0, -35), speed);
+		}
+		std::cout << "Dist aligin after j = " <<  dist->GetDistance() << std::endl;
 	}
 	else
 	{
 		GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
 		while (dist->GetDistance() < mid_dist) ;
+		GetOmni()->Stop();
 	}
 	GetOmni()->Stop();
 	std::cout << "Dist aligin after = " <<  dist->GetDistance() << std::endl;

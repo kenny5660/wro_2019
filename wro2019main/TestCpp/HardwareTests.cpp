@@ -213,6 +213,12 @@ TEST(HardwareTestGroup, CatchCube_Left_test)
 	robot->CatchCube(RobotGardener::CatchCubeSideEnum::LEFT);
 	robot->Delay(500);
 }
+TEST(HardwareTestGroup, CatchCube_RIGHT_test)
+{
+	robot->GetMan()->CatchLeft(true);
+	robot->CatchCube(RobotGardener::CatchCubeSideEnum::RIGHT);
+	robot->Delay(500);
+}
 TEST(HardwareTestGroup, Dist_sensors_test)
 {
 	robot->GetMan()->GetServoLow()->Disable();
