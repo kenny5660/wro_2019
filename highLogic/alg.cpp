@@ -15,13 +15,6 @@ Point catch_flower_offset[4] = {
 	{0, -robot_sett::catch_flower_offset}
 };
 
-Point catch_offset_driveway[4] = {
-	{0, -robot_sett::catch_offset_driveway},
-    {-robot_sett::catch_offset_driveway, 0},
-    {0, robot_sett::catch_offset_driveway},
-    {robot_sett::catch_offset_driveway, 0}
-};
-
 //TODO: анализ после мёртвой зоны
 
 int turn2box(Robot &robot, BoxMap &box, Map &map) {
@@ -46,6 +39,11 @@ int turn2box(Robot &robot, BoxMap &box, Map &map) {
     map.set_new_position(RobotPoint{map.get_position().get_x(), map.get_position().get_y(),
                                     -need_rot_rad +  map.get_position().get_angle()});
     return need_rot;
+}
+
+void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch) {
+    robot.CatchCube(side_catch);
+    robot.Go2({{-robot_sett::catch_offset_driveway, 0}});
 }
 
 void do_alg_code(Robot &robot, bool kamikaze_mode) {
@@ -123,8 +121,8 @@ void do_alg_code(Robot &robot, bool kamikaze_mode) {
             robot.Go2(way);
 	        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
         }
-        robot.CatchCube(side_catch);
-        Point offset_catch = map.get_position() + catch_offset_driveway[need_rot] + catch_flower_offset[need_rot] * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1));
+        catch_box(robot, side_catch);
+        Point offset_catch = map.get_position() + catch_flower_offset[need_rot] * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1));
         map.set_new_position(RobotPoint{offset_catch.get_x(), offset_catch.get_y(), map.get_position().get_angle()});
         side_catch = (side_catch == Robot::CatchCubeSideEnum::LEFT) ?
                      (Robot::CatchCubeSideEnum::RIGHT) :
