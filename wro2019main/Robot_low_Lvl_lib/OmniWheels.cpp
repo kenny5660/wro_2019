@@ -70,9 +70,19 @@ int Sign(int a)
 }
 void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr, double speed)
 {
-
+	const int  kLow_speed = 100; 
+	int speed_ = speed;
 	for (auto it = tr.begin(); it != tr.end(); ++it)
 	{
+		if (it == tr.begin())
+		{
+			speed_ = kLow_speed;
+		}
+		else
+		{
+			speed_ = speed;
+		}
+		
 		int start_pos_front = motors[(int)MotorDir::FRONT]->GetCurEncDeg();
 		int start_pos_left = motors[(int)MotorDir::LEFT]->GetCurEncDeg();
 		int start_pos_back = motors[(int)MotorDir::BACK]->GetCurEncDeg();
@@ -83,7 +93,7 @@ void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr
 		int ang_back = ((it->first) / r_wheel_) * 180 / M_PI;      //w3 on picture 
 		int ang_right = ((it->second) / r_wheel_) * 180 / M_PI; 	
 		
-		MoveWithSpeed(std::make_pair(Sign(it->first)*speed, Sign(it->second)*speed), 0);	
+		MoveWithSpeed(std::make_pair(Sign(it->first)*speed_, Sign(it->second)*speed_), 0);	
 		while (
 			abs(motors[(int)MotorDir::FRONT]->GetCurEncDeg() - start_pos_front) < abs(ang_front) || 
 		//	abs(motors[(int)MotorDir::LEFT]->GetCurEncDeg() - start_pos_left) < abs(ang_left) ||
