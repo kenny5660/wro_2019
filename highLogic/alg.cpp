@@ -24,6 +24,30 @@ Point catch_offset_driveway[4] = {
 
 //TODO: анализ после мёртвой зоны
 
+int turn2box(Robot &robot, BoxMap &box, Map &map) {
+    int need_rot = 1;
+    Point buff_p = box.get_box_indent() - Point{field_sett::size_field_unit, field_sett::size_field_unit};
+    if (fabs(buff_p.get_x() - box.get_left_corner_point().get_x()) < fabs(buff_p.get_y() - box.get_left_corner_point().get_y())) {
+        if (box.get_left_corner_point().get_y() > buff_p.get_y()) {
+            need_rot = 0;
+        } else {
+            need_rot = 2;
+        }
+    } else {
+        if (box.get_left_corner_point().get_x() > buff_p.get_x()) {
+            need_rot = 3;
+        }
+    }
+    double need_rot_rad = (need_rot) * M_PI_2 - map.get_position().get_angle();
+    {
+        write_log("Need rood: \n" + std::to_string(need_rot_rad));
+    }
+    robot.Turn(need_rot_rad);
+    map.set_new_position(RobotPoint{map.get_position().get_x(), map.get_position().get_y(),
+                                    -need_rot_rad +  map.get_position().get_angle()});
+    return need_rot;
+}
+
 void do_alg_code(Robot &robot, bool kamikaze_mode) {
     const double out_way_offset = 300;
 
@@ -54,6 +78,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode) {
     save_debug_img("QRCodeDetection", map.get_img());
     for (auto i : boxes) {
         std::vector<Point> way;
+        int need_rot = turn2box(robot, i, map);
         {
             write_log("Found way to: \n"
                       " x = " + std::to_string(i.get_box_indent().get_x()) +
@@ -98,27 +123,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode) {
             robot.Go2(way);
 	        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
         }
-        int need_rot = 1;
-        Point buff_p = i.get_box_indent() - Point{field_sett::size_field_unit, field_sett::size_field_unit};
-        if (fabs(buff_p.get_x() - i.get_left_corner_point().get_x()) < fabs(buff_p.get_y() - i.get_left_corner_point().get_y())) {
-            if (i.get_left_corner_point().get_y() > buff_p.get_y()) {
-                need_rot = 0;
-            } else {
-                need_rot = 2;
-            }
-        } else {
-            if (i.get_left_corner_point().get_x() > buff_p.get_x()) {
-                need_rot = 3;
-            }
-        }
-        double need_rot_rad = (need_rot) * M_PI_2 - map.get_position().get_angle();
-	    {
-		    write_log("Need rood: \n" + std::to_string(need_rot_rad));
-	    }
-        robot.Turn(need_rot_rad);
         robot.CatchCube(side_catch);
         Point offset_catch = map.get_position() + catch_offset_driveway[need_rot] + catch_flower_offset[need_rot] * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1));
-        map.set_new_position(RobotPoint{offset_catch.get_x(), offset_catch.get_y(), -need_rot_rad +  map.get_position().get_angle()});
+        map.set_new_position(RobotPoint{offset_catch.get_x(), offset_catch.get_y(), map.get_position().get_angle()});
         side_catch = (side_catch == Robot::CatchCubeSideEnum::LEFT) ?
                      (Robot::CatchCubeSideEnum::RIGHT) :
                      (Robot::CatchCubeSideEnum::LEFT);

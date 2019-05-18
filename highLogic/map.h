@@ -80,6 +80,8 @@ class Map {
     static Point normal_point(const Point &p);
     static std::pair <int, int> get_field_unit(const Point &p);
 
+    void update(const std::vector<PolarPoint> &);
+
  private:
     bool add_box(const Point &p);
     void add_boxes_in_robot_pos(const Point &corn, const Point &next);

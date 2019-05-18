@@ -6,16 +6,22 @@
 #include <iostream>
 #include "settings.h"
 #include "debug.h"
-#include <zbar.h>
-
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#else
+    #include <zbar.h>
+#endif
 
 typedef struct {
 	std::string type;
 	std::string data;
 	std::vector<cv::Point> location;
 } decodedObject;
+
 // Find and decode barcodes and QR codes
 void decode_zbar(cv::Mat &im, std::vector<decodedObject> &decodedObjects) {
+    #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+    return;
+    #else
 	using namespace zbar;
 	// Create zbar scanner
 	ImageScanner scanner;
@@ -57,6 +63,7 @@ void decode_zbar(cv::Mat &im, std::vector<decodedObject> &decodedObjects) {
 
 		decodedObjects.push_back(obj);
 	}
+    #endif
 }
 
 inline double letter2coordinat(const char a) {

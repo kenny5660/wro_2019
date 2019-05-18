@@ -9,7 +9,8 @@ TEST(Move, MakeWayFree) {
     ASSERT_FALSE(read("MergeMapRot3/0.ld", points));
     Map m1(points);
     std::vector<Point> way;
-    EXPECT_TRUE(go_to(m1, {field_sett::max_field_width - 120, 120}, way));
+    Point end_p;
+    EXPECT_TRUE(go_to(m1, {field_sett::max_field_width - 120, 120}, way, end_p));
     EXPECT_FALSE(way.empty());
 }
 
@@ -19,7 +20,8 @@ TEST(Move, MakeWayDeath) {
     Map m1(points);
     show_debug_img("P", m1.get_img());
     std::vector<Point> way;
-    EXPECT_FALSE(go_to(m1, {1000, 500}, way));
+    Point end_p;
+    EXPECT_FALSE(go_to(m1, {1000, 500}, way, end_p));
     EXPECT_FALSE(way.empty());
 }
 
@@ -27,5 +29,6 @@ TEST(Move, addPZ) {
     //зайти ручками и проверить, что на нужном месте позиция занята
     Map m1({480, 120}, {480, 120 + field_sett::parking_zone_door_size});
     std::vector<Point> way;
-    go_to(m1, {1000, 500}, way);
+    Point end_p;
+    go_to(m1, {1000, 500}, way, end_p);
 }

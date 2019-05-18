@@ -802,3 +802,66 @@ void Map::normal_death_zone() {
         }
     }
 }
+
+void Map::update(const std::vector<PolarPoint> &polar_points) {
+    std::vector<std::vector<Point>> points = get_corners(polar_points);
+    double ang_offset = -(M_PI - position_.get_angle());
+    for (int i = 0; i < points.size(); i++) {
+       for (int j = 0; j < points.size(); j++) {
+           Point new_point = {points[i][j].get_x() * cos(ang_offset) - points[i][j].get_y() * sin(ang_offset),
+                              points[i][j].get_x() * sin(ang_offset) + points[i][j].get_y() * cos(ang_offset)};
+           points[i][j] = new_point + position_;
+       }
+    }
+    auto lines = line_detect_from_pos(position_,
+                         parking_zone_circles_,
+                         points,
+                         std::make_pair(PolarPoint::angle_norm(
+                                            lidar_sett::ang_death_start
+                                                + position_.get_angle()),
+                                        PolarPoint::angle_norm(
+                                            lidar_sett::ang_death_end
+                                                + position_.get_angle())));
+    MassPoint new_pos;
+    for (auto i : lines) {
+        for (int j = 0; j < i.size(); j++) {
+            if (i[j].second == border_lt) {
+                MassPoint buff_p;
+                if (fabs(i[j].first.get_x() - i[j + 1].first.get_x()) < fabs(i[j].first.get_y() - i[j + 1].first.get_y())) {
+                    if (i[j].first.get_x() < position_.get_x()) {
+                        buff_p.set_x(dist_line2point(i[j].first - position_,
+                                                     i[j + 1].first - position_,
+                                                     {0, 0}));
+                    } else {
+                        buff_p.set_x(field_sett::max_field_width -
+                                     dist_line2point(i[j].first - position_,
+                                                     i[j + 1].first - position_,
+                                                     {0, 0}));
+                    }
+                } else {
+                    if (i[j].first.get_y() < position_.get_y()) {
+                        buff_p.set_y(dist_line2point(i[j].first - position_,
+                                                     i[j + 1].first - position_,
+                                                     {0, 0}));
+                    } else {
+                        buff_p.set_y(field_sett::max_field_height -
+                            dist_line2point(i[j].first - position_,
+                                            i[j + 1].first - position_,
+                                            {0, 0}));
+                    }
+                }
+                new_pos.merge(buff_p);
+            }
+        }
+    }
+    Point offset2new_position = new_pos - position_;
+    position_.set_x(new_pos.get_x());
+    position_.set_y(new_pos.get_y());
+    for (auto i : lines) {
+        for (auto j : i) {
+            j.first += offset2new_position;
+        }
+    }
+
+
+}

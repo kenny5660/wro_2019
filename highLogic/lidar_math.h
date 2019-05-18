@@ -45,6 +45,12 @@ int position_relative_line(const Point &A, const Point &B, const Point &p,
 std::pair<RobotPoint, std::pair<Point, Point>> init_pos(const std::vector<PolarPoint> &polar_points,
                                                         double &dist);
 void data_filter(std::vector<PolarPoint> &p, double max_dist = field_sett::size_field_unit / 4.);
+std::vector<std::vector<std::pair<Point, line_t>>> line_detect_from_pos(const RobotPoint &pos, std::pair<Point, Point> parking_zone,
+                          std::vector<std::vector<Point>> &points, std::pair<double , double> support_angle);
+double dist_line2point(const Point &line_a,
+                              const Point &line_b,
+                              const Point &p);
+Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, int cube, show_img_debug debug = nullptr);
 
 //---FOR TEST---//
 std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,

@@ -221,10 +221,11 @@ bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, Point &e
         ans.emplace_back((way[i].x - way[i - 1].x) * field_sett::size_field_unit,
                            (way[i].y - way[i - 1].y) * field_sett::size_field_unit);
     }
+    double ang_off = map.get_position().get_angle();
     for (int i = 0; i <ans.size(); i++) {
-        ans[i].set_x(-ans[i].get_x());
+        ans[i].set_y(-ans[i].get_x());
+        ans[i].set_x(-ans[i].get_y());
     }
-    double ang_off = M_PI_2 - map.get_position().get_angle();
     for (int i = 0; i <ans.size(); i++) {
         Point new_point(ans[i].get_x() * cos(ang_off) - ans[i].get_y() * sin(ang_off),
                         ans[i].get_x() * sin(ang_off) + ans[i].get_y() * cos(ang_off));

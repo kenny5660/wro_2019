@@ -694,3 +694,111 @@ void data_filter(std::vector<PolarPoint> &p, double max_dist) {
         }
     }
 }
+
+bool point_is_near_boarder(const Point &p, double boarder_offset = field_sett::size_field_unit * 1.5) {
+    return ((fabs(p.get_x()) < boarder_offset) ||
+        (fabs(p.get_y()) < boarder_offset) ||
+        (fabs(p.get_x() - field_sett::max_field_width) < boarder_offset) ||
+        (fabs(p.get_y() - field_sett::max_field_height) < boarder_offset));
+}
+
+bool is_in_ang_segment(double ang, std::pair<double, double> ang_seg) {
+    if (ang_seg.first > ang_seg.second) {
+        return ((ang < 2 * M_PI) && (ang_seg.first < ang)) || ((0 < ang) && (ang < ang_seg.second));
+    }
+    return (ang_seg.first < ang && (ang < ang_seg.second));
+}
+
+std::vector<std::vector<std::pair<Point, line_t>>> line_detect_from_pos(const RobotPoint &pos, std::pair<Point, Point> parking_zone,
+                          std::vector<std::vector<Point>> &points, std::pair<double , double> support_angle) {
+    // со всем работаем в глобальных координатах
+    std::vector<std::vector<std::pair<Point, line_t>>> lines = line2line_type(points);
+    // пределяю парковку
+    for (int i = 0; i < lines.size(); i++) {
+        for (int j = 0; j < lines[i].size(); j++) {
+            if ((lines[i][j].first.dist(parking_zone.first) < field_sett::parking_zone_free_radius) ||
+                (lines[i][j].first.dist(parking_zone.first) < field_sett::parking_zone_free_radius)) {
+                for (int k = 0; k < lines[i].size(); k++) {
+                    lines[i][k].second = parking_lt;
+                }
+                break;
+            }
+        }
+    }
+    // определяю границу
+    for (int i = 0; i < lines.size(); i++) {
+        for (int j = 0; j < (lines[i].size() - 1); j++) {
+            if ((lines[i][j].second == undefined_lt) && point_is_near_boarder(lines[i][j].first) && point_is_near_boarder(lines[i][j + 1].first)) {
+                lines[i][j].second = border_lt;
+            }
+        }
+    }
+    // определяю коробки
+    const double error = field_sett::truncation_field_error + lidar_sett::max_tr_error;
+    for (int i = 0; i < lines.size(); i++) {
+        for (int j = 0; j < lines[i].size() - 1; j++) {
+            if (lines[i][j].second == undefined_lt) {
+                // елси это угол
+                if (is_convex_triangle(lines, i, j)) {
+                    lines[i][j].second = box_lt;
+                    continue;
+                }
+                // если не перекрывается ни чем и не короткое
+                // не перекрыта 1 точка отрезка и последняя
+                const double zero_error = 1;
+                if ((lines[i][j].first.dist(lines[i][j + 1].first)
+                    > (field_sett::climate_box_width - error))) {
+                    if (j == 0) {
+                        PolarPoint polar_pos = (lines[(i - 1 + lines.size()) % lines.size()].back().first - pos).to_polar();
+                        if (((polar_pos.get_r() < zero_error) && !is_in_ang_segment(fmod(6 * M_PI - polar_pos.get_f(), 4 * M_PI), support_angle)) ||
+                            (polar_pos.get_r() > lines[i][j].first.dist(pos))) {
+                            lines[i][j].second = box_lt;
+                        }
+                    } else if (j == lines[i].size() - 1) {
+                        // смотрим j + 1
+                        PolarPoint polar_pos = (lines[(i + 1) % lines.size()].front().first - pos).to_polar();
+                        if (((polar_pos.get_r() < zero_error) && !is_in_ang_segment(fmod(6 * M_PI - polar_pos.get_f(), 4 * M_PI), support_angle)) ||
+                            (polar_pos.get_r() > lines[i][j + 1].first.dist(pos))) {
+                            lines[i][j].second = box_lt;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return lines;
+}
+
+Point point_box_center_side(Point a, Point b, int length, int cube) {
+    Point delta = (b - a);
+    double dl = (length * 2);
+    delta.set_x(delta.get_x() / dl);
+    delta.set_y(delta.get_y() / dl);
+    Point ans = a + delta * ((cube - 1) * 2 + 1);
+    return ans;
+}
+
+Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, int cube, show_img_debug debug) {
+    std::pair<Point, Point> min_side;
+    double min_dist = field_sett::max_field_width;
+    std::vector<std::vector<Point>> points = get_corners(polar_point);
+    if (debug != nullptr) {
+        DebugFieldMat mat;
+        add_lines_img(mat, points);
+        debug("", mat);
+    }
+    for (int i = 0; i < points.size(); i++) {
+        for (int j = 0; j < points[i].size() - 1; j++) {
+            if ((points[i][j].get_y() > 0) && (points[i][j + 1].get_y() > 0) &&
+                (fabs(points[i][j].get_x() - points[i][j + 1].get_x())
+                    > fabs(points[i][j].get_y() - points[i][j + 1].get_y()))) {
+                Point center_point = point_box_center_side(points[i][j], points[i][j + 1], length, cube);
+                if (center_point.dist() < min_dist) {
+                    min_dist = center_point.dist();
+                    min_side = std::make_pair(points[i][j], points[i][j + 1]);
+                }
+            }
+        }
+    }
+    return point_box_center_side(min_side.first, min_side.second, length, cube);
+}
