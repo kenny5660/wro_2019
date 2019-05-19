@@ -113,7 +113,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
         #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
             db = show_debug_img;
         #else
-            db = save_deb;
+            db = save_debug_img;
         #endif
 	    if (!go_to(map, i.get_box_indent(), way, end_point, kamikaze_mode, db)) {
             // удаляем последние 2 точки т. к. робот не двумерная шкура и подъезжать в упор опансо

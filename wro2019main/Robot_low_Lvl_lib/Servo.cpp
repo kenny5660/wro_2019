@@ -2,7 +2,7 @@
 #include  <string>
 #include <cmath>
 #include <thread>
-void Servo_ocs251::SetDegrees(double deg,bool wait, uint16_t time)
+void Servo_ocs251::SetDegrees(double deg, bool wait, uint16_t time)
 {
 	uint8_t data[4];
 	int servo_deg = (deg + offset_deg_) / SERVO_D_251_DEGREE_COEF;
@@ -22,16 +22,19 @@ void Servo_ocs251::SetDegrees(double deg,bool wait, uint16_t time)
 	WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
 	if (wait)
 	{
-		while (1)
-		{
-			int a = abs(deg - GetDegrees());
-			if (a < 5)
-			{
-				break;
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		}
-	
+//		while (1)
+//		{
+//			std::this_thread::sleep_for(std::chrono::milliseconds(140 + time));
+//			int a = abs(deg - GetDegrees());
+//			if (a < 10)
+//			{
+//				break;
+//			}
+//		
+//			WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
+//		}
+	std::this_thread::sleep_for(std::chrono::milliseconds(200 + time));
+		WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
 	}
 	//Delay_servo(100);	
 }
@@ -93,7 +96,7 @@ int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 		(uint8_t)size,
 		check_sum 
 	};
-
+	uart_->Clear();
 	uart_->Send(data_packet, 8);
 	//uint8_t* data_packet_return = (uint8_t*)malloc(6 + size);
 	 uint8_t data_packet_return[10];
@@ -119,9 +122,9 @@ int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 		return data_length;
 	}
 	else {
-	//free(data_packet_return);
-	//	throw std::runtime_error(std::string("Read, Cheksum error, Servo! id  = ") + std::to_string(id_));
-		return data_length;
+		//free(data_packet_return);
+		//	throw std::runtime_error(std::string("Read, Cheksum error, Servo! id  = ") + std::to_string(id_));
+			return data_length;
 	}
 }
 void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
@@ -150,8 +153,8 @@ void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 	int status = uart_->Get(return_pucket, 6);
 	if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF ||  uart_->isError()) 
 	{
-	//	throw std::runtime_error(std::string("Write error, Servo! id  = ") + std::to_string(id_) 
-	//		+ std::string("Uart_err = ") + std::to_string(uart_->isError())) ;
+		//	throw std::runtime_error(std::string("Write error, Servo! id  = ") + std::to_string(id_) 
+		//		+ std::string("Uart_err = ") + std::to_string(uart_->isError())) ;
 	}
 	uint8_t state = return_pucket[SERVO_D_PACKET_STATE];
 	free(data_packet);
