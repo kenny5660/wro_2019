@@ -33,7 +33,7 @@ void SC16IS750::begin(uint32_t baud)
 	//	};
 	if(ping() != 1)
 	{
-		std::runtime_error("Error connection to SC16IS750 by spi!");
+		throw std::runtime_error("Error connection to SC16IS750 by spi!");
 	}
 
     ResetDevice();
