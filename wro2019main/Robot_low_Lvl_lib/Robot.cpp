@@ -54,7 +54,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_left(new KangarooMotor(kangarooDriver2, '2', false));
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
-	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(48,
+	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50.5,
 		132,
 		motor_left,
 		motor_front,
@@ -185,7 +185,7 @@ void RobotGardener::CatchRight_()
 	omni_->MoveToPosInc(std::make_pair(0, 110), speed);
 	man_->Out(true);
 	omni_->MoveToPosInc(std::make_pair(0, -107), speed);
-	omni_->MoveToPosInc(std::make_pair(5, 0), speed);
+	omni_->MoveToPosInc(std::make_pair(7, 0), speed);
 	man_->CatchRight(true, 200);
 	omni_->MoveToPosInc(std::make_pair(0, -40), speed);
 	man_->Home();
@@ -293,7 +293,7 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 		}
 		if (side_relative_cube != CatchCubeSideEnum::LEFT)
 		{
-			omni_->MoveToPosInc(std::make_pair(0, -45), speed);
+			omni_->MoveToPosInc(std::make_pair(0, -35), speed);
 		}
 		std::cout << "Dist aligin after j = " <<  dist->GetDistance() << std::endl;
 	}

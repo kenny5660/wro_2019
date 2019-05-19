@@ -1,8 +1,8 @@
 #include "OmniWheels.h"
 #include <cmath>
 OmniWheels4Squre::OmniWheels4Squre(
-	int r_wheel,
-	int r_body,
+	double r_wheel,
+	double r_body,
 	std::shared_ptr<Motor>motor_front, 
 	std::shared_ptr<Motor>motor_left, 
 	std::shared_ptr<Motor>motor_back, 
@@ -71,6 +71,7 @@ int Sign(int a)
 void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr, double speed)
 {
 	const int  kLow_speed = 100; 
+	const int  kConpen = -10;
 	int speed_ = speed;
 	for (auto it = tr.begin(); it != tr.end(); ++it)
 	{
@@ -95,10 +96,10 @@ void OmniWheels4Squre::MoveTrajectory(const std::vector<std::pair<int, int>> &tr
 		
 		MoveWithSpeed(std::make_pair(Sign(it->first)*speed_, Sign(it->second)*speed_), 0);	
 		while (
-			abs(motors[(int)MotorDir::FRONT]->GetCurEncDeg() - start_pos_front) < abs(ang_front) || 
+			abs(motors[(int)MotorDir::FRONT]->GetCurEncDeg() - start_pos_front) < abs(ang_front)/*+ (abs(ang_front) > -kConpen ? kConpen: 0)*/ || 
 		//	abs(motors[(int)MotorDir::LEFT]->GetCurEncDeg() - start_pos_left) < abs(ang_left) ||
 		//	abs(motors[(int)MotorDir::BACK]->GetCurEncDeg() - start_pos_back) < abs(ang_back) ||
-			abs(motors[(int)MotorDir::RIGHT]->GetCurEncDeg() - start_pos_right) < abs(ang_right)) ;
+			abs(motors[(int)MotorDir::RIGHT]->GetCurEncDeg() - start_pos_right) < abs(ang_right) /*+ (abs(ang_right) > -kConpen ? kConpen: 0)*/);
 		Stop();
 		int a  = 1;
 //		MoveToPosInc(*(it), speed);

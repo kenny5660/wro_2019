@@ -24,8 +24,8 @@ public:
 class OmniWheels4Squre : public OmniWheels
 {
 public:
-	OmniWheels4Squre(int r_wheel,
-		int r_body,
+	OmniWheels4Squre(double r_wheel,
+		double r_body,
 		std::shared_ptr<Motor>motor_left,
 		std::shared_ptr<Motor>motor_front, 
 		std::shared_ptr<Motor>motor_right,
