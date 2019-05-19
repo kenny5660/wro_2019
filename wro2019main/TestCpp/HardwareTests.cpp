@@ -192,9 +192,7 @@ TEST(HardwareTestGroup, Omni_move_trajectory_test)
 	const int speed = 200;
 	std::vector<std::pair<int, int>> traj = { 
 		{0,115},
-		{0, 115},
-		{0, 115},
-		{0, 115}
+		{0, 1150}
 //		{0, -115},
 //		{0, -115},
 //		{0, -115},

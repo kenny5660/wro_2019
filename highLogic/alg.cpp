@@ -37,7 +37,7 @@ int turn2box(Robot &robot, BoxMap &box, Map &map) {
             need_rot = 3;
         }
     }
-    double need_rot_rad = (need_rot) * M_PI_2 - map.get_position().get_angle();
+    double need_rot_rad = (need_rot) * M_PI_2 + map.get_position().get_angle();
     {
         write_log("Need rood: \n" + std::to_string(need_rot_rad));
     }
