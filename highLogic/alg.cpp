@@ -20,7 +20,7 @@ Point catch_flower_offset[4] = {
 //TODO: анализ после мёртвой зоны
 
 int turn2box(Robot &robot, BoxMap &box, Map &map) {
-    int need_rot = 0;
+    int need_rot = 1;
     #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
         show_debug_img("", map.get_img());
     #endif
@@ -28,13 +28,13 @@ int turn2box(Robot &robot, BoxMap &box, Map &map) {
     buff_p = buff_p - Point{field_sett::size_field_unit, field_sett::size_field_unit};
     if (fabs(buff_p.get_x() - box.get_left_corner_point().get_x()) < fabs(buff_p.get_y() - box.get_left_corner_point().get_y())) {
         if (box.get_left_corner_point().get_y() > buff_p.get_y()) {
-            need_rot = 1;
+            need_rot = 2;
         } else {
-            need_rot = 3;
+            need_rot = 0;
         }
     } else {
         if (box.get_left_corner_point().get_x() > buff_p.get_x()) {
-            need_rot = 2;
+            need_rot = 3;
         }
     }
     double need_rot_rad = (need_rot) * M_PI_2 - map.get_position().get_angle();

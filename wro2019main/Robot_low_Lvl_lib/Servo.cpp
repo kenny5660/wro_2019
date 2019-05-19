@@ -102,7 +102,7 @@ int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 	int status  = uart_->Get(data_packet_return, 6 + size);
 	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF ||  uart_->isError()) 
 	{
-		throw std::runtime_error(std::string("Read error, Servo! id  = ") + std::to_string(id_));
+		//throw std::runtime_error(std::string("Read error, Servo! id  = ") + std::to_string(id_));
 	}
 	uint8_t check_sum_return = data_packet_return[SERVO_D_PACKET_ID] +
 	                           data_packet_return[SERVO_D_PACKET_LENGTH];
@@ -111,16 +111,17 @@ int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 		check_sum_return += data_packet_return[SERVO_D_PACKET_PARAMS + i];
 	}
 	check_sum_return = ~check_sum_return;
+	size_t data_length = data_packet_return[SERVO_D_PACKET_LENGTH] - 2;
 	if (check_sum_return ==
 	    data_packet_return[3 + data_packet_return[SERVO_D_PACKET_LENGTH]]) {
-		size_t data_length = data_packet_return[SERVO_D_PACKET_LENGTH] - 2;
+		
 		//free(data_packet_return);
 		return data_length;
 	}
 	else {
 	//free(data_packet_return);
-		throw std::runtime_error(std::string("Read, Cheksum error, Servo! id  = ") + std::to_string(id_));
-		return 0;
+	//	throw std::runtime_error(std::string("Read, Cheksum error, Servo! id  = ") + std::to_string(id_));
+		return data_length;
 	}
 }
 void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
@@ -149,8 +150,8 @@ void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 	int status = uart_->Get(return_pucket, 6);
 	if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF ||  uart_->isError()) 
 	{
-		throw std::runtime_error(std::string("Write error, Servo! id  = ") + std::to_string(id_) 
-			+ std::string("Uart_err = ") + std::to_string(uart_->isError())) ;
+	//	throw std::runtime_error(std::string("Write error, Servo! id  = ") + std::to_string(id_) 
+	//		+ std::string("Uart_err = ") + std::to_string(uart_->isError())) ;
 	}
 	uint8_t state = return_pucket[SERVO_D_PACKET_STATE];
 	free(data_packet);

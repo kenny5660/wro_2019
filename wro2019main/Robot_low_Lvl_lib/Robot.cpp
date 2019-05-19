@@ -221,7 +221,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 	const int err_align_limit = 30;
 	const double P_align = 5;
 	const double D_aligin = 8;
-	const double P_dist = -5;
+	const double P_dist = -6;
 	const double D_dist = 4;
 	int alg_speed = 0;
 	int x_speed = 0;
@@ -293,7 +293,7 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 		}
 		if (side_relative_cube != CatchCubeSideEnum::LEFT)
 		{
-			omni_->MoveToPosInc(std::make_pair(0, -35), speed);
+			omni_->MoveToPosInc(std::make_pair(0, -45), speed);
 		}
 		std::cout << "Dist aligin after j = " <<  dist->GetDistance() << std::endl;
 	}
