@@ -204,7 +204,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 		GetOmni()->MoveWithSpeed(std::make_pair(0, -kSpeedPre), 0);
 		while (dist_left->GetDistance() - dist_right->GetDistance() > kDistDelta) ;
 		side_relative_cube = Robot::CatchCubeSideEnum::LEFT;
-		omni_->MoveToPosInc(std::make_pair(0, -50), kSpeedPre);
+		omni_->MoveToPosInc(std::make_pair(0, -60), kSpeedPre);
 		//Delay(150);
 	}
 	if (dist_right->GetRealDistance() - dist_left->GetRealDistance() > kDistDelta)
@@ -212,7 +212,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 		GetOmni()->MoveWithSpeed(std::make_pair(0, kSpeedPre), 0);
 		while (dist_right->GetDistance() - dist_left->GetDistance() > kDistDelta) ;
 		side_relative_cube = Robot::CatchCubeSideEnum::RIGHT;
-		omni_->MoveToPosInc(std::make_pair(0, 50), kSpeedPre);
+		omni_->MoveToPosInc(std::make_pair(0, 60), kSpeedPre);
 	}
 	
 	using namespace std::chrono;
