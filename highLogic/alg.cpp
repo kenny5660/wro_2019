@@ -144,6 +144,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
             {
                 write_log("Way founded.");
             }
+            way.back() = way.back() - (Point{field_sett::size_field_unit / 2., 0} * sign(way.back().get_x()));
             robot.Go2(way);
 	        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
         }
