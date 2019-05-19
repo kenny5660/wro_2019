@@ -163,6 +163,12 @@ cv::Point point2corner(mesh_t m, const Point &point) {
     return p;
 }
 
+const std::array<std::array<int, 3>, 3> mov_step = {{
+    {-1, 0, 1},
+    {0, 1, -1},
+    {1, 0, -1}}
+};
+
 void bfs(mesh_t &m, const cv::Point &now, const cv::Point &end, std::vector<cv::Point> &p, bool &is_found, move_unit_t stop_t = undif_t) {
     if (is_found || !mesh_point_check(m, now) || (m[now.x][now.y] <= stop_t) || (m[now.x][now.y] == step_t)) {
         return;
@@ -173,23 +179,39 @@ void bfs(mesh_t &m, const cv::Point &now, const cv::Point &end, std::vector<cv::
         return;
     }
     m[now.x][now.y] = step_t;
-    for (int i = (end.x > now.x) ? (1) : (-1);
-         (end.x > now.x) ? (i >= -1) : (i <= 1);
-         (end.x > now.x) ? (i--) : (i++)) {
-        for (int j = (end.y > now.y) ? (1) : (-1);
-             (end.y > now.y) ? (j >= -1) : (j <= 1);
-             (end.y > now.y) ? (j--) : (j++)) {
-            if ((i == 0) && (j == 0)) {
-                continue;
+    int type_x = sign(end.x - now.x) + 1;
+    int type_y = sign(end.y - now.y) + 1;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if ((mov_step[type_x][j] == 0) && (mov_step[type_y][j] == 0)) {
+                    continue;
+                }
+                bfs(m,
+                    cv::Point(now.x + ((type_x == 1) ? (mov_step[type_y][j]) : (mov_step[type_x][j])),
+                              now.y + ((type_x == 1) ? (mov_step[type_x][j]) : (mov_step[type_y][j]))),
+                    end,
+                    p,
+                    is_found,
+                    stop_t);
             }
-            bfs(m,
-                cv::Point(now.x + i, now.y + j),
-                end,
-                p,
-                is_found,
-                stop_t);
         }
-    }
+//    for (int i = (end.x > now.x) ? (1) : (-1);
+//         (end.x > now.x) ? (i >= -1) : (i <= 1);
+//         (end.x > now.x) ? (i--) : (i++)) {
+//        for (int j = (end.y > now.y) ? (1) : (-1);
+//             (end.y > now.y) ? (j >= -1) : (j <= 1);
+//             (end.y > now.y) ? (j--) : (j++)) {
+//            if ((i == 0) && (j == 0)) {
+//                continue;
+//            }
+//            bfs(m,
+//                cv::Point(now.x + i, now.y + j),
+//                end,
+//                p,
+//                is_found,
+//                stop_t);
+//        }
+//    }
     //Зеленский выйгпал выборы!;
     if (!is_found) {
         p.pop_back();

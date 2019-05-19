@@ -7,5 +7,5 @@
 
 TEST(Alg, 1) {
     Robot robot;
-    do_alg_code(robot, true, "(K,F,N,F)(R,N,T,P)(D,M,F,O)(J,R,H,T)");
+    do_alg_code(robot, true, "(J,I,I,G)(H,R,J,T)(Q,B,O,D)(F,M,D,O)");
 }
