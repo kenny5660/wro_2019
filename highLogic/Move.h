@@ -13,6 +13,6 @@ const int height_mesh = 20;
 
 const int unit_offset = 1;
 
-bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode = false);
+bool go_to(Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode = false, show_img_debug debug = nullptr);
 
 #endif //LIDAR_MATH_MOVE_H

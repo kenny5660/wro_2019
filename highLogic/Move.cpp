@@ -188,8 +188,8 @@ void bfs(mesh_t &m, const cv::Point &now, const cv::Point &end, std::vector<cv::
                     continue;
                 }
                 bfs(m,
-                    cv::Point(now.x + ((type_x == 1) ? (mov_step[type_y][j]) : (mov_step[type_x][i])),
-                              now.y + ((type_x == 1) ? (mov_step[type_x][i]) : (mov_step[type_y][j]))),
+                    cv::Point(now.x + ((type_x == 1) ? (mov_step[type_x][j]) : (mov_step[type_x][i])),
+                              now.y + ((type_x == 1) ? (mov_step[type_y][i]) : (mov_step[type_y][j]))),
                     end,
                     p,
                     is_found,
@@ -219,7 +219,7 @@ void bfs(mesh_t &m, const cv::Point &now, const cv::Point &end, std::vector<cv::
     }
 }
 
-bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode) {
+bool go_to(Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode, show_img_debug debug) {
     mesh_t mesh = get_mesh(map);
     cv::Point start = point2corner(mesh, map.get_position());
     cv::Point end = point2corner(mesh, point);
@@ -244,13 +244,17 @@ bool go_to(const Map &map, const Point &point, std::vector<Point> &ans, Point &e
             way.push_back(i);
         }
     }
-    // Мега костыль!!! фильтер
-    for (int i = 0; i < way.size() - 2; i++) {
-        if (way[i].x == way[i + 2].x) {
-            way[i + 1].x = way[i].x;
+    if (debug != nullptr) {
+        cv::Mat img = map.get_img();
+        for (int i = 0; i < way.size() - 1; i++) {
+            cv::Point img_p1 = {(int)(way[i].x * (field_sett::size_field_unit * img.size().width / field_sett::max_field_width)),
+                               (int)(way[i].y * (field_sett::size_field_unit * img.size().height / field_sett::max_field_height))};
+            cv::Point img_p2 = {(int)(way[i + 1].x * (field_sett::size_field_unit * img.size().width / field_sett::max_field_width)),
+                                (int)(way[i + 1].y * (field_sett::size_field_unit * img.size().height / field_sett::max_field_height))};
+            cv::line(img, img_p1, img_p2, {55, 178, 7}, 3);
         }
+        debug("way", img);
     }
-    //
 	end_point = { way.back().x * field_sett::size_field_unit, way.back().y * field_sett::size_field_unit };
     ans.emplace_back(way.front().x * field_sett::size_field_unit
                            - map.get_position().get_x(),
