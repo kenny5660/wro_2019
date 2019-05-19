@@ -170,6 +170,7 @@ const std::array<std::array<int, 3>, 3> mov_step = {{
 };
 
 void bfs(mesh_t &m, const cv::Point &now, const cv::Point &end, std::vector<cv::Point> &p, bool &is_found, move_unit_t stop_t = undif_t) {
+    //std::cout << "X: " << now.x << " Y: " << now.y << std::endl;
     if (is_found || !mesh_point_check(m, now) || (m[now.x][now.y] <= stop_t) || (m[now.x][now.y] == step_t)) {
         return;
     }
@@ -183,12 +184,12 @@ void bfs(mesh_t &m, const cv::Point &now, const cv::Point &end, std::vector<cv::
     int type_y = sign(end.y - now.y) + 1;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if ((mov_step[type_x][j] == 0) && (mov_step[type_y][j] == 0)) {
+                if ((mov_step[type_x][i] == 0) && (mov_step[type_y][j] == 0)) {
                     continue;
                 }
                 bfs(m,
-                    cv::Point(now.x + ((type_x == 1) ? (mov_step[type_y][j]) : (mov_step[type_x][j])),
-                              now.y + ((type_x == 1) ? (mov_step[type_x][j]) : (mov_step[type_y][j]))),
+                    cv::Point(now.x + ((type_x == 1) ? (mov_step[type_y][j]) : (mov_step[type_x][i])),
+                              now.y + ((type_x == 1) ? (mov_step[type_x][i]) : (mov_step[type_y][j]))),
                     end,
                     p,
                     is_found,
