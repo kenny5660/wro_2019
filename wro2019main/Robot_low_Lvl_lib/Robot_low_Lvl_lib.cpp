@@ -9,12 +9,10 @@
 
 int start_robot()
 {
+
 	RobotGardener robot;
-
-
+	cout_to_file_log_enable();
 		robot.Init();
-
-	
 	do_alg_code(robot, true);
 	return 0;
 }

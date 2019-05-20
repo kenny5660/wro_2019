@@ -7,6 +7,7 @@
 #include <ctime>
 #include <chrono>
 #include <opencv2/imgproc.hpp>
+#include <iostream>
 
 std::ofstream log_text_out(log_path + log_out_text_file_name);
 
@@ -32,17 +33,23 @@ void save_debug_img(const std::string &s, const cv::Mat &img) {
 }
 
 void clear_logs() {
+	std::string command;
     #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
         const char *delete_command = "rmdir /Q /S ";
         const char *create_dir_command = "md ";
     #else
+	    const char *archive_command  = "cp -r ";
         const char *delete_command = "rm -r ";
         const char *create_dir_command = "mkdir ";
+		command = archive_command + log_path + " " + archive_path  + get_log_name("logs-");
+		std::system(command.c_str());
     #endif
-    std::string command = delete_command + log_path;
+    command = delete_command + log_path;
     std::system(command.c_str());
+	
     command = create_dir_command + log_path;
     std::system(command.c_str());
+	
 	log_text_out.open(log_path + log_out_text_file_name);
 }
 
@@ -190,4 +197,9 @@ void save_ld_data(const std::vector<PolarPoint> &p, const std::string &s) {
 
 void write_log(const std::string &s) {
     log_text_out << get_log_name(": ") << s << std::endl;
+}
+void cout_to_file_log_enable()
+{
+	std::ofstream out(log_path + "cout.log");
+	auto cinbuf = std::cout.rdbuf(out.rdbuf());
 }

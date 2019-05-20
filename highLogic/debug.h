@@ -15,6 +15,7 @@
 	const std::string log_path = "..\\log\\";
 #else
 	const std::string log_path = "./log/";
+  const std::string archive_path = "./archive/"; 
 #endif
 
 const std::string log_out_text_file_name = "log.txt";
@@ -82,4 +83,5 @@ void add_point_img(DebugFieldMat &mat, const Point &p = { 0, 0 }, const cv::Scal
 
 void save_ld_data(const std::vector<PolarPoint> &p, const std::string &s = "");
 
+void cout_to_file_log_enable();
 #endif //LIDAR_MATH_DEBUG_H
