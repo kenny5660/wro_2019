@@ -55,7 +55,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50.5,
-		132,
+		132.1,
 		motor_left,
 		motor_front,
 		motor_right,
@@ -147,7 +147,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 
 void RobotGardener::CatchCube(CatchCubeSideEnum side)
 {
-	const int kDist = 65;
+	const int kDist = 58;
 	const int kOfsetAngle = 0;
 	const int speed = 200;
 
@@ -172,7 +172,7 @@ void RobotGardener::CatchLeft_()
 	omni_->MoveToPosInc(std::make_pair(0, 45), speed);
 	man_->Out(true);
 	omni_->MoveToPosInc(std::make_pair(0, 100), speed);
-	omni_->MoveToPosInc(std::make_pair(6, 0), speed);
+	omni_->MoveToPosInc(std::make_pair(10, 0), speed);
 	man_->CatchLeft(true,200);
 	omni_->MoveToPosInc(std::make_pair(0, 40), speed);
 	man_->Home();
@@ -182,10 +182,10 @@ void RobotGardener::CatchRight_()
 	const int speed = 170;
 
 	man_->CatchLeft();
-	omni_->MoveToPosInc(std::make_pair(0, 110), speed);
+	omni_->MoveToPosInc(std::make_pair(0, 105), speed);
 	man_->Out(true);
 	omni_->MoveToPosInc(std::make_pair(0, -107), speed);
-	omni_->MoveToPosInc(std::make_pair(7, 0), speed);
+	omni_->MoveToPosInc(std::make_pair(10, 0), speed);
 	man_->CatchRight(true, 200);
 	omni_->MoveToPosInc(std::make_pair(0, -40), speed);
 	man_->Home();
@@ -216,7 +216,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 	}
 	
 	using namespace std::chrono;
-	const milliseconds timeOut(200);
+	const milliseconds timeOut(300);
 	const int err_dist_limit = 150;
 	const int err_align_limit = 30;
 	const double P_align = 5;
@@ -293,7 +293,7 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 		}
 		if (side_relative_cube != CatchCubeSideEnum::LEFT)
 		{
-			omni_->MoveToPosInc(std::make_pair(0, -35), speed);
+			omni_->MoveToPosInc(std::make_pair(0, -32), speed);
 		}
 		std::cout << "Dist aligin after j = " <<  dist->GetDistance() << std::endl;
 	}

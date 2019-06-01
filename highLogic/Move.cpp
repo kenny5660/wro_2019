@@ -60,8 +60,8 @@ void add_point(mesh_t &m, const cv::Point &p,  move_unit_t t) {
 void add_rect(mesh_t &m, const cv::Point &p1, const cv::Point &p2,  move_unit_t t) {
     cv::Point min(std::min(p1.x, p2.x), std::min(p1.y, p2.y));
     cv::Point max(std::max(p1.x, p2.x), std::max(p1.y, p2.y));
-    for (int i = min.x; i <= max.x; i++) {
-        for (int j = min.y; j <= max.y; j++) {
+    for (int i = min.x; i < max.x; i++) { // ЕСли чё, то переделать на <=
+        for (int j = min.y; j < max.y; j++) {
             add_point(m, {i, j}, t);
         }
     }
