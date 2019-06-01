@@ -4,6 +4,7 @@
 
 #include "test.h"
 #include "..\highLogic\map.h"
+#include "../highLogic/CV.h"
 #include <string>
 
 TEST(BoxMap, Create) {
@@ -572,4 +573,38 @@ TEST(Map, NormalDeathZone) {
     // TODO: учесть свободное пространство перед квадратом. Скрыть данную функцию. Добавить с учётом кводратов.
     m.normal_death_zone();
     show_debug_img("", m.get_img());
+}
+
+TEST(MapCreateBorder, Merge) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(U,L,S,N)");
+    start_position.set_angle(0);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("", img);
+}
+
+TEST(MapCreateBorder, Merge2) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(H,K,K,K)(A,A,C,C)(I,A,K,C)(E,A,G,C)");
+    start_position.set_angle(0);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("", img);
+}
+
+
+TEST(MapCreateBorder, NonMerge) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(A,R,C,T)");
+    start_position.set_angle(0);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("", img);
 }
