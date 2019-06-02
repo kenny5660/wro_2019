@@ -15,4 +15,6 @@ const int unit_offset = 1;
 
 bool go_to(Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode = false, show_img_debug debug = nullptr);
 
+bool go_to2(Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode = false, show_img_debug debug = nullptr);
+
 #endif //LIDAR_MATH_MOVE_H

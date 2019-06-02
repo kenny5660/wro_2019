@@ -3,6 +3,7 @@
 //
 
 #include "test.h"
+#include "../highLogic/CV.h"
 
 TEST(Move, MakeWayFree) {
     std::vector<PolarPoint> points;
@@ -31,4 +32,68 @@ TEST(Move, addPZ) {
     std::vector<Point> way;
     Point end_p;
     go_to(m1, {1000, 500}, way, end_p);
+}
+
+TEST(Move2, NullCross) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(H,K,K,K)(A,A,C,C)(I,A,K,C)(E,A,G,C)");
+    start_position.set_angle(0);
+    start_position.set_x(3 * field_sett::size_field_unit);
+    start_position.set_y(12 * field_sett::size_field_unit);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<Point> ans;
+    Point end_p;
+    go_to2(map, Point{4 * field_sett::size_field_unit, 8 * field_sett::size_field_unit}, ans, end_p, false, show_debug_img);
+}
+
+TEST(Move2, Cross2Corner) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(H,K,K,K)(A,A,C,C)(I,A,K,C)(E,A,G,C)");
+    start_position.set_angle(0);
+    start_position.set_x(3 * field_sett::size_field_unit);
+    start_position.set_y(12 * field_sett::size_field_unit);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<Point> ans;
+    Point end_p;
+    go_to2(map, Point{16 * field_sett::size_field_unit, 12 * field_sett::size_field_unit}, ans, end_p, false, show_debug_img);
+}
+
+TEST(Move2, Cross1Corner) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(H,K,K,K)(A,A,C,C)(I,A,K,C)(E,A,G,C)");
+    start_position.set_angle(0);
+    start_position.set_x(3 * field_sett::size_field_unit);
+    start_position.set_y(12 * field_sett::size_field_unit);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<Point> ans;
+    Point end_p;
+    go_to2(map, Point{8 * field_sett::size_field_unit, 8 * field_sett::size_field_unit}, ans, end_p, false, show_debug_img);
+}
+
+TEST(Move2, Cross2) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(U,L,S,N)");
+    start_position.set_angle(0);
+    start_position.set_x(4 * field_sett::size_field_unit);
+    start_position.set_y(8 * field_sett::size_field_unit);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<Point> ans;
+    Point end_p;
+    go_to2(map, Point{12 * field_sett::size_field_unit, 4 * field_sett::size_field_unit}, ans, end_p, false, show_debug_img);
 }

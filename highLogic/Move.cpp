@@ -277,3 +277,79 @@ bool go_to(Map &map, const Point &point, std::vector<Point> &ans, Point &end_poi
     }
     return is_first_found;
 }
+
+inline bool in_move_zone(Point a) {
+    return (a.get_x() >= robot_sett::move_offset) &&
+        (a.get_x() <= (field_sett::max_field_width - robot_sett::move_offset)) &&
+        (a.get_y() >= robot_sett::move_offset) &&
+        (a.get_y() <= (field_sett::max_field_height - robot_sett::move_offset));
+}
+
+bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>> &borders,
+                 const Point &end_point, std::vector<Point> &ans) {
+    std::pair<Point, int> nearly_cross(Point{2 * field_sett::max_field_width, 2 * field_sett::max_field_height}, -1);
+    int ind_cross = -1;
+    for (int i = 0; i < borders.size(); i++) {
+        auto cross = get_cross_line_with_outline(borders[i], start_point, end_point);
+        if ((cross.second >= 0) && (start_point.dist(nearly_cross.first) > start_point.dist(cross.first))) {
+            nearly_cross = cross;
+            ind_cross = i;
+        }
+    }
+    if (ind_cross == -1) {
+        ans.push_back(end_point);
+        return true;
+    }
+    auto cross_end = get_cross_line_with_outline(borders[ind_cross], end_point, start_point);
+    int corn_end = (cross_end.first.dist(borders[ind_cross][cross_end.second]) <
+        cross_end.first.dist(borders[ind_cross][(cross_end.second + 1) % borders[ind_cross].size()])) ?
+        (cross_end.second) : ((cross_end.second + 1) % borders[ind_cross].size());
+    double up_length = nearly_cross.first.dist(borders[ind_cross][(nearly_cross.second + 1) % borders[ind_cross].size()]);
+    for (int i = (nearly_cross.second + 1) % borders[ind_cross].size(); i != corn_end; i = (i + 1) % borders[ind_cross].size()) {
+        up_length += borders[ind_cross][i].dist(borders[ind_cross][(i + 1) % borders[ind_cross].size()]);
+        if (!in_move_zone(borders[ind_cross][i])) {
+            up_length = -1;
+            break;
+        }
+    }
+    double down_length = nearly_cross.first.dist(borders[ind_cross][nearly_cross.second]);
+    for (int i = nearly_cross.second; i != corn_end; i = (i + borders[ind_cross].size() - 1) % borders[ind_cross].size()) {
+        down_length += borders[ind_cross][i].dist(borders[ind_cross][(i + borders[ind_cross].size() - 1) % borders[ind_cross].size()]);
+        if (!in_move_zone(borders[ind_cross][i])) {
+            down_length = -1;
+            break;
+        }
+    }
+    if ((down_length < 0) && (up_length < 0)) {
+        std::cerr << "Move::do_line_way:: \n There is no way!" << std::endl;
+    }
+    if ((up_length < 0) || (down_length < up_length)) {
+        for (int i = nearly_cross.second; i != corn_end; i = (i + borders[ind_cross].size() - 1) % borders[ind_cross].size()) {
+            ans.push_back(borders[ind_cross][i]);
+        }
+        ans.push_back(borders[ind_cross][corn_end]);
+    } else {
+        for (int i = (nearly_cross.second + 1) % borders[ind_cross].size(); i != corn_end; i = (i + 1) % borders[ind_cross].size()) {
+            ans.push_back(borders[ind_cross][i]);
+        }
+        ans.push_back(borders[ind_cross][corn_end]);
+    }
+    do_line_way(corn_end, borders, end_point, ans);
+}
+
+bool go_to2(Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode, show_img_debug debug) {
+    std::vector<Point> way;
+    way.push_back(map.get_position());
+    do_line_way(map.get_position(), map.borders, point, way);
+    if (debug != nullptr) {
+        cv::Mat img = map.get_img();
+        for (int i = 0; i < way.size() - 1; i++) {
+            cv::Point img_p1 = {(int)(way[i].get_x() * ((double)img.size().width / field_sett::max_field_width)),
+                                (int)(way[i].get_y() * ((double)img.size().height / field_sett::max_field_height))};
+            cv::Point img_p2 = {(int)(way[i + 1].get_x() * ((double)img.size().width / field_sett::max_field_width)),
+                                (int)(way[i + 1].get_y() * ((double)img.size().height / field_sett::max_field_height))};
+            cv::line(img, img_p1, img_p2, {55, 178, 7}, 3);
+        }
+        debug("way", img);
+    }
+}
