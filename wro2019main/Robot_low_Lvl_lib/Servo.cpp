@@ -31,8 +31,6 @@ void Servo_ocs251::SetDegrees(double deg, bool wait, uint16_t time)
 			{
 				break;
 			}
-		
-			WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
 		}
 //		std::this_thread::sleep_for(std::chrono::milliseconds(200 + time));
 //		WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
@@ -85,50 +83,54 @@ void Servo_ocs251::Enable()
 
 int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 {
-	uint8_t check_sum = id_ + SERVO_D_INSTRUCTION_READ + addr + size + 4;
-	check_sum = ~check_sum;
-	uint8_t data_packet[8] = {
-		0xFF,
-		0xFF,
-		id_,
-		4,
-		SERVO_D_INSTRUCTION_READ,
-		addr,
-		(uint8_t)size,
-		check_sum 
-	};
-	uart_->Clear();
-	uart_->Send(data_packet, 8);
-	//uint8_t* data_packet_return = (uint8_t*)malloc(6 + size);
-	 uint8_t data_packet_return[10];
-
-	//uart_->Clear();
-	int status  = uart_->Get(data_packet_return, 6 + size);
-	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF ||  uart_->isError()) 
+	for (int i = 0;i < 5;i++)
 	{
-		std::cout << (std::string("Read error, Servo! id  = ") + std::to_string(id_) 
-		+ std::string("Uart_err = ") + std::to_string(uart_->isError()));
-		return -1;
-	}
-	uint8_t check_sum_return = data_packet_return[SERVO_D_PACKET_ID] +
-	                           data_packet_return[SERVO_D_PACKET_LENGTH];
-	for (int i = 0; i < size; ++i) {
-		data[i] = data_packet_return[SERVO_D_PACKET_PARAMS + i];
-		check_sum_return += data_packet_return[SERVO_D_PACKET_PARAMS + i];
-	}
-	check_sum_return = ~check_sum_return;
-	size_t data_length = data_packet_return[SERVO_D_PACKET_LENGTH] - 2;
-	if (check_sum_return ==
-	    data_packet_return[3 + data_packet_return[SERVO_D_PACKET_LENGTH]]) {
+		uint8_t check_sum = id_ + SERVO_D_INSTRUCTION_READ + addr + size + 4;
+		check_sum = ~check_sum;
+		uint8_t data_packet[8] = {
+			0xFF,
+			0xFF,
+			id_,
+			4,
+			SERVO_D_INSTRUCTION_READ,
+			addr,
+			(uint8_t)size,
+			check_sum 
+		};
+		uart_->Clear();
+		uart_->Send(data_packet, 8);
+		//uint8_t* data_packet_return = (uint8_t*)malloc(6 + size);
+		 uint8_t data_packet_return[10];
+
+		//uart_->Clear();
+		int status  = uart_->Get(data_packet_return, 6 + size);
+		if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF ||  uart_->isError()) 
+		{
+			std::cout << (std::string("Read error, Servo! id  = ") + std::to_string(id_) 
+			+ std::string("Uart_err = ") + std::to_string(uart_->isError()));
+			continue;
+		}
+		uint8_t check_sum_return = data_packet_return[SERVO_D_PACKET_ID] +
+		                           data_packet_return[SERVO_D_PACKET_LENGTH];
+		for (int i = 0; i < size; ++i) {
+			data[i] = data_packet_return[SERVO_D_PACKET_PARAMS + i];
+			check_sum_return += data_packet_return[SERVO_D_PACKET_PARAMS + i];
+		}
+		check_sum_return = ~check_sum_return;
+		size_t data_length = data_packet_return[SERVO_D_PACKET_LENGTH] - 2;
+		if (check_sum_return ==
+		    data_packet_return[3 + data_packet_return[SERVO_D_PACKET_LENGTH]]) {
 		
-		//free(data_packet_return);
-		return data_length;
-	}
-	else {
-		//free(data_packet_return);
-			std::cout  << std::string("Read, Cheksum error, Servo! id  = ") + std::to_string(id_);
+			//free(data_packet_return);
 			return data_length;
+		}
+		else {
+			//free(data_packet_return);
+				std::cout  << std::string("Read, Cheksum error, Servo! id  = ") + std::to_string(id_);
+			continue;
+		}
 	}
+		throw std::runtime_error((std::string("Read error, time out, Servo! id  = ") + std::to_string(id_)));
 }
 void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 {
@@ -148,18 +150,24 @@ void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 	data_packet[SERVO_D_PACKET_PARAMS] = addr;
 	data_packet[3 + data_packet[SERVO_D_PACKET_LENGTH]] = check_sum;
 	uint8_t return_pucket[6];
-	while (uart_->isError())
+	for (int i = 0; i < 5; i++)
 	{
+		uart_->Clear();
 		uart_->Send(
 			data_packet,
 			data_packet[SERVO_D_PACKET_LENGTH] + 4);
 
 
 		int status = uart_->Get(return_pucket, 6);
-		if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF) 
+		if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF  ||  uart_->isError()) 
 		{
 			std::cout << (std::string("Write error, Servo! id  = ") + std::to_string(id_) 
-				+ std::string("Uart_err = ") + std::to_string(uart_->isError())) ;
+				+ std::string("Uart_err = ") + std::to_string(uart_->isError()));
+			continue;
+		}
+		else
+		{
+			break;
 		}
 	}
 	uint8_t state = return_pucket[SERVO_D_PACKET_STATE];
