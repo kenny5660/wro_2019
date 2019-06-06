@@ -17,7 +17,7 @@ void stop_robot(int signal)
 
 int start_robot()
 {
-	cout_to_file_log_enable();
+	//cout_to_file_log_enable();
 		robot.Init();
 	std::signal(SIGINT, stop_robot);
 	do_alg_code(robot, true);
