@@ -5,7 +5,7 @@
 #include "debug.h"
 #include "CV.h"
 #include <opencv2/core.hpp>
-
+#include <csignal>
 
 TEST_GROUP(DemoTestGroup)
 {
@@ -33,13 +33,15 @@ TEST(DemoTestGroup, SuccessfulTest2)
 TEST_GROUP(HardwareTestGroup)
 {
 	std::shared_ptr<RobotGardener> robot;
-	
 	void setup()
 	{
+		
 		IGNORE_ALL_LEAKS_IN_TEST();
 		robot = std::shared_ptr<RobotGardener> (new RobotGardener());
 		robot->Init();
+	
 	}
+
 	void teardown()
 	{
 		int a = 0;

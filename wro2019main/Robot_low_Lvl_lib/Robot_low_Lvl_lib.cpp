@@ -6,13 +6,21 @@
 #include "Robot.h"
 #include "debug.h"
 #include "alg.h"
+#include <csignal>
+
+RobotGardener robot;
+void stop_robot(int signal)
+{
+	std::cout << "Stop_signal " << signal;
+	robot.~RobotGardener();
+}
 
 int start_robot()
 {
-
-	RobotGardener robot;
 	cout_to_file_log_enable();
 		robot.Init();
+	std::signal(SIGINT, stop_robot);
 	do_alg_code(robot, true);
+	robot.~RobotGardener();
 	return 0;
 }

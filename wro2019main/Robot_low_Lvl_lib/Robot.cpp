@@ -3,6 +3,8 @@
 #include "Pwm.h"
 #include "lidar_math.h"
 #include  <exception>
+#include <csignal>
+
 
 extern NiFpga_Session myrio_session;
 RobotGardener::RobotGardener()
@@ -82,6 +84,8 @@ void RobotGardener::Init()
 	indicator_->Display(Indicator::OFF);
 	Delay(400);
 	indicator_->Display(Indicator::WHITE);
+	// Install a signal handler
+
 	WaitStartButton();
 	
 }
