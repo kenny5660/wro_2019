@@ -57,7 +57,7 @@ void box_connect(Robot &robot) {
     // TODO: !!! Если коробок больше одной передать первым параметром
     // длину, вторым какой нам нужен, а так же взять данные с камеры.
 
-    Point center = position_box_side(lidar_data, 1, 1);
+    Point center = position_box_side(lidar_data, 1, 1, save_debug_img);
     robot.Go2({{-(field_sett::climate_box_offset / 2 - center.get_y()), 0}});
     robot.Go2({{0, -center.get_x()}});
 }
@@ -99,9 +99,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     }
     start_position.set_angle(start_angle);
     save_debug_img("QRCodeDetection", map.get_img());
-    std::array<BoxMap, 2> boxes_for_sort_alg = {boxes[0], boxes[1]};
-    for (auto i : boxes_for_sort_alg) {
-        std::vector<Point> way;
+    std::vector<Point> way;
+    for (auto i : boxes) {
+        way.clear();
         int need_rot = turn2box(robot, i, map);
         {
             write_log("Found way to: \n"
@@ -115,37 +115,8 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
         #else
             db = save_debug_img;
         #endif
-	    if (!go_to(map, i.get_box_indent(), way, end_point, kamikaze_mode, db)) {
-            // удаляем последние 2 точки т. к. робот не двумерная шкура и подъезжать в упор опансо
-            Point robot_p(0, 0);
-            do {
-                way.pop_back();
-                way.pop_back();
-                {
-                    write_log("Way in death zone. \n"
-                              "Go2: \n"
-                              " x = " + std::to_string(way.back().get_x()) +
-                        "\n y = " + std::to_string(way.back().get_y()));
-                }
-                robot.Go2(way);
-	            map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
-                std::vector<PolarPoint> lidar_data;
-                robot.GetLidarPolarPoints(lidar_data);
-                Map new_map(lidar_data);
-                RobotPoint new_position = new_map.get_position();
-                if (!(new_position.is_defined() && map.merge(new_map))) {
-                    write_log("!!!Pizdec, iata chast' echo ne napisanna!!!");
-                    return;
-                    // TODO: Чтобы в стену не уебнуться
-                }
-		    } while (!go_to(map, i.get_box_indent(), way, end_point) && (way.size() > 1));
-            if (way.size() < 2) {
-                write_log("!!!Pizdec, iata chast' echo ne napisanna!!!");
-                return;
-                // TODO: Чтобы в стену не уебнуться
-            }
-            robot.Go2(way);
-	        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
+	    if (!go_to2(map, i.get_box_indent(), way, end_point, kamikaze_mode, db)) {
+            //TODO: если нет путит
         } else {
             {
                 write_log("Way founded.");
@@ -166,5 +137,8 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
                       "\n y = " + std::to_string(way.back().get_y()));
         }
     }
+    way.clear();
+    Point b;
+    go_to2(map, Point{start_position.get_x() - out_way_offset, start_position.get_y()}, way, b, kamikaze_mode);
     // TODO: вернуться домой
 }

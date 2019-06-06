@@ -608,3 +608,29 @@ TEST(MapCreateBorder, NonMerge) {
     cv::Mat img = map.get_img();
     show_debug_img("", img);
 }
+
+TEST(MapUpdate, up1) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(U,L,S,N)");
+    start_position.set_angle(0);
+    start_position.set_x(1 * field_sett::size_field_unit);
+    start_position.set_y(8 * field_sett::size_field_unit);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("HalfData//(NGOI)(QQOS)(FGDI)(ULSN).ld", points));
+    map.update(points, show_debug_img);
+
+//    std::vector<std::vector<Point>> points;
+//    std::pair<Point, Point> parking_zone_circles_ = {
+//        {123, 456},
+//        {456, 321}
+//    };
+//    std::pair<double , double> p(250, 350);
+//    std::vector<std::vector<std::pair<Point, line_t>>> lines;
+//    line_detect_from_pos(lines, parking_zone_circles_,
+//                         points, p, {0, 0});
+}

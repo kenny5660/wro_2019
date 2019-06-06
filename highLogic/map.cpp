@@ -367,7 +367,7 @@ box_corner_type get_box_corner_type(const std::vector<std::pair<Point, line_t>> 
     return undef_bt;
 }
 
-void Map::add_death_outline(const std::vector<Point> &outline) {
+void Map::set_death_outline(const std::vector<Point> &outline, bool val) {
     Point max(0, 0);
     Point min(field_sett::max_field_width, field_sett::max_field_height);
     for (auto i : outline) {
@@ -388,12 +388,21 @@ void Map::add_death_outline(const std::vector<Point> &outline) {
     std::pair<int, int> max_unit = get_field_unit(max);
     for (int i = min_unit.first; i <= max_unit.first; i++) {
         for (int j = min_unit.second; j <= max_unit.second; j++) {
-            death_zone_[i][j] = death_zone_[i][j]
-                || in_outline(outline,
-                              {i * field_sett::size_field_unit
-                                   + field_sett::size_field_unit / 2.,
-                               j * field_sett::size_field_unit
-                                   + field_sett::size_field_unit / 2.});
+            if (val) {
+                death_zone_[i][j] = death_zone_[i][j]
+                    || in_outline(outline,
+                                  {i * field_sett::size_field_unit
+                                       + field_sett::size_field_unit / 2.,
+                                   j * field_sett::size_field_unit
+                                       + field_sett::size_field_unit / 2.});
+            } else {
+                death_zone_[i][j] = death_zone_[i][j] &&
+                    !in_outline(outline,
+                                                {i * field_sett::size_field_unit
+                                                     + field_sett::size_field_unit / 2.,
+                                                 j * field_sett::size_field_unit
+                                                     + field_sett::size_field_unit / 2.});
+            }
 //            std::cout << i << " " << j << " " << death_zone_[i][j] << std::endl;
 //            std::cout << field_sett::size_field_unit
 //                + field_sett::size_field_unit / 2. << " " <<
@@ -517,6 +526,28 @@ std::vector<Point> get_corners_between_lines(const Point &a, const Point &b) {
         ans.push_back(corner[(int)i]);
     }
     return ans;
+}
+
+const Point type_box_corner2offset[4] = {{0, 0},
+                                         {-field_sett::climate_box_width, 0},
+                                         {-field_sett::climate_box_width, field_sett::climate_box_height},
+                                         {0, field_sett::climate_box_height}};
+
+bool Map::add_box_from_line(std::vector<std::vector<std::pair<Point, line_t>>> &points, int i, int j) {
+    box_corner_type type = get_box_corner_type(points[i], j);
+    if (type == undef_bt) {
+        return false;
+    }
+    Point offset_cub = type_box_corner2offset[type];
+    if ((j + 1) < points[i].size()) {
+        add_boxes_in_robot_pos(points[i][j].first + offset_cub,
+                               points[i][j + 1].first + offset_cub);
+    }
+    if ((j - 1) >= 0) {
+        add_boxes_in_robot_pos(points[i][j].first + offset_cub,
+                               points[i][j - 1].first + offset_cub);
+    }
+    return true;
 }
 
 //std::vector<std::vector<Point>> death_outline;
@@ -714,14 +745,10 @@ void Map::lines_detection(const std::vector<std::vector<std::pair<Point, line_t>
             add_end(start_i, start_j);
         }
         for (auto i : death_outline) {
-            add_death_outline(i);
+            set_death_outline(i);
         }
     }
 
-    const Point type_box_corner2offset[4] = {{0, 0},
-                                             {-field_sett::climate_box_width, 0},
-                                             {-field_sett::climate_box_width, field_sett::climate_box_height},
-                                             {0, field_sett::climate_box_height}};
     for (int i = 0; i < rot_points.size(); i++) {
         bool used_parking_zone = false;
         for (int j = 0; j < rot_points[i].size(); j++) {
@@ -732,19 +759,7 @@ void Map::lines_detection(const std::vector<std::vector<std::pair<Point, line_t>
                 }
                 parking_detected_line_.back().push_back(rot_points[i][j].first);
             }else if (rot_points[i][j].second == box_lt) {
-                box_corner_type type = get_box_corner_type(rot_points[i], j);
-                if (type == undef_bt) {
-                    continue;
-                }
-                Point offset_cub = type_box_corner2offset[type];
-                if ((j + 1) < rot_points[i].size()) {
-                    add_boxes_in_robot_pos(rot_points[i][j].first + offset_cub,
-                                           rot_points[i][j + 1].first + offset_cub);
-                }
-                if ((j - 1) >= 0) {
-                    add_boxes_in_robot_pos(rot_points[i][j].first + offset_cub,
-                                           rot_points[i][j - 1].first + offset_cub);
-                }
+                add_box_from_line(rot_points, i, j);
             }
         }
     }
@@ -1024,51 +1039,60 @@ void Map::normal_death_zone() {
     }
 }
 
-void Map::update(const std::vector<PolarPoint> &polar_points) {
+void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug debug) {
     std::vector<std::vector<Point>> points = get_corners(polar_points);
-    double ang_offset = -(M_PI - position_.get_angle());
+    std::vector<std::vector<Point>> points_in_robot;
+    double ang_offset = - position_.get_angle();
     for (int i = 0; i < points.size(); i++) {
-       for (int j = 0; j < points.size(); j++) {
-           Point new_point = {points[i][j].get_x() * cos(ang_offset) - points[i][j].get_y() * sin(ang_offset),
-                              points[i][j].get_x() * sin(ang_offset) + points[i][j].get_y() * cos(ang_offset)};
-           points[i][j] = new_point + position_;
-       }
+        points_in_robot.emplace_back();
+        for (int j = 0; j < points[i].size(); j++) {
+            Point new_point = {points[i][j].get_x() * cos(ang_offset) - points[i][j].get_y() * sin(ang_offset),
+                               points[i][j].get_x() * sin(ang_offset) + points[i][j].get_y() * cos(ang_offset)};
+            points_in_robot.back().push_back(new_point);
+            points[i][j] = (new_point + Point(position_.get_x(), -position_.get_y())) * Point{1, -1};
+        }
     }
-    auto lines = line_detect_from_pos(position_,
-                         parking_zone_circles_,
-                         points,
-                         std::make_pair(PolarPoint::angle_norm(
-                                            lidar_sett::ang_death_start
-                                                + position_.get_angle()),
-                                        PolarPoint::angle_norm(
-                                            lidar_sett::ang_death_end
-                                                + position_.get_angle())));
+    double a = PolarPoint::angle_norm(
+        lidar_sett::ang_death_start
+            + position_.get_angle());
+    double b = PolarPoint::angle_norm(
+        lidar_sett::ang_death_end
+            + position_.get_angle());
+    auto p = std::make_pair(a, b);
+    std::vector<std::vector<std::pair<Point, line_t>>> lines;
+    line_detect_from_pos(lines, parking_zone_circles_,
+                         points, p, position_);
+    if (debug != nullptr) {
+        DebugFieldMat mat1;
+        add_lines_img(mat1, lines, true);
+        debug("Update_map_in_global", mat1);
+    }
     MassPoint new_pos;
     for (auto i : lines) {
-        for (int j = 0; j < i.size(); j++) {
+        for (int j = 0; j < i.size() - 1; j++) {
             if (i[j].second == border_lt) {
                 MassPoint buff_p;
                 if (fabs(i[j].first.get_x() - i[j + 1].first.get_x()) < fabs(i[j].first.get_y() - i[j + 1].first.get_y())) {
-                    if (i[j].first.get_x() < position_.get_x()) {
-                        buff_p.set_x(dist_line2point(i[j].first - position_,
-                                                     i[j + 1].first - position_,
-                                                     {0, 0}));
+                    if (i[j].first.get_y() > position_.get_y()) {
+                        buff_p.set_x(dist_line2point(i[j].first,
+                                                     i[j + 1].first,
+                                                     position_));
                     } else {
                         buff_p.set_x(field_sett::max_field_width -
-                                     dist_line2point(i[j].first - position_,
-                                                     i[j + 1].first - position_,
-                                                     {0, 0}));
+                                     dist_line2point(i[j].first,
+                                                     i[j + 1].first,
+                                                     position_));
                     }
                 } else {
-                    if (i[j].first.get_y() < position_.get_y()) {
-                        buff_p.set_y(dist_line2point(i[j].first - position_,
-                                                     i[j + 1].first - position_,
-                                                     {0, 0}));
+                    if (i[j].first.get_x() < position_.get_x()) {
+                        buff_p.set_y(dist_line2point(i[j].first,
+                                                     i[j + 1].first ,
+                                                     position_));
                     } else {
                         buff_p.set_y(field_sett::max_field_height -
-                            dist_line2point(i[j].first - position_,
-                                            i[j + 1].first - position_,
-                                            {0, 0}));
+                            dist_line2point(i[j].first,
+                                            i[j + 1].first,
+                                            position_));
                     }
                 }
                 new_pos.merge(buff_p);
@@ -1083,6 +1107,36 @@ void Map::update(const std::vector<PolarPoint> &polar_points) {
             j.first += offset2new_position;
         }
     }
-
-
+    delete_from_death_zone_circle(position_, lidar_sett::max_visible_black);
+    for (int i = 0; i < lines.size(); i++) {
+        std::vector<Point> outline;
+        for (int j = 0; j < lines[i].size(); j++) {
+            outline.push_back(lines[i][j].first);
+        }
+        outline.push_back(position_);
+        set_death_outline(outline, false);
+    }
+    // Переводим в систему координат робота
+    for (int i = 0; i < lines.size(); i++) {
+        for (int j = 0; j < lines[i].size(); j++) {
+            Point buff = Point{1, -1} * (lines[i][j].first - position_);
+            lines[i][j].first = buff;
+        }
+    }
+    normal_death_zone();
+    if (debug != nullptr) {
+        DebugFieldMat mat1;
+        add_lines_img(mat1, lines, true);
+        debug("Update_map_in_robot", mat1);
+    }
+    for (int i = 0; i < lines.size(); i++) {
+        for (int j = 0; j < lines[i].size(); j++) {
+            if (lines[i][j].second == box_lt) {
+                add_box_from_line(lines, i, j);
+            }
+        }
+    }
+    if (debug != nullptr) {
+        debug("After_update_map", get_img());
+    }
 }

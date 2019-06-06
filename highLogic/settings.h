@@ -44,8 +44,9 @@ namespace lidar_sett {
     const int truncation_error = 5;
     const double max_tr_error = truncation_error * M_SQRT2;
     const double corner_step = 1 / M_PI;
-    const double ang_death_start = 1.0001;// TODO
-    const double ang_death_end = 1.0001;// TODO
+    const double max_visible_black = 1200;
+    const double ang_death_start = 160 * M_PI / 180;// TODO
+    const double ang_death_end = 200 * M_PI / 180;// TODO
 }
 
 namespace robot_sett {
