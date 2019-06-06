@@ -260,8 +260,8 @@ bool parallel_lines(const Point &line1_a, const Point &line1_b,
     return is_parallel(angel1, angel2, truncation_error);
 }
 
-std::vector<std::vector<std::pair<Point, line_t>>> line2line_type(
-    const std::vector<std::vector<Point>> &points) {
+void line2line_type(const std::vector<std::vector<Point>> &points,
+                    std::vector<std::vector<std::pair<Point, line_t>>> &l_t) {
     std::vector<std::vector<std::pair<Point, line_t>>> ans(points.size());
     for (int i = 0; i < points.size(); i++) {
         ans[i].emplace_back();
@@ -271,6 +271,13 @@ std::vector<std::vector<std::pair<Point, line_t>>> line2line_type(
             ans[i][j].second = undefined_lt;
         }
     }
+    l_t = ans;
+}
+
+std::vector<std::vector<std::pair<Point, line_t>>> line2line_type( // Для совместимости
+    const std::vector<std::vector<Point>> &points) {
+    std::vector<std::vector<std::pair<Point, line_t>>> ans;
+    line2line_type(points, ans);
     return ans;
 }
 
@@ -709,10 +716,11 @@ bool is_in_ang_segment(double ang, std::pair<double, double> ang_seg) {
     return (ang_seg.first < ang && (ang < ang_seg.second));
 }
 
-std::vector<std::vector<std::pair<Point, line_t>>> line_detect_from_pos(const RobotPoint &pos, std::pair<Point, Point> parking_zone,
-                          std::vector<std::vector<Point>> &points, std::pair<double , double> support_angle) {
+void line_detect_from_pos(std::vector<std::vector<std::pair<Point, line_t>>> &ans, std::pair<Point, Point> parking_zone,
+                          const std::vector<std::vector<Point>> &points, std::pair<double , double> support_angle, const RobotPoint &pos) {
     // со всем работаем в глобальных координатах
-    std::vector<std::vector<std::pair<Point, line_t>>> lines = line2line_type(points);
+    std::vector<std::vector<std::pair<Point, line_t>>> lines;
+    line2line_type(points, lines);
     // пределяю парковку
     for (int i = 0; i < lines.size(); i++) {
         for (int j = 0; j < lines[i].size(); j++) {
@@ -728,7 +736,7 @@ std::vector<std::vector<std::pair<Point, line_t>>> line_detect_from_pos(const Ro
     // определяю границу
     for (int i = 0; i < lines.size(); i++) {
         for (int j = 0; j < (lines[i].size() - 1); j++) {
-            if ((lines[i][j].second == undefined_lt) && point_is_near_boarder(lines[i][j].first) && point_is_near_boarder(lines[i][j + 1].first)) {
+            if ((lines[i][j].second == undefined_lt) && point_is_near_boarder(lines[i][j].first) && point_is_near_boarder(lines[i][j + 1].first) && (lines[i][j + 1].first.dist(lines[i][j].first) > field_sett::size_field_unit)) {
                 lines[i][j].second = border_lt;
             }
         }
@@ -750,6 +758,8 @@ std::vector<std::vector<std::pair<Point, line_t>>> line_detect_from_pos(const Ro
                     > (field_sett::climate_box_width - error))) {
                     if (j == 0) {
                         PolarPoint polar_pos = (lines[(i - 1 + lines.size()) % lines.size()].back().first - pos).to_polar();
+                        std::cout << polar_pos.get_r() << std::endl;
+                        std::cout << polar_pos.get_r() << std::endl;
                         if (((polar_pos.get_r() < zero_error) && !is_in_ang_segment(fmod(6 * M_PI - polar_pos.get_f(), 4 * M_PI), support_angle)) ||
                             (polar_pos.get_r() > lines[i][j].first.dist(pos))) {
                             lines[i][j].second = box_lt;
@@ -766,7 +776,7 @@ std::vector<std::vector<std::pair<Point, line_t>>> line_detect_from_pos(const Ro
             }
         }
     }
-    return lines;
+    ans = lines;
 }
 
 Point point_box_center_side(Point a, Point b, int length, int cube) {
@@ -785,7 +795,7 @@ Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, 
     if (debug != nullptr) {
         DebugFieldMat mat;
         add_lines_img(mat, points);
-        debug("", mat);
+        debug("Box_side_detect", mat);
     }
     for (int i = 0; i < points.size(); i++) {
         for (int j = 0; j < points[i].size() - 1; j++) {
