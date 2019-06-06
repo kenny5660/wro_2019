@@ -277,3 +277,166 @@ bool go_to(Map &map, const Point &point, std::vector<Point> &ans, Point &end_poi
     }
     return is_first_found;
 }
+
+inline bool in_move_zone(Point a) {
+    return (a.get_x() >= robot_sett::move_offset) &&
+        (a.get_x() <= (field_sett::max_field_width - robot_sett::move_offset)) &&
+        (a.get_y() >= robot_sett::move_offset) &&
+        (a.get_y() <= (field_sett::max_field_height - robot_sett::move_offset));
+}
+
+Point cross_with_unit(const Point &a, const Point &b, const cv::Point2i &unit) {
+    Point side_offset[4] = {
+        {0, 0},
+        {field_sett::size_field_unit, 0},
+        {field_sett::size_field_unit, field_sett::size_field_unit},
+        {0, field_sett::size_field_unit}
+    };
+    Point nearly_cross(4 * field_sett::max_field_width, 4 * field_sett::max_field_height);
+    Point global_unit(unit.x * field_sett::size_field_unit, unit.y * field_sett::size_field_unit);
+    for (int i = 0; i < 4; i++) {
+        Point buff = get_line_cross(a, b, global_unit + side_offset[i], global_unit + side_offset[(i + 1) % 4]);
+        if ((!std::isnan(buff.get_x())) && (a.dist(buff) < a.dist(nearly_cross))) {
+            nearly_cross = buff;
+        }
+    }
+    if (nearly_cross.get_x() == 4 * field_sett::max_field_width) {
+        return {};
+    }
+    return nearly_cross;
+}
+
+Point get_cross_line_with_death_zone(const Point &a, const Point &b,
+        const std::array<std::array<bool, field_sett::number_field_unit>, field_sett::number_field_unit> &death_zone) {
+    Point min_line_p(std::min(a.get_x(), b.get_x()), std::min(a.get_y(), b.get_y()));
+    Point max_line_p(std::max(a.get_x(), b.get_x()), std::max(a.get_y(), b.get_y()));
+    cv::Point2i start_ind(fdiv(min_line_p.get_x(), field_sett::size_field_unit), fdiv(min_line_p.get_y(), field_sett::size_field_unit));
+    cv::Point2i end_ind(fdiv(max_line_p.get_x(), field_sett::size_field_unit), fdiv(max_line_p.get_y(), field_sett::size_field_unit));
+    Point nearly_cross(4 * field_sett::max_field_width, 4 * field_sett::max_field_height);
+    for (int i = start_ind.x; i <= end_ind.x; i++) {
+        for (int j = start_ind.y; j <= end_ind.y; j++) {
+            if (death_zone[i][j]) {
+                Point cross = cross_with_unit(a, b, {i, j});
+                if ((!std::isnan(cross.get_x())) && (a.dist(cross) < a.dist(nearly_cross))) {
+                    nearly_cross = cross;
+                }
+            }
+        }
+    }
+    if (nearly_cross.get_x() == 4 * field_sett::max_field_width) {
+        return {};
+    }
+    return nearly_cross;
+}
+
+bool add_point(std::vector<Point> &ans, const Point &end_point, bool kamikaze_mode,
+               const std::array<std::array<bool, field_sett::number_field_unit>, field_sett::number_field_unit> &death_zone) {
+    if (!kamikaze_mode) {
+        Point cross =
+            get_cross_line_with_death_zone(ans.back(), end_point, death_zone);
+        if (!std::isnan(cross.get_x())) {
+            ans.push_back(cross);
+            return false;
+        }
+        ans.push_back(end_point);
+        return true;
+    }
+    ans.push_back(end_point);
+    return true;
+}
+
+bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>> &borders,
+                 const Point &end_point, std::vector<Point> &ans, bool kamikaze_mode, const std::array<std::array<bool, field_sett::number_field_unit>, field_sett::number_field_unit> &death_zone) {
+    std::pair<Point, int> nearly_cross(Point{2 * field_sett::max_field_width, 2 * field_sett::max_field_height}, -1);
+    int ind_cross = -1;
+    for (int i = 0; i < borders.size(); i++) {
+        auto cross = get_cross_line_with_outline(borders[i], start_point, end_point);
+        if ((cross.second >= 0) && (start_point.dist(nearly_cross.first) > start_point.dist(cross.first))) {
+            nearly_cross = cross;
+            ind_cross = i;
+        }
+    }
+    if (ind_cross == -1) {
+        return add_point(ans, end_point, kamikaze_mode, death_zone);
+    }
+    auto cross_end = get_cross_line_with_outline(borders[ind_cross], end_point, start_point);
+    int corn_end = (cross_end.first.dist(borders[ind_cross][cross_end.second]) <
+        cross_end.first.dist(borders[ind_cross][(cross_end.second + 1) % borders[ind_cross].size()])) ?
+        (cross_end.second) : ((cross_end.second + 1) % borders[ind_cross].size());
+    double up_length = nearly_cross.first.dist(borders[ind_cross][(nearly_cross.second + 1) % borders[ind_cross].size()]);
+    for (int i = (nearly_cross.second + 1) % borders[ind_cross].size(); i != corn_end; i = (i + 1) % borders[ind_cross].size()) {
+        up_length += borders[ind_cross][i].dist(borders[ind_cross][(i + 1) % borders[ind_cross].size()]);
+        if (!in_move_zone(borders[ind_cross][i])) {
+            up_length = -1;
+            break;
+        }
+    }
+    double down_length = nearly_cross.first.dist(borders[ind_cross][nearly_cross.second]);
+    for (int i = nearly_cross.second; i != corn_end; i = (i + borders[ind_cross].size() - 1) % borders[ind_cross].size()) {
+        down_length += borders[ind_cross][i].dist(borders[ind_cross][(i + borders[ind_cross].size() - 1) % borders[ind_cross].size()]);
+        if (!in_move_zone(borders[ind_cross][i])) {
+            down_length = -1;
+            break;
+        }
+    }
+    if ((down_length < 0) && (up_length < 0)) {
+        std::cerr << "Move::do_line_way:: \n There is no way!" << std::endl;
+    }
+    if ((up_length < 0) || (down_length < up_length)) {
+        for (int i = nearly_cross.second; i != corn_end; i = (i + borders[ind_cross].size() - 1) % borders[ind_cross].size()) {
+            if (!add_point(ans, borders[ind_cross][i], kamikaze_mode, death_zone)) {
+                return false;
+            }
+        }
+        if (!add_point(ans, borders[ind_cross][corn_end], kamikaze_mode, death_zone)) {
+            return false;
+        }
+    } else {
+        for (int i = (nearly_cross.second + 1) % borders[ind_cross].size(); i != corn_end; i = (i + 1) % borders[ind_cross].size()) {
+            if (!add_point(ans, borders[ind_cross][i], kamikaze_mode, death_zone)) {
+                return false;
+            }
+        }
+        if (!add_point(ans, borders[ind_cross][corn_end], kamikaze_mode, death_zone)) {
+            return false;
+        }
+    }
+    return do_line_way(corn_end, borders, end_point, ans, kamikaze_mode, death_zone);
+}
+
+bool go_to2(Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode, show_img_debug debug) {
+    std::vector<Point> way;
+    way.push_back(map.get_position());
+    bool way_founded = do_line_way(map.get_position(), map.borders, point, way, kamikaze_mode, map.get_death_zone());
+    if (!way_founded) {
+        double ang = atan2(way.back().get_x() - way[way.size() - 2].get_x(), way.back().get_y() - way[way.size() - 2].get_y());
+        way.back().set_y(way.back().get_y() - field_sett::size_field_unit * cos(ang));
+        way.back().set_x(way.back().get_x() - field_sett::size_field_unit * sin(ang));
+    }
+    if (debug != nullptr) {
+        cv::Mat img = map.get_img();
+        for (int i = 0; i < way.size() - 1; i++) {
+            cv::Point img_p1 = {(int)(way[i].get_x() * ((double)img.size().width / field_sett::max_field_width)),
+                                (int)(way[i].get_y() * ((double)img.size().height / field_sett::max_field_height))};
+            cv::Point img_p2 = {(int)(way[i + 1].get_x() * ((double)img.size().width / field_sett::max_field_width)),
+                                (int)(way[i + 1].get_y() * ((double)img.size().height / field_sett::max_field_height))};
+            cv::line(img, img_p1, img_p2, {55, 178, 7}, 3);
+        }
+        debug("way", img);
+    }
+    ans.emplace_back(way.front() - map.get_position());
+    for (int i = 1; i < way.size(); i++) {
+        ans.emplace_back((way[i] - way[i - 1]));
+    }
+    for (int i = 0; i <ans.size(); i++) {
+        Point buff = ans[i];
+        ans[i].set_y(-buff.get_x());
+        ans[i].set_x(-buff.get_y());
+    }
+    double ang_off = map.get_position().get_angle();
+    for (int i = 0; i <ans.size(); i++) {
+        Point new_point(ans[i].get_x() * cos(ang_off) - ans[i].get_y() * sin(ang_off),
+                        ans[i].get_x() * sin(ang_off) + ans[i].get_y() * cos(ang_off));
+        ans[i] = new_point;
+    }
+}

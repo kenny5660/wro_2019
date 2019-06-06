@@ -51,6 +51,7 @@ double dist_line2point(const Point &line_a,
                               const Point &line_b,
                               const Point &p);
 Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, int cube, show_img_debug debug = nullptr);
+std::pair<Point, int> get_cross_line_with_outline(const std::vector<Point> &outline, const Point &a, const Point &b); // даёт ближнию точку к a
 
 //---FOR TEST---//
 std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,

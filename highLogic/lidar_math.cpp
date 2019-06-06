@@ -501,8 +501,8 @@ Point get_line_cross(const Point &ap1, const Point &bp1, const Point &ap2, const
     }
 
     Point ans = {(det(C1, B1, C2, B2) / det_p), ((det(A1, C1, A2, C2) / det_p))};
-    std::cout << point_in_line(ap1, bp1, ans) << std::endl;
-    std::cout << point_in_line(ap2, bp2, ans) << std::endl;
+    //std::cout << point_in_line(ap1, bp1, ans) << std::endl;
+    //std::cout << point_in_line(ap2, bp2, ans) << std::endl;
     if (point_in_line(ap1, bp1, ans) && point_in_line(ap2, bp2, ans)) {
         return ans;
     }
@@ -801,4 +801,17 @@ Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, 
         }
     }
     return point_box_center_side(min_side.first, min_side.second, length, cube);
+}
+
+std::pair<Point, int> get_cross_line_with_outline(const std::vector<Point> &outline, const Point &a, const Point &b) {
+    Point min_cross(2 * field_sett::max_field_width, 2 * field_sett::max_field_height);
+    int ind = -1;
+    for (int i = 0; i < outline.size(); i++) {
+        Point buff = get_line_cross(a, b, outline[i], outline[(i + 1) % outline.size()]);
+        if ((!std::isnan(buff.get_x())) && (a.dist(min_cross) > a.dist(buff))) {
+            ind = i;
+            min_cross = buff;
+        }
+    }
+    return std::make_pair(min_cross, ind);
 }

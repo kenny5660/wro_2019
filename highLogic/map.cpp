@@ -66,6 +66,38 @@ Point BoxMap::get_box_indent() {
     }
 }
 
+Point BoxMap::get_box_corner(unsigned int i, const Point &offset) const {
+    i = i % 4;
+    const Point point_offset[4] = {{0, 0},
+                                   {1, 0},
+                                   {1, 1},
+                                   {0, 1}};
+    const Point offset_offset[4] = {{1, 1},
+                                    {-1, 1},
+                                    {-1, -1},
+                                    {1, -1}};
+    const Point box(field_sett::climate_box_width, field_sett::climate_box_height);
+    return left_up_corner_ + (point_offset[i] * box) + (offset_offset[i] * offset);
+}
+
+Point BoxMap::cross_box_line(const Point &a, const Point &b, const Point &offset) {
+    // a - точка начала
+    // b - точка конца
+    Point min_p {2 * field_sett::max_field_width, 2 * field_sett::max_field_height};
+    for (int i = 0; i < 4; i++) {
+        Point p_a = get_box_corner(i, offset);
+        Point p_b = get_box_corner((i + 1) % 4, offset);
+        Point buff = get_line_cross(p_a, p_b, a, b);
+        if ((!std::isnan(buff.get_x())) && (a.dist(min_p) > a.dist(buff))) {
+            min_p = buff;
+        }
+    }
+    if (2 * field_sett::max_field_width == min_p.get_x()) {
+        return {};
+    }
+    return min_p;
+}
+
 std::array<Point, 4> BoxMap::get_corners() const {
     return std::array<Point, 4>{left_up_corner_, left_up_corner_
         + Point(field_sett::climate_box_width, 0),
@@ -74,6 +106,152 @@ std::array<Point, 4> BoxMap::get_corners() const {
                                             field_sett::climate_box_height),
                                 left_up_corner_
                                     + Point(0, field_sett::climate_box_height)};
+}
+
+void Map::add_box2boarder(std::vector<Point> &border, std::vector<Point> &border_from, const Point &offset) {
+//    for (auto i : border_from) {
+//        border.push_back(i);
+//    }
+//    int ind_min_p = 0;
+//    for (int i = 1; i < border.size(); i++) {
+//        if ((border[ind_min_p].get_y() > border[i].get_y())
+//            || ((border[ind_min_p].get_y() == border[i].get_y())
+//                && ((border[ind_min_p].get_x() < border[i].get_x())))) {
+//            ind_min_p = i;
+//        }
+//    }
+//    std::vector<Point> ans;
+//    ans.push_back(border[ind_min_p]);
+//    Point last_p(- 2 * field_sett::max_field_width, border[ind_min_p].get_y());
+//    int k = -1;
+//    while (k != ind_min_p) {
+//        Point min;
+//        double min_ang = 2 * M_PI;
+//        for (int i = 0; i < border.size(); i++) {
+//            double a = last_p.dist(border[i]);
+//            double b = ans.back().dist(border[i]);
+//            double c = last_p.dist(ans.back());
+//            double ang = M_PI - std::acos(b * b + c * c - a * a) / (2 * b * c);
+//            double d = ((border[i].get_x() - last_p.get_x()) * (ans.back().get_y() - last_p.get_y())
+//                - (border[i].get_y() - last_p.get_y()) * (ans.back().get_x() - last_p.get_x())); // D = (х3 - х1) * (у2 - у1) - (у3 - у1) * (х2 - х1)
+//            if (d == 0) {
+//                if (b > a) {
+//                    ang = 3 / 2 * M_PI;
+//                } else {
+//                    ang = M_PI / 2;
+//                }
+//            } else if (d < 0) {
+//                ang += M_PI_2;
+//            }
+//            ang = fmod(2 * M_PI + ang, 2 * M_PI);
+//            if (ang < min_ang) {
+//                min_ang = ang;
+//                min = border[i];
+//                k = i;
+//            }
+//        }
+//        ans.push_back(min);
+//    }
+//    ans.pop_back();
+    // Версия 2
+    int ind_start_box_point = -1;
+    for (int i = 0; i < border_from.size(); i++) {
+        if (!in_outline(border, border_from[i])) {
+            ind_start_box_point = i;
+            break;
+        }
+    }
+    if (ind_start_box_point == -1) {
+        return;
+    }
+    std::pair<Point, std::pair<int, int>> up_cross; // первое - индекс добавляемого, второе - зоны
+    std::pair<Point, std::pair<int, int>> down_cross; // первое - индекс добавляемого, второе - зоны
+    bool is_was = false;
+    for (int k = ind_start_box_point; (k != ind_start_box_point) || (!is_was); k = (k + 1) % border_from.size()) {
+        is_was = true;
+        auto buff = get_cross_line_with_outline(border, border_from[k], border_from[((k + 1) % border_from.size())]);
+        if (buff.second != -1) {
+            up_cross.first = buff.first;
+            up_cross.second = std::make_pair(k, buff.second);
+            break;
+        }
+    }
+    is_was = false;
+    for (int k = ind_start_box_point; (k != ind_start_box_point) || (!is_was); k = ((k + border_from.size() - 1) % border_from.size())) {
+        is_was = true;
+        auto buff = get_cross_line_with_outline(border, border_from[(k + border_from.size() - 1) % border_from.size()], border_from[k]);
+        if (buff.second != -1) {
+            down_cross.first = buff.first;
+            down_cross.second = std::make_pair(((k + border_from.size() - 1)), buff.second);
+            break;
+        }
+    }
+    // Не Костыль, А КОСТЫЛИЩЕ. Специально для абонентов DNDV
+    bool was_s = false;
+    bool is_include = false;
+    for (int i = (up_cross.second.second + 1) % border.size(); (!was_s) || (i != ((down_cross.second.second + 1) % border.size())); i = ((i + 1) % border.size())) {
+        was_s = true;
+        is_include = is_include || (i == ind_start_box_point);
+    }
+    if (!is_include) {
+        auto buff = up_cross;
+        up_cross = down_cross;
+        down_cross = buff;
+    }
+    std::vector<Point> ans;
+    if ((up_cross.first.get_x() != border[up_cross.second.second].get_x()) || (up_cross.first.get_y() != border[up_cross.second.second].get_y())) ans.push_back(up_cross.first);
+    was_s = false;
+    for (int i = (up_cross.second.second + 1) % border.size(); (!was_s) || (i != ((down_cross.second.second + 1) % border.size())); i = ((i + 1) % border.size())) {
+        ans.push_back(border[i]);
+        was_s = true;
+    }
+    was_s = false;
+    if ((down_cross.first.get_x() != border[down_cross.second.second].get_x()) || (down_cross.first.get_y() != border[down_cross.second.second].get_y())) ans.push_back(down_cross.first);
+    for (int i = (down_cross.second.first + 1) % border_from.size(); (!was_s) || (i != ((up_cross.second.first + 1) % border_from.size())); i = ((i + 1) % border_from.size())) {
+        ans.push_back(border_from[i]);
+        was_s = true;
+    }
+    border = ans;
+    return;
+
+}
+
+void convex_merge(std::vector<Point> &border, std::vector<Point> &border_from, const Point &offset) {
+    std::vector<Point> ans;
+    for (int i = 0; i < border_from.size(); i++) {
+        border.push_back(border_from[i]);
+    }
+    ans.push_back(border[0]);
+    int start_point_ind = 0;
+    for (int i = 1; i < border.size(); i++) {
+        if ((ans[0].get_y() > border[i].get_y())
+            || ((ans[0].get_y() == border[i].get_y())
+                && (ans[0].get_x() > border[i].get_x()))) {
+            ans[0] = border[i];
+            start_point_ind = i;
+        }
+    }
+    Point last_p = {2 * field_sett::max_field_width, ans[0].get_y()};
+    int max_point_ind = -1;
+    do {
+        double min_cos_ang = 1;
+        for (int i = 0; i < border.size(); i++) {
+            double a = last_p.dist(border[i]);
+            double b = last_p.dist(ans.back());
+            double c = ans.back().dist(border[i]);
+            if (b == a) {
+                continue;
+            }
+            double cos_ang = (b * b + c * c - a * a) / (2 * b * c);
+            if (cos_ang < min_cos_ang) {
+                min_cos_ang = cos_ang;
+                max_point_ind = i;
+            }
+        }
+        last_p = ans.back();
+        ans.push_back(border[max_point_ind]);
+    } while (start_point_ind != max_point_ind);
+    border = ans;
 }
 
 bool Map::add_box(const Point &p) {
@@ -89,8 +267,38 @@ bool Map::add_box(const Point &p) {
         std::cerr << "Map::add_box:: Corner array overflow!" << std::endl;
         return false;
     }
+
     boxes_[box_count_].set_left_corner_point(MassPoint(p));
+
+    // Проверка пересечения контуров
+    const Point move_offset = {-robot_sett::move_offset, -robot_sett::move_offset};
+    borders.emplace_back();
+    for (int i = 0; i < 4; i++) {
+        borders.back().push_back(boxes_[box_count_].get_box_corner(i, move_offset));
+    }
+    for (int i = 0; i < (borders.size() - 1); i++) {
+        bool is_cross = false;
+        for (int p = 0; p < borders.back().size(); p++) {
+            for (int q = 0; q < borders[i].size(); q++) {
+                if (!std::isnan(get_line_cross(borders.back()[p],  borders.back()[(p + 1) %  borders.back().size()], borders[i][q], borders[i][(q + 1) % borders[i].size()]).get_x())) {
+                    is_cross = true;
+                    break;
+                }
+            }
+            if (is_cross) {
+                break;
+            }
+        }
+        if(is_cross) {
+            add_box2boarder(borders.back(), borders[i], move_offset);
+            borders.erase(borders.begin() + i);
+            i--;
+        }
+    }
+    //
+
     box_count_++;
+
     auto unit = get_field_unit(p);
     death_zone_[unit.first][unit.second] = false;
     death_zone_[unit.first][unit.second + 1] = false;
@@ -243,12 +451,19 @@ void Map::add_pz(const Point &p_1, const Point &p_2) {
         Point bp = point_offset[i](field_sett::parking_zone_door_size, field_sett::parking_zone_door_size) + p1;
         double dist = p2.dist(bp);
         if (dist >= last_dist) {
-            parking_zone_circles_ = std::make_pair(p1, point_offset[i - 1](field_sett::parking_zone_door_size, field_sett::parking_zone_door_size) + p1);
+            parking_zone_circles_ = std::make_pair(p1, point_offset[(i - 1 + kPoint_offset) % kPoint_offset](field_sett::parking_zone_door_size, field_sett::parking_zone_door_size) + p1);
             delete_from_death_zone_circle(parking_zone_circles_.first);
             delete_from_death_zone_circle(parking_zone_circles_.second);
-            auto p_off = point_offset[i - 1](field_sett::parking_zone_width_min, field_sett::parking_zone_width_min);
+            auto p_off = point_offset[(i + kPoint_offset - 1) % kPoint_offset](field_sett::parking_zone_width_min, field_sett::parking_zone_width_min);
             parking_zone_back_.first = parking_zone_circles_.first + Point{p_off.get_y(), -p_off.get_x()};
             parking_zone_back_.second = parking_zone_circles_.second + Point{p_off.get_y(), -p_off.get_x()};
+            // добавляем в контура
+            borders.emplace_back();
+            p_off = point_offset[(i + kPoint_offset - 1) % kPoint_offset](robot_sett::move_offset, robot_sett::move_offset);
+            borders.back().push_back(parking_zone_circles_.first - p_off - Point{p_off.get_y(), -p_off.get_x()});
+            borders.back().push_back(parking_zone_back_.first - p_off + Point{p_off.get_y(), -p_off.get_x()});
+            borders.back().push_back(parking_zone_back_.second + p_off + Point{p_off.get_y(), -p_off.get_x()});
+            borders.back().push_back(parking_zone_circles_.second + p_off - Point{p_off.get_y(), -p_off.get_x()});
             return;
         }
         last_dist = dist;
@@ -586,6 +801,12 @@ cv::Mat Map::get_img(int width, int height) {
             if (death_zone_[i][j]) {
                 cv::rectangle(img, {int(i * field_sett::size_field_unit * zoom.get_x()), int(j * field_sett::size_field_unit * zoom.get_y())}, {int((i + 1) * field_sett::size_field_unit * zoom.get_x()), int((j + 1) * field_sett::size_field_unit * zoom.get_y())}, {0, 0, 0}, cv::FILLED);
             }
+        }
+    }
+    for (int i = 0; i < borders.size(); i++) {
+        for (int j = 0; j < borders[i].size(); j++) {
+            cv::line(img, {int(borders[i][j].get_x() * zoom.get_x()), int(borders[i][j].get_y() * zoom.get_y())},
+                     {int(borders[i][(j + 1) % borders[i].size()].get_x() * zoom.get_x()), int(borders[i][(j + 1) % borders[i].size()].get_y() * zoom.get_y())}, {0, 128, 255}, 3);
         }
     }
     return img;

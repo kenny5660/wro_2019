@@ -50,6 +50,13 @@ class BoxMap {
     void set_color(const box_color_t);
     box_color_t get_color() { return color_; }
 
+    Point get_box_corner(unsigned int i, const Point &offset = {0, 0}) const;
+                        // 0 - верхний левый угол
+                        // 3 - нижний левый
+                        // семещение относительно верхнего левого
+
+    Point cross_box_line(const Point &a, const Point &b, const Point &offset = {0, 0});
+
  private:
     MassPoint left_up_corner_;
     box_color_t color_ = undefined_bc;
@@ -82,6 +89,8 @@ class Map {
 
     void update(const std::vector<PolarPoint> &);
 
+    std::vector<std::vector<Point>> borders;
+
  private:
     bool add_box(const Point &p);
     void add_boxes_in_robot_pos(const Point &corn, const Point &next);
@@ -96,6 +105,8 @@ class Map {
     bool death_rect(const cv::Point2i &a, const cv::Point2i &b);
 
     void add_pz(const Point &p_1, const Point &p_2);
+
+    static void add_box2boarder(std::vector<Point> &border, std::vector<Point> &border_from, const Point &offset);
 
     std::pair<Point, Point> parking_zone_circles_ = std::make_pair(Point(), Point()); // главня точка - первая
     std::pair<Point, Point> parking_zone_back_; // ниже главной - первая
