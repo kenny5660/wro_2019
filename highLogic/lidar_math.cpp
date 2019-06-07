@@ -97,6 +97,9 @@ std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,
     lines.emplace_back();
     lines.back().push_back(points[0]);
     for (int i = 1; i < points.size(); i++) {
+        if (points[i].dist() < lidar_sett::min_dist) {
+            continue;
+        }
         if (lines.back().back().dist(points[i]) > max_dist) {
             if ((lines.back().size() < 3) && (lines.size() > 1)) {
                 lines.back().clear();

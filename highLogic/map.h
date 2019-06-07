@@ -95,7 +95,8 @@ class Map {
     bool add_box(const Point &p);
     void add_boxes_in_robot_pos(const Point &corn, const Point &next);
     void delete_from_death_zone_circle(const Point &p, double r = field_sett::parking_zone_free_radius);
-    void set_death_outline(const std::vector<Point> &outline, bool val = true);
+    void delete_from_death_zone_circle_seg(const Point &p, double r, double start_ang, double end_eng);
+        void set_death_outline(const std::vector<Point> &outline, bool val = true);
     void lines_detection(const std::vector<std::vector<std::pair<Point, line_t>>> &, show_img_debug debug = nullptr);
     bool add_box_from_line(std::vector<std::vector<std::pair<Point, line_t>>> &points, int i, int j);
 

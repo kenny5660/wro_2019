@@ -47,6 +47,7 @@ namespace lidar_sett {
     const double max_visible_black = 1200;
     const double ang_death_start = 160 * M_PI / 180;// TODO
     const double ang_death_end = 200 * M_PI / 180;// TODO
+    const double min_dist = 50;
 }
 
 namespace robot_sett {
