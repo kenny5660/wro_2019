@@ -193,13 +193,28 @@ TEST(HardwareTestGroup, Omni_move_trajectory_test)
 {
 	const int speed = 200;
 	std::vector<std::pair<int, int>> traj = { 
-		{0,115},
-		{0, 1150}
+		{0,0},
+		{115, 115*4},
 //		{0, -115},
 //		{0, -115},
 //		{0, -115},
 //		{0, -115}
 		};
+	
+	robot->GetOmni()->MoveTrajectory(traj, speed);
+}
+
+TEST(HardwareTestGroup, Omni_move_trajectory_cross_test)
+{
+	const int speed = 200;
+	std::vector<std::pair<int, int>> traj = { 
+		{ 0, 0 },
+		{ 115*4, 115*4 }
+//		{0, -115},
+//		{0, -115},
+//		{0, -115},
+//		{0, -115}
+	};
 	
 	robot->GetOmni()->MoveTrajectory(traj, speed);
 }

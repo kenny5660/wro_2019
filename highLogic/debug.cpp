@@ -41,7 +41,9 @@ void clear_logs() {
 	    const char *archive_command  = "cp -r ";
         const char *delete_command = "rm -r ";
         const char *create_dir_command = "mkdir ";
-		command = archive_command + log_path + " " + archive_path  + get_log_name("logs-");
+	    command = create_dir_command + log_path + " " + archive_path  + get_log_name("logs/");
+		std::system(command.c_str());
+		command = archive_command + log_path + " " + archive_path  + get_log_name("logs/");
 		std::system(command.c_str());
     #endif
     command = delete_command + log_path;

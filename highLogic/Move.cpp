@@ -412,6 +412,7 @@ bool go_to2(Map &map, const Point &point, std::vector<Point> &ans, Point &end_po
         double ang = atan2(way.back().get_x() - way[way.size() - 2].get_x(), way.back().get_y() - way[way.size() - 2].get_y());
         way.back().set_y(way.back().get_y() - field_sett::size_field_unit * cos(ang));
         way.back().set_x(way.back().get_x() - field_sett::size_field_unit * sin(ang));
+	    return false;
     }
     if (debug != nullptr) {
         cv::Mat img = map.get_img();
@@ -439,4 +440,5 @@ bool go_to2(Map &map, const Point &point, std::vector<Point> &ans, Point &end_po
                         ans[i].get_x() * sin(ang_off) + ans[i].get_y() * cos(ang_off));
         ans[i] = new_point;
     }
+	return true;
 }
