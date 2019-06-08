@@ -492,7 +492,7 @@ void Map::add_pz(const Point &p_1, const Point &p_2) {
             parking_zone_back_.second = parking_zone_circles_.second + Point{p_off.get_y(), -p_off.get_x()};
             // добавляем в контура
             borders.emplace_back();
-            p_off = point_offset[(i + kPoint_offset - 1) % kPoint_offset](robot_sett::move_offset, robot_sett::move_offset);
+	        p_off = point_offset[(i + kPoint_offset - 1) % kPoint_offset](robot_sett::move_offset * 1.3, robot_sett::move_offset * 1.3);
             borders.back().push_back(parking_zone_circles_.first - p_off - Point{p_off.get_y(), -p_off.get_x()});
             borders.back().push_back(parking_zone_back_.first - p_off + Point{p_off.get_y(), -p_off.get_x()});
             borders.back().push_back(parking_zone_back_.second + p_off + Point{p_off.get_y(), -p_off.get_x()});

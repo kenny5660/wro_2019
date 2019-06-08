@@ -77,7 +77,7 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
-	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", 0.0137, -90.3);//0.018,-90);
+	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", 0.0138, -90.3);//0.018,-90);
 	man_->CatchRight();
 	man_->Home();
 	indicator_->Display(Indicator::WHITE);
@@ -376,13 +376,14 @@ void RobotGardener::Turn(double angle)
 
 void RobotGardener::Go2(std::vector<Point> points)
 {
-	const int kRobot_mooving_speed = 200;
+	const int kRobot_mooving_speed = 150;
 	for (auto it : points)
 	{
 		MoveByOptFlow(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
+		GetOmni()->Stop();
 	}
 	
-	GetOmni()->Stop();
+	
 }
 
 int Sign(double a)
@@ -391,8 +392,8 @@ int Sign(double a)
 }
 void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 {
-	const double P = 11;
-	const double D = 5;
+	const double P = 6;
+	const double D = 0;
 	std::pair<double, double> max_speed = std::make_pair(speed,speed);
 	std::pair<double, double> err;
 	std::pair<double, double> err_old;
