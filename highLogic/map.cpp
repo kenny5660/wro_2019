@@ -179,10 +179,10 @@ void Map::add_box2boarder(std::vector<Point> &border, std::vector<Point> &border
     is_was = false;
     for (int k = ind_start_box_point; (k != ind_start_box_point) || (!is_was); k = ((k + border_from.size() - 1) % border_from.size())) {
         is_was = true;
-        auto buff = get_cross_line_with_outline(border, border_from[(k + border_from.size() - 1) % border_from.size()], border_from[k]);
+        auto buff = get_cross_line_with_outline(border, border_from[k], border_from[(k + border_from.size() - 1) % border_from.size()]);
         if (buff.second != -1) {
             down_cross.first = buff.first;
-            down_cross.second = std::make_pair(((k + border_from.size() - 1)), buff.second);
+            down_cross.second = std::make_pair(((k + border_from.size() - 1) % border_from.size()), buff.second);
             break;
         }
     }
@@ -408,6 +408,30 @@ void Map::set_death_outline(const std::vector<Point> &outline, bool val) {
 //                + field_sett::size_field_unit / 2. << " " <<
 //               j * field_sett::size_field_unit
 //                   + field_sett::size_field_unit / 2. << std::endl;
+        }
+    }
+}
+
+void Map::delete_from_death_zone_circle_seg(const Point &p, double r, double start_ang, double end_eng) {
+    int n = fdiv(r, field_sett::size_field_unit) + 2;
+    auto p_unit = get_field_unit(p);
+    auto min = std::make_pair(std::max(0, p_unit.first - n),
+                              std::max(0, p_unit.second - n));
+    auto max = std::make_pair(std::min(field_sett::number_field_unit - 1, p_unit.first + n),
+                              std::min(field_sett::number_field_unit - 1, p_unit.second + n));
+    for (int i = min.first; i <= max.first; i++) {
+        for (int j = min.second; j <= max.second; j++) {
+            Point up(i * field_sett::size_field_unit, j * field_sett::size_field_unit);
+            if (up.get_y() < p.get_y()) {
+                up.set_y(up.get_y() + field_sett::size_field_unit);
+            }
+            if (up.get_x() < p.get_x()) {
+                up.set_x(up.get_x() + field_sett::size_field_unit);
+            }
+            //std::cout << i << " " << j << " " << p.dist(up) << " " << (p.dist(up) < r) << std::endl;
+            double ang = atan2(up.get_y() - p.get_y(), up.get_x() - p.get_x());
+            ang = PolarPoint::angle_norm(ang);
+            death_zone_[i][j] = death_zone_[i][j] && !((p.dist(up) < r) && (start_ang <= ang) && (ang <= end_eng));
         }
     }
 }
@@ -1107,7 +1131,17 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
             j.first += offset2new_position;
         }
     }
-    delete_from_death_zone_circle(position_, lidar_sett::max_visible_black);
+    //delete_from_death_zone_circle(position_, lidar_sett::max_visible_black);
+
+    for (int i = 0; i < lines.size(); i++) {
+        double start_ang = atan2(lines[i].back().first.get_y() - position_.get_y(),
+                                        lines[i].back().first.get_x() - position_.get_x());
+        start_ang = PolarPoint::angle_norm(start_ang);
+        double end_ang = atan2(lines[(i + 1) % lines.size()].front().first.get_y() - position_.get_y(),
+                                      lines[(i + 1) % lines.size()].front().first.get_x() - position_.get_x());
+        end_ang = PolarPoint::angle_norm(end_ang);
+        delete_from_death_zone_circle_seg(position_, lidar_sett::max_visible_black, start_ang, end_ang);
+    }
     for (int i = 0; i < lines.size(); i++) {
         std::vector<Point> outline;
         for (int j = 0; j < lines[i].size(); j++) {
