@@ -371,7 +371,8 @@ bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>>
             break;
         }
     }
-    double down_length = nearly_cross.first.dist(borders[ind_cross][nearly_cross.second]);
+    Point bp = borders[ind_cross][nearly_cross.second];
+    double down_length = nearly_cross.first.dist(bp);
     for (int i = nearly_cross.second; i != corn_end; i = (i + borders[ind_cross].size() - 1) % borders[ind_cross].size()) {
         down_length += borders[ind_cross][i].dist(borders[ind_cross][(i + borders[ind_cross].size() - 1) % borders[ind_cross].size()]);
         if (!in_move_zone(borders[ind_cross][i])) {
@@ -382,7 +383,7 @@ bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>>
     if ((down_length < 0) && (up_length < 0)) {
         std::cerr << "Move::do_line_way:: \n There is no way!" << std::endl;
     }
-    if ((up_length < 0) || (down_length < up_length)) {
+    if ((up_length < 0) || ((down_length < up_length) && (down_length > 0))) {
         for (int i = nearly_cross.second; i != corn_end; i = (i + borders[ind_cross].size() - 1) % borders[ind_cross].size()) {
             if (!add_point(ans, borders[ind_cross][i], kamikaze_mode, death_zone)) {
                 return false;
