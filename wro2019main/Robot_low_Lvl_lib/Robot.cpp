@@ -4,7 +4,7 @@
 #include "lidar_math.h"
 #include  <exception>
 #include <csignal>
-
+#include <chrono>
 
 extern NiFpga_Session myrio_session;
 RobotGardener::RobotGardener()
@@ -77,7 +77,7 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
-	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", 0.0139, -90.3);//0.018,-90);
+	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", 0.01425, -90.3);//0.018,-90);
 	man_->CatchRight();
 	man_->Home();
 	indicator_->Display(Indicator::WHITE);
@@ -393,8 +393,11 @@ int Sign(double a)
 void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 {
 	const double P = 6;
-	const double D = 0;
-	std::pair<double, double> max_speed = std::make_pair(speed,speed);
+	const double D = 2;
+	const int smooth_start_time = 500;
+	const int smooth_start_step = 10;
+	std::pair<double, double> max_speed = std::make_pair(0, 0);
+	std::pair<double, double> max_speed_end = std::make_pair(speed, speed);
 	std::pair<double, double> err;
 	std::pair<double, double> err_old;
 	
@@ -402,7 +405,7 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 	{
 		if (abs(toPos.second)  > 21)
 		{
-			max_speed.second = speed*std::abs(((double)toPos.second / toPos.first));
+			max_speed_end.second = speed*std::abs(((double)toPos.second / toPos.first));
 		}
 	
 	}
@@ -410,12 +413,28 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 	{
 		if (abs(toPos.first)  > 21)
 		{
-			max_speed.first = speed*std::abs(((double)toPos.first / toPos.second));
+			max_speed_end.first = speed*std::abs(((double)toPos.first / toPos.second));
 		}
 	}
+
 	opt_flow_->Reset();
+	using namespace std::chrono;
+	std::pair<steady_clock::time_point, steady_clock::time_point>  startTime = std::make_pair(steady_clock::now(),steady_clock::now()); 
 	do
 	{
+		if (steady_clock::now() - startTime.first  > milliseconds((int)(smooth_start_time / (max_speed_end.first / smooth_start_step))) && max_speed.first <= max_speed_end.first)
+		{
+			startTime.first  = steady_clock::now();
+			max_speed.first += smooth_start_step; 
+			max_speed.first = max_speed.first  > max_speed_end.first ? max_speed_end.first : max_speed.first; 
+		}
+		if (steady_clock::now() - startTime.second  > milliseconds((int)(smooth_start_time / (max_speed_end.second / smooth_start_step))) && max_speed.second <= max_speed_end.second)
+		{
+			startTime.second  = steady_clock::now();
+			max_speed.second += smooth_start_step; 
+			max_speed.second = max_speed.second  > max_speed_end.second ? max_speed_end.second : max_speed.second;
+		}
+		
 		std::pair<double, double> cur_pos = opt_flow_->GetPos();
 		err.first = toPos.first - cur_pos.first;
 		err.second = toPos.second - cur_pos.second;
