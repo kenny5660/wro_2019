@@ -157,13 +157,26 @@ TEST(HardwareTestGroup, Omni_move_speed_test)
 	robot->Delay(1000);
 	robot->GetOmni()->Stop();
 }
-
+TEST(HardwareTestGroup, Optical_flow_get)
+{
+	robot->GetOptFlow()->Reset();
+	
+	while (1)
+	{
+		std::pair<double, double> pos = robot->GetOptFlow()->GetPos();
+		std::cout << "x = " << pos.first  << " y = "  << pos.second <<std::endl;
+		robot->Delay(100);
+	}
+}
 TEST(HardwareTestGroup, Omni_move_pos_inc_test)
 {
 	const int speed = 200;
-	robot->GetOmni()->MoveToPosInc(std::make_pair(0, 230), speed);
-	robot->GetOmni()->MoveToPosInc(std::make_pair(230, 0), speed);
-	robot->GetOmni()->MoveToPosInc(std::make_pair(-230, -230), speed);
+	robot->GetOptFlow()->Reset();
+	robot->GetOmni()->MoveToPosInc(std::make_pair(0, -1380), speed);
+	robot->GetOmni()->MoveToPosInc(std::make_pair(0, 1380), speed);
+	auto pos = robot->GetOptFlow()->GetPos();
+	std::cout << "x = " << pos.first  << " y = "  << pos.second << std::endl;
+	//robot->GetOmni()->MoveToPosInc(std::make_pair(-230, -230), speed);
 }
 TEST(HardwareTestGroup, Robot_turn_test)
 {
@@ -177,16 +190,15 @@ TEST(HardwareTestGroup, Robot_turn_test)
 TEST(HardwareTestGroup,Robot_go2_test)
 {
 	std::vector<Point> traj = { 
-		{ 0, 115 },
-		{ 0, 115 },
-		{ 0, 115 },
-		{ 0, 115 }
+		{364, -725}
 //		{0, -115},
 //		{0, -115},
 //		{0, -115},
 //		{0, -115}
 	};
 	robot->Go2(traj);
+	std::pair<double, double> pos = robot->GetOptFlow()->GetPos();
+	std::cout << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }
 
 TEST(HardwareTestGroup, Omni_move_trajectory_test)
@@ -194,7 +206,7 @@ TEST(HardwareTestGroup, Omni_move_trajectory_test)
 	const int speed = 200;
 	std::vector<std::pair<int, int>> traj = { 
 		{0,0},
-		{115, 115*4},
+		{115, 115*12},
 //		{0, -115},
 //		{0, -115},
 //		{0, -115},
@@ -313,4 +325,64 @@ TEST(BUttonTestGroup, button_test)
 {	
 	
 	but_start->WaitDown();
+}
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+TEST_GROUP(MiceTest)
+{
+
+	void setup()
+	{
+
+	}
+	void teardown()
+	{
+	}
+};
+TEST(MiceTest, miceTest)
+{	
+	
+	int fd, bytes;
+	unsigned char data[4];
+
+	const char *pDevice = "/dev/input/mice";
+
+	// Open Mouse
+	fd = open(pDevice, O_RDONLY);
+	if (fd == -1)
+	{
+		printf("ERROR Opening %s\n", pDevice);
+		return ;
+	}
+
+	int left, middle, right;
+	signed char dx, dy;
+	int x = 0, y = 0;
+
+	// Read Mouse
+	
+	while (1)
+	{
+		bytes = read(fd, data, sizeof(data));
+		if (bytes > 0)
+		{
+			left = data[0] & 0x1;
+			right = data[0] & 0x2;
+			middle = data[0] & 0x4;
+
+			dx = data[1];
+			dy = data[2];
+			x += dx;
+			y += dy;
+			printf("x=%d, y=%d, mmx=%f, mmy=%f, left=%d, middle=%d, right=%d\n", x, y, x * 0.017643026, y *0.017643026, left, middle, right);
+		}
+
+	}
+
+
+	
+	return ;
 }

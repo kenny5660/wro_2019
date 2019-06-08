@@ -388,9 +388,6 @@ bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>>
                 return false;
             }
         }
-        if (!add_point(ans, borders[ind_cross][corn_end], kamikaze_mode, death_zone)) {
-            return false;
-        }
     } else {
         for (int i = (nearly_cross.second + 1) % borders[ind_cross].size(); i != corn_end; i = (i + 1) % borders[ind_cross].size()) {
             if (!add_point(ans, borders[ind_cross][i], kamikaze_mode, death_zone)) {

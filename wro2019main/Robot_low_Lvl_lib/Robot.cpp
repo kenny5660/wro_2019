@@ -35,7 +35,7 @@ void RobotGardener::Init()
 	start_but_ = std::make_shared<ButtonOnMyrio>();
 	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A, 115200));
 	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
-	std::shared_ptr<Spi> spi_A(std::make_shared<SpiMyRio>(SpiMyRio::SPIA, SpiMyRio::SpiSpeed::kSpeed05Mbit));
+	std::shared_ptr<Spi> spi_A(std::make_shared<SpiMyRio>(SpiMyRio::SPIA, SpiMyRio::SpiSpeed::kSpeed02Mbit));
 	std::shared_ptr<Uart> uart_Bridge(std::make_shared<UartSc16is750>(spi_A, std::make_shared<GPIOmyRio>(GPIOmyRio::PortMyRio::A, 4), 115200));
 	
 	std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
@@ -77,6 +77,7 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
+	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", 0.0138, -90.3);//0.018,-90);
 	man_->CatchRight();
 	man_->Home();
 	indicator_->Display(Indicator::WHITE);
@@ -105,9 +106,20 @@ std::shared_ptr<Indicator> RobotGardener::GetIndicator()
 	return indicator_;
 }
 
+void RobotGardener::WaitStartButton()
+{
+	start_but_->WaitDown();
+}
 
+std::shared_ptr<CameraRotate> RobotGardener::GetCamRot()
+{
+	return cam_rot_;
+}
 
-
+std::shared_ptr<OpticalFlow> RobotGardener::GetOptFlow()
+{
+	return opt_flow_;
+}
 
 std::shared_ptr<DistanceSensor> RobotGardener::GetDistSensor(DistSensorEnum dist_sensor)
 {
@@ -311,13 +323,6 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 	std::cout << "Dist aligin after = " <<  dist->GetDistance() << std::endl;
 }
 
-
-std::shared_ptr<CameraRotate> RobotGardener::GetCamRot()
-{
-	return cam_rot_;
-}
-
-
 std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 {
 	const int kDegServo = 268;
@@ -358,19 +363,68 @@ void RobotGardener::Turn(double angle)
 }
 
 
+//void RobotGardener::Go2(std::vector<Point> points)
+//{
+//	const int kRobot_mooving_speed = 200;
+//	std::vector<std::pair<int, int>> traj;
+//	for (auto it : points)
+//	{
+//		traj.emplace_back(it.get_x(),it.get_y());
+//	}
+//	omni_->MoveTrajectory(traj, kRobot_mooving_speed);
+//}
+
 void RobotGardener::Go2(std::vector<Point> points)
 {
-	const int kRobot_mooving_speed = 200;
-	std::vector<std::pair<int, int>> traj;
+	const int kRobot_mooving_speed = 150;
 	for (auto it : points)
 	{
-		traj.emplace_back(it.get_x(),it.get_y());
+		MoveByOptFlow(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
+		GetOmni()->Stop();
 	}
-	omni_->MoveTrajectory(traj, kRobot_mooving_speed);
+	
+	
 }
 
-
-void RobotGardener::WaitStartButton()
+int Sign(double a)
 {
-	start_but_->WaitDown();
+	return a < 0 ? -1 : a == 0 ? 0 : 1 ; 
+}
+void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
+{
+	const double P = 6;
+	const double D = 0;
+	std::pair<double, double> max_speed = std::make_pair(speed,speed);
+	std::pair<double, double> err;
+	std::pair<double, double> err_old;
+	
+	if (std::abs(toPos.first) > abs(toPos.second))
+	{
+		if (abs(toPos.second)  > 21)
+		{
+			max_speed.second = speed*std::abs(((double)toPos.second / toPos.first));
+		}
+	
+	}
+	else
+	{
+		if (abs(toPos.first)  > 21)
+		{
+			max_speed.first = speed*std::abs(((double)toPos.first / toPos.second));
+		}
+	}
+	opt_flow_->Reset();
+	do
+	{
+		std::pair<double, double> cur_pos = opt_flow_->GetPos();
+		err.first = toPos.first - cur_pos.first;
+		err.second = toPos.second - cur_pos.second;
+		std::pair<double, double> sp  = std::make_pair(err.first * P + D*(err.first - err_old.first), err.second * P + D*(err.second - err_old.second));
+		sp.first = std::abs(sp.first) > max_speed.first ? Sign(sp.first)*max_speed.first : sp.first;
+		sp.second = std::abs(sp.second) > max_speed.second ? Sign(sp.second)*max_speed.second : sp.second;
+		err_old = err;
+		omni_->MoveWithSpeed(sp, 0);
+	} while (std::abs(err.first) > 2 || std::abs(err.second) > 2);
+	std::pair<double, double> pos = GetOptFlow()->GetPos();
+	std::cout << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }

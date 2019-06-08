@@ -9,6 +9,7 @@
 #include "GPIO.h"
 #include "Button.h"
 #include "Camera.h"
+#include  "OpticalFlow.h"
 class Robot
 {
 public:
@@ -22,6 +23,15 @@ public:
 		NONE
 	}
 	;
+	enum DistSensorEnum
+	{
+		DIST_LEFT    = 0,
+		DIST_TOP     = 1,
+		DIST_C_RIGHT = 2,
+		DIST_C_LEFT  = 3
+	};
+	
+	virtual std::shared_ptr<DistanceSensor> GetDistSensor(DistSensorEnum dist_sensor) = 0;
 	//@brief Ctach cube 
 	//@param side is side of manipulator which will be filled after catch (empty side of manipulator before catch)
 	virtual void CatchCube(CatchCubeSideEnum side) = 0;
@@ -51,23 +61,17 @@ public:
 	void CatchCube(CatchCubeSideEnum side) override;
 	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg);
 	void GetQRCode(cv::Mat &frame) override;
+	std::shared_ptr<OpticalFlow> GetOptFlow();
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();
 	void Turn(double angle) override;
 	void Go2(std::vector<Point>) override;
 	void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) override;
-	enum DistSensorEnum
-	{
-		DIST_LEFT    = 0,
-		DIST_TOP   = 1,
-		DIST_C_RIGHT = 2,
-		DIST_C_LEFT  = 3
-	};
-	std::shared_ptr<DistanceSensor> GetDistSensor(DistSensorEnum dist_sensor);
+	std::shared_ptr<DistanceSensor> GetDistSensor(DistSensorEnum dist_sensor) override;
 	~RobotGardener();
 
 
 private:
-	
+	void MoveByOptFlow(std::pair<int, int> toPos, double speed);
 	void CatchLeft_();
 	void CatchRight_();
 	void AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum side_relative_cube);
@@ -78,4 +82,5 @@ private:
 	std::shared_ptr<DistanceSensor>dist_sensors_[4];
 	std::shared_ptr<Lidar> lidar_;
 	std::shared_ptr<Button> start_but_;
+	std::shared_ptr<OpticalFlow> opt_flow_;
 };

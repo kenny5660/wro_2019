@@ -25,7 +25,8 @@ public:
 		 kSpeed4Mbit = 4000000,
 		 kSpeed2Mbit = 2000000,
 		 kSpeed1Mbit = 1000000,
-		 kSpeed05Mbit = 500000
+		 kSpeed05Mbit = 500000,
+	     kSpeed02Mbit = 200000
 	};
 	//@brief Create and Enable spi
     //@param speed in  Hz(bit/sec) 310 min 20 000 000 max

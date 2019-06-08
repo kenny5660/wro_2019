@@ -43,9 +43,4 @@ private:
 	double r_wheel_;
 	double r_body_;
 	std::shared_ptr<Motor> motors[4];
-//	std::shared_ptr<Motor> motor_front_;
-//	std::shared_ptr<Motor> motor_left_;
-//	std::shared_ptr<Motor> motor_back_;
-//	std::shared_ptr<Motor> motor_right_;
-
 };
