@@ -77,7 +77,7 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
-	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", 0.0138, -90.3);//0.018,-90);
+	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", 0.0139, -90.3);//0.018,-90);
 	man_->CatchRight();
 	man_->Home();
 	indicator_->Display(Indicator::WHITE);

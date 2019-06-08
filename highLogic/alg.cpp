@@ -62,10 +62,11 @@ void box_connect(Robot &robot) {
     robot.Go2({{0, -center.get_x()}});
 }
 
-void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch) {
+void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch, Point catch_flower_off) {
     box_connect(robot);
     robot.CatchCube(side_catch);
     robot.Go2({{-robot_sett::catch_offset_driveway, 0}});
+	robot.Go2({catch_flower_off * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1))});
 }
 
 void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
@@ -145,9 +146,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
             {
                 write_log("Way founded.");
             }
-        catch_box(robot, side_catch);
-        Point offset_catch = map.get_position() + catch_flower_offset[need_rot] * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1));
-        map.set_new_position(RobotPoint{offset_catch.get_x(), offset_catch.get_y(), map.get_position().get_angle()});
+        catch_box(robot, side_catch, catch_flower_offset[need_rot]);
         side_catch = (side_catch == Robot::CatchCubeSideEnum::LEFT) ?
                      (Robot::CatchCubeSideEnum::RIGHT) :
                      (Robot::CatchCubeSideEnum::LEFT);
