@@ -298,6 +298,13 @@ bool Map::add_box(const Point &p) {
     //
 
     box_count_++;
+    if (box_count_ == 5) {
+        for (int i = 0; i < death_zone_.size(); i++) {
+            for (int j = 0; j < death_zone_[i].size(); j++) {
+                death_zone_[i][j] = false;
+            }
+        }
+    }
 
     auto unit = get_field_unit(p);
     death_zone_[unit.first][unit.second] = false;
