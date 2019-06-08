@@ -26,7 +26,13 @@ void Servo_ocs251::SetDegrees(double deg, bool wait, uint16_t time)
 		while (1)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(100 + time));
-			int a = abs(deg - GetDegrees());
+			int cur_deg = GetDegrees();
+			if (cur_deg < 0)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(100 + time));
+				break;
+			}
+			int a = abs(deg - cur_deg);
 			if (a < 10)
 			{
 				break;
@@ -41,11 +47,11 @@ void Servo_ocs251::SetDegrees(double deg, bool wait, uint16_t time)
 int Servo_ocs251::GetDegrees()
 {
 	uint8_t data[2];
-	ReadData(SERVO_D_ADDR_CURRENT_POSITION, data, 2);
+	int err = ReadData(SERVO_D_ADDR_CURRENT_POSITION, data, 2);
 	int deg = (int)data[0] << 8;
 	deg |= (int)data[1];
 	deg *= SERVO_D_251_DEGREE_COEF;
-	return deg;
+	return err < 0 ?err:deg;
 }
 
 int Servo_ocs251::GetLead()
@@ -83,7 +89,7 @@ void Servo_ocs251::Enable()
 
 int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 {
-	for (int i = 0;i < 5;i++)
+	for (int i = 0;i < 10;i++)
 	{
 		uint8_t check_sum = id_ + SERVO_D_INSTRUCTION_READ + addr + size + 4;
 		check_sum = ~check_sum;
@@ -130,7 +136,8 @@ int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 			continue;
 		}
 	}
-		throw std::runtime_error((std::string("Read error, time out, Servo! id  = ") + std::to_string(id_)));
+	//		throw std::runtime_error((std::string("Read error, time out, Servo! id  = ") + std::to_string(id_)));
+		return - 1;
 }
 void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 {
