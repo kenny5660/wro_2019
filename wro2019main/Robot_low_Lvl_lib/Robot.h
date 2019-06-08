@@ -9,6 +9,7 @@
 #include "GPIO.h"
 #include "Button.h"
 #include "Camera.h"
+#include  "OpticalFlow.h"
 class Robot
 {
 public:
@@ -51,6 +52,7 @@ public:
 	void CatchCube(CatchCubeSideEnum side) override;
 	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg);
 	void GetQRCode(cv::Mat &frame) override;
+	std::shared_ptr<OpticalFlow> GetOptFlow();
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();
 	void Turn(double angle) override;
 	void Go2(std::vector<Point>) override;
@@ -78,4 +80,5 @@ private:
 	std::shared_ptr<DistanceSensor>dist_sensors_[4];
 	std::shared_ptr<Lidar> lidar_;
 	std::shared_ptr<Button> start_but_;
+	std::shared_ptr<OpticalFlow> opt_flow_;
 };

@@ -46,8 +46,8 @@ void RobotGardener::Init()
 	std::shared_ptr<Servo> servo_up(new Servo_ocs251(5, uart_Bridge));
 	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9, uart_Bridge));
 
-	cam_rot_ = std::make_shared<CameraRotate>(0, servo_cam);
-	cam_rot_->SetResolution(std::make_pair(1024, 768));
+//	cam_rot_ = std::make_shared<CameraRotate>(0, servo_cam);
+//	cam_rot_->SetResolution(std::make_pair(1024, 768));
 	man_ = std::shared_ptr<Manipulator>(new Manipulator(servo_low, servo_up));
 
 	std::shared_ptr<KangarooDriver> kangarooDriver2(new KangarooDriver(uart_A, 130));
@@ -77,6 +77,7 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
+	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", 1, -90);//0.018,-90);
 	man_->CatchRight();
 	man_->Home();
 	indicator_->Display(Indicator::WHITE);
@@ -373,4 +374,10 @@ void RobotGardener::Go2(std::vector<Point> points)
 void RobotGardener::WaitStartButton()
 {
 	start_but_->WaitDown();
+}
+
+
+std::shared_ptr<OpticalFlow> RobotGardener::GetOptFlow()
+{
+	return opt_flow_;
 }
