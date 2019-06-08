@@ -190,16 +190,15 @@ TEST(HardwareTestGroup, Robot_turn_test)
 TEST(HardwareTestGroup,Robot_go2_test)
 {
 	std::vector<Point> traj = { 
-		{ 0, 115 },
-		{ 0, 115 },
-		{ 0, 115 },
-		{ 0, 115 }
+		{115 * 12, 0}
 //		{0, -115},
 //		{0, -115},
 //		{0, -115},
 //		{0, -115}
 	};
 	robot->Go2(traj);
+	std::pair<double, double> pos = robot->GetOptFlow()->GetPos();
+	std::cout << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }
 
 TEST(HardwareTestGroup, Omni_move_trajectory_test)
@@ -207,7 +206,7 @@ TEST(HardwareTestGroup, Omni_move_trajectory_test)
 	const int speed = 200;
 	std::vector<std::pair<int, int>> traj = { 
 		{0,0},
-		{115, 115*4},
+		{115, 115*12},
 //		{0, -115},
 //		{0, -115},
 //		{0, -115},
