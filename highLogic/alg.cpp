@@ -57,16 +57,29 @@ void box_connect(Robot &robot) {
     // TODO: !!! Если коробок больше одной передать первым параметром
     // длину, вторым какой нам нужен, а так же взять данные с камеры.
 
-    Point center = position_box_side(lidar_data, 1, 1, save_debug_img);
+    Point center = position_box_side(lidar_data, 1, 1, {0, 0}, save_debug_img);
     robot.Go2({{-(field_sett::climate_box_offset / 2 - center.get_y()), 0}});
     robot.Go2({{0, -center.get_x()}});
+}
+
+void go2box(Robot &robot, std::vector<Point> way) {
+    const double care_way_dist = field_sett::size_field_unit * 2;
+    Point end_p = way.back();
+    double dist = way.back().dist() - care_way_dist;
+    double ang = atan2(way.back().get_y(), way.back().get_x());
+    way.back() = {sin(ang) * dist, cos(ang) * dist};
+    robot.Go2(way);
+
+    std::vector<PolarPoint> lidar_data;
+    robot.GetLidarPolarPoints(lidar_data);
+    Point center = position_box_side(lidar_data, 1, 1, {sin(ang) * care_way_dist, cos(ang) * care_way_dist}, save_debug_img);
+    center = {center.get_x() - care_way_dist, -center.get_y()};
+    robot.Go2({{center}});
 }
 
 void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch, Point catch_flower_off) {
     box_connect(robot);
     robot.CatchCube(side_catch);
-    robot.Go2({{-robot_sett::catch_offset_driveway, 0}});
-	robot.Go2({catch_flower_off * ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (1) : (-1))});
 }
 
 void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
@@ -117,9 +130,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
             db = save_debug_img;
         #endif
         bool way_found = go_to2(map, i.get_box_indent(), way, end_point, kamikaze_mode, db);
-        robot.Go2(way);
-        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
         while (!way_found) {
+            robot.Go2(way);
+            map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
             double ang = M_PI - atan2(
                 way[way.size() - 1].get_y() - way[way.size() - 2].get_y(),
                 way[way.size() - 1].get_y() - way[way.size() - 2].get_y());
@@ -138,14 +151,13 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
                ((fabs(way.front().get_x() - way.back().get_x())) < 10) &&
                ((fabs(way.front().get_x() - way.back().get_x())) < 10)) {
                 //TODO: если нет путит
-            } else {
-                robot.Go2(way);
-                map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
             }
         }
             {
                 write_log("Way founded.");
             }
+        go2box(robot, way);
+        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
         catch_box(robot, side_catch, catch_flower_offset[need_rot]);
         side_catch = (side_catch == Robot::CatchCubeSideEnum::LEFT) ?
                      (Robot::CatchCubeSideEnum::RIGHT) :
