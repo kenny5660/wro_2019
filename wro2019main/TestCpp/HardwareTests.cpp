@@ -164,7 +164,9 @@ TEST(HardwareTestGroup, Optical_flow_get)
 	while (1)
 	{
 		std::pair<double, double> pos = robot->GetOptFlow()->GetPos();
+		std::pair<double, double> posRaw = robot->GetOptFlow()->GetRowPos();
 		std::cout << "x = " << pos.first  << " y = "  << pos.second <<std::endl;
+		std::cout << "rawX = " << posRaw.first  << " rawY = "  << posRaw.second << std::endl;
 		robot->Delay(100);
 	}
 }

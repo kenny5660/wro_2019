@@ -125,3 +125,12 @@ HidMice::~HidMice()
 	thread_read_mice_->join();
 	close(fd_);
 }
+
+
+std::pair<double, double> HidMice::GetRowPos()
+{
+	double x = pos_x_.load();
+	double y = pos_y_.load();
+	
+	return std::make_pair(x, y);
+}

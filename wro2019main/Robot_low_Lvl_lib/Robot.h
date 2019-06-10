@@ -10,6 +10,7 @@
 #include "Button.h"
 #include "Camera.h"
 #include  "OpticalFlow.h"
+#include "map.h"
 class Robot
 {
 public:
@@ -34,7 +35,7 @@ public:
 	virtual std::shared_ptr<DistanceSensor> GetDistSensor(DistSensorEnum dist_sensor) = 0;
 	//@brief Ctach cube 
 	//@param side is side of manipulator which will be filled after catch (empty side of manipulator before catch)
-	virtual void CatchCube(CatchCubeSideEnum side) = 0;
+	virtual box_color_t CatchCube(CatchCubeSideEnum side) = 0;
 	virtual void Delay(int msec);
 	virtual void Go2(std::vector<Point>) = 0;
 	//@brief in radians
@@ -58,7 +59,7 @@ public:
 	std::shared_ptr<CameraRotate> GetCamRot();
 
 	void WaitStartButton();
-	void CatchCube(CatchCubeSideEnum side) override;
+	box_color_t CatchCube(CatchCubeSideEnum side) override;
 	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg);
 	void GetQRCode(cv::Mat &frame) override;
 	std::shared_ptr<OpticalFlow> GetOptFlow();
