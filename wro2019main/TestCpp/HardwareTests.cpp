@@ -172,12 +172,18 @@ TEST(HardwareTestGroup, Optical_flow_get)
 }
 TEST(HardwareTestGroup, Omni_move_pos_inc_test)
 {
-	const int speed = 200;
+	const int speed = 250;
 	robot->GetOptFlow()->Reset();
-	robot->GetOmni()->MoveToPosInc(std::make_pair(0, -1380), speed);
-	robot->GetOmni()->MoveToPosInc(std::make_pair(0, 1380), speed);
+	robot->GetOmni()->MoveToPosInc(std::make_pair(0, -460), speed);
 	auto pos = robot->GetOptFlow()->GetPos();
+	std::pair<double, double> posRaw = robot->GetOptFlow()->GetRowPos();
 	std::cout << "x = " << pos.first  << " y = "  << pos.second << std::endl;
+	std::cout << "rawX = " << posRaw.first  << " rawY = "  << posRaw.second << std::endl;
+	robot->GetOmni()->MoveToPosInc(std::make_pair(0, 460), speed);
+	pos = robot->GetOptFlow()->GetPos();
+	posRaw = robot->GetOptFlow()->GetRowPos();
+	std::cout << "x = " << pos.first  << " y = "  << pos.second << std::endl;
+	std::cout << "rawX = " << posRaw.first  << " rawY = "  << posRaw.second << std::endl;
 	//robot->GetOmni()->MoveToPosInc(std::make_pair(-230, -230), speed);
 }
 TEST(HardwareTestGroup, Robot_turn_test)
@@ -192,7 +198,7 @@ TEST(HardwareTestGroup, Robot_turn_test)
 TEST(HardwareTestGroup,Robot_go2_test)
 {
 	std::vector<Point> traj = { 
-		{0, 115*4}
+		{115 * 4, 0}
 //		{0, -115},
 //		{0, -115},
 //		{0, -115},
