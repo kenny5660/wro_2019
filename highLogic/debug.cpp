@@ -10,7 +10,7 @@
 #include <iostream>
 
 std::ofstream log_text_out(log_path + log_out_text_file_name);
-
+std::ofstream out;
 std::string get_log_name(const std::string &s) {
     time_t rawtime;
     struct tm * timeinfo;
@@ -202,6 +202,7 @@ void write_log(const std::string &s) {
 }
 void cout_to_file_log_enable()
 {
-	std::ofstream out(log_path + "cout.log");
-	auto cinbuf = std::cout.rdbuf(out.rdbuf());
+	out.open(log_path + "cout.log");
+	auto coutbuf = std::cout.rdbuf(out.rdbuf());
+	auto cerrbuf = std::cerr.rdbuf(out.rdbuf());
 }

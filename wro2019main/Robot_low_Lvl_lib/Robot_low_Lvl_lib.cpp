@@ -9,18 +9,25 @@
 #include <csignal>
 
 RobotGardener robot;
-void stop_robot(int signal)
-{
-	std::cout << "Stop_signal " << signal;
-	robot.~RobotGardener();
-}
 
 int start_robot()
 {
-	//cout_to_file_log_enable();
+	
+	clear_logs();
+	cout_to_file_log_enable();
+	try
+	{
 		robot.Init();
-	std::signal(SIGINT, stop_robot);
-	do_alg_code(robot, true);
-	robot.~RobotGardener();
+		do_alg_code(robot, true);
+		robot.~RobotGardener();
+	}
+	catch (std::runtime_error e)
+	{
+		std::cout << "Runtime error " << e.what() << std::endl;
+		robot.GetIndicator()->Display(Indicator::RED);
+	}
+
+
+
 	return 0;
 }

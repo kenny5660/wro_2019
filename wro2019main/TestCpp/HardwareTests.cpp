@@ -164,7 +164,9 @@ TEST(HardwareTestGroup, Optical_flow_get)
 	while (1)
 	{
 		std::pair<double, double> pos = robot->GetOptFlow()->GetPos();
+		std::pair<double, double> posRaw = robot->GetOptFlow()->GetRowPos();
 		std::cout << "x = " << pos.first  << " y = "  << pos.second <<std::endl;
+		std::cout << "rawX = " << posRaw.first  << " rawY = "  << posRaw.second << std::endl;
 		robot->Delay(100);
 	}
 }
@@ -190,7 +192,7 @@ TEST(HardwareTestGroup, Robot_turn_test)
 TEST(HardwareTestGroup,Robot_go2_test)
 {
 	std::vector<Point> traj = { 
-		{364, -725}
+		{0, 115*4}
 //		{0, -115},
 //		{0, -115},
 //		{0, -115},

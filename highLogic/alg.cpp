@@ -84,8 +84,10 @@ void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch, Point catch_fl
 
 void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     const double out_way_offset = 300;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+	clear_logs();
+#endif
 
-    clear_logs();
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
     cv::Mat QRCodeImg;
     if (s == "") {

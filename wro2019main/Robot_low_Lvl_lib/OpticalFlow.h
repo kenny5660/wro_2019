@@ -9,6 +9,7 @@ class OpticalFlow
 {
 public:
 	virtual std::pair<double, double> GetPos() = 0;
+	virtual std::pair<double, double> GetRowPos() = 0;
 	virtual void Reset() = 0;
 	virtual ~OpticalFlow() {}
 };
@@ -17,6 +18,7 @@ class HidMice : public  OpticalFlow
 public:
 	HidMice(std::string pDevice, double mice_to_mm_coef, double coord_angle = 0);
 	std::pair<double, double> GetPos() override;
+	std::pair<double, double> GetRowPos();
 	void Reset() override;
 	virtual ~HidMice();
 	
