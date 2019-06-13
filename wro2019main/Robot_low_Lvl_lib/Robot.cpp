@@ -210,7 +210,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 				dist->GetRealDistance();
 				while (dist->GetDistance() > mid_dist) ;
 				std::cout << "Dist after1 left edge = " <<  dist->GetDistance() << std::endl;
-				omni_->MoveToPosInc(std::make_pair(0, -30), speed);
+				offset_after_hor = -29;
 				dist->GetRealDistance();
 				std::cout << "Dist after left edge = " <<  dist->GetDistance() << std::endl;
 				GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
@@ -239,30 +239,33 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 	{
 	case CatchCubeSideEnum::LEFT: 
 		man_->CatchRight();
-		omni_->MoveToPosInc(std::make_pair(0, 52 + offset_after_hor), speed);
+		MoveByOptFlow(std::make_pair(0, 35 /* + offset_after_hor*/), speed);
+		AlliginByDist(kDist, kOfsetAngle);
 		man_->Out(true);
-		omni_->MoveToPosInc(std::make_pair(0, 100), speed);
-		AlliginByDist(kDistAfter, kOfsetAngle);
+		MoveByOptFlow(std::make_pair(0, 100), speed);
+		MoveByOptFlow(std::make_pair(5, 0), speed);
+		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchLeft(true, 200);
-		omni_->MoveToPosInc(std::make_pair(0, 45), speed);
+		MoveByOptFlow(std::make_pair(0, 45), speed);
 		man_->Home();
 		
 		break;
 	case CatchCubeSideEnum::RIGHT: 
 		man_->CatchLeft();
-		omni_->MoveToPosInc(std::make_pair(0, 105 + offset_after_hor), speed);
+		MoveByOptFlow(std::make_pair(0, 105 + offset_after_hor), speed);
 		man_->Out(true);
-		omni_->MoveToPosInc(std::make_pair(0, -107), speed);
-		AlliginByDist(kDistAfter, kOfsetAngle);
+		MoveByOptFlow(std::make_pair(0, -107), speed);
+		MoveByOptFlow(std::make_pair(10, 0), speed);
+		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 200);
-		omni_->MoveToPosInc(std::make_pair(0, -40), speed);
+		MoveByOptFlow(std::make_pair(0, -40), speed);
 		man_->Home();
 		break;
 	default:
 		throw std::runtime_error("wrong CatchCubeSideEnum");
 		break;
 	}
-	
+	GetOmni()->Stop();
 	return colorbox;
 }
 
@@ -296,7 +299,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 	const int err_align_limit = 30;
 	const double P_align = 5;
 	const double D_aligin = 8;
-	const double P_dist = -9;
+	const double P_dist = -6;
 	const double D_dist = 4;
 	int alg_speed = 0;
 	int x_speed = 0;
@@ -405,7 +408,7 @@ void RobotGardener::Go2(std::vector<Point> points)
 void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 {
 	using namespace std::chrono;
-	const double P = 3;
+	const double P = 5;
 	const double D = 0;
 	
 	const milliseconds kSlippageTime = milliseconds(200);
