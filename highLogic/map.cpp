@@ -1092,7 +1092,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
     auto p = std::make_pair(a, b);
     std::vector<std::vector<std::pair<Point, line_t>>> lines;
     line_detect_from_pos(lines, parking_zone_circles_,
-                         points, p, position_);
+                         points, lidar_sett::ang_death, position_);
     if (debug != nullptr) {
         DebugFieldMat mat1;
         add_lines_img(mat1, lines, true);

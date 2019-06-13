@@ -719,8 +719,17 @@ bool is_in_ang_segment(double ang, std::pair<double, double> ang_seg) {
     return (ang_seg.first < ang && (ang < ang_seg.second));
 }
 
+bool is_in_ang_segment(double ang, const std::vector<std::pair<double, double>> ang_seg) {
+    for (int i = 0; i < ang_seg.size(); i++) {
+        if (is_in_ang_segment(ang, ang_seg[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void line_detect_from_pos(std::vector<std::vector<std::pair<Point, line_t>>> &ans, std::pair<Point, Point> parking_zone,
-                          const std::vector<std::vector<Point>> &points, std::pair<double , double> support_angle, const RobotPoint &pos) {
+                          const std::vector<std::vector<Point>> &points, const std::vector<std::pair<double , double>> support_angle, const RobotPoint &pos) {
     // со всем работаем в глобальных координатах
     std::vector<std::vector<std::pair<Point, line_t>>> lines;
     line2line_type(points, lines);
