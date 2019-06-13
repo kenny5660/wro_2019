@@ -100,6 +100,16 @@ void add_lines_img(DebugFieldMat &mat, const std::vector<std::vector<Point>> &po
                        2,
                        color_corn,
 		        cv::FILLED);
+	        cv::putText(mat,
+		        "{" + std::to_string(int(std::round(points[j][i - 1].get_x()))) + ", "
+		            + std::to_string(int(std::round(points[j][i - 1].get_y()))) + "}",
+		        { 
+			        int(std::round(a.get_x())),
+			        int(std::round(a.get_y()))
+		         },
+		        cv::FONT_HERSHEY_SIMPLEX,
+		        0.3,
+		        { 255, 255, 255 });
         }
         Point b = mat.get_zoom_point(points[j].back());
 	    cv::circle(mat, { int(std::round(b.get_x())), int(std::round(b.get_y())) }, 2, color_corn, cv::FILLED);

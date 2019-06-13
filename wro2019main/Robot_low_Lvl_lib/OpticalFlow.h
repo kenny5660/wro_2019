@@ -16,7 +16,7 @@ public:
 class HidMice : public  OpticalFlow
 {
 public:
-	HidMice(std::string pDevice, double mice_to_mm_coef, double coord_angle = 0);
+	HidMice(std::string pDevice, std::pair<double, double> mice_to_mm_coef, double coord_angle = 0);
 	std::pair<double, double> GetPos() override;
 	std::pair<double, double> GetRowPos();
 	void Reset() override;
@@ -30,7 +30,7 @@ private:
 	std::string pDevice_;
 	std::atomic_int_fast32_t pos_x_;
 	std::atomic_int_fast32_t pos_y_;
-	double mice_to_mm_coef_;
+	std::pair<double,double> mice_to_mm_coef_;
 	int fd_;
 	double coord_angle_;
 };

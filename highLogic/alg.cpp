@@ -73,7 +73,7 @@ void go2box(Robot &robot, std::vector<Point> way) {
     std::vector<PolarPoint> lidar_data;
     robot.GetLidarPolarPoints(lidar_data);
     Point center = position_box_side(lidar_data, 1, 1, {sin(ang) * care_way_dist + care_way_dist, -cos(ang) * care_way_dist - (field_sett::climate_box_width / 2.0)}, save_debug_img);
-    center = {center.get_x() - care_way_dist, -center.get_y()};
+    center = {center.get_y() - care_way_dist, -center.get_x()};
     robot.Go2({{center}});
 }
 

@@ -37,6 +37,7 @@ void Servo_ocs251::SetDegrees(double deg, bool wait, uint16_t time)
 			{
 				break;
 			}
+			WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
 		}
 //		std::this_thread::sleep_for(std::chrono::milliseconds(200 + time));
 //		WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
@@ -132,7 +133,7 @@ int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 		}
 		else {
 			//free(data_packet_return);
-				std::cout  << std::string("Read, Cheksum error, Servo! id  = ") + std::to_string(id_);
+				std::cout  << std::string("Read, Cheksum error, Servo! id  = ") + std::to_string(id_)  << std::endl;
 			continue;
 		}
 	}
@@ -169,7 +170,7 @@ void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 		if (return_pucket[2] != id_ || return_pucket[0] != 0xFF || return_pucket[1] != 0xFF  ||  uart_->isError()) 
 		{
 			std::cout << (std::string("Write error, Servo! id  = ") + std::to_string(id_) 
-				+ std::string("Uart_err = ") + std::to_string(uart_->isError()));
+				+ std::string("Uart_err = ") + std::to_string(uart_->isError())) << std::endl;
 			continue;
 		}
 		else

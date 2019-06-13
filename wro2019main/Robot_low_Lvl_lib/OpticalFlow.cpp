@@ -50,7 +50,7 @@ std::pair<double, double> HidMice::GetPos()
 	double x_new  = x*std::cos(ang) - y*std::sin(ang);
 	double y_new  = x*std::sin(ang) + y*std::cos(ang);
 //	return std::make_pair(x*std::cos(coord_angle_) - y*std::sin(coord_angle_), x*std::sin(coord_angle_) + y*std::cos(coord_angle_));
-	return std::make_pair(x_new*mice_to_mm_coef_, y_new*mice_to_mm_coef_);
+	return std::make_pair(x_new*mice_to_mm_coef_.first, y_new*mice_to_mm_coef_.second);
 }
 
 
@@ -108,7 +108,7 @@ void HidMice::Start()
 }
 
 
-HidMice::HidMice(std::string pDevice, double mice_to_mm_coef, double coord_angle)
+HidMice::HidMice(std::string pDevice, std::pair<double, double> mice_to_mm_coef, double coord_angle)
     : pDevice_(pDevice)
 	, pos_x_(0)
 	, pos_y_(0)
