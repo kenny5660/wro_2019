@@ -106,19 +106,22 @@ TEST(HardwareTestGroup, Servo_getDeg_test)
 	robot->GetMan()->GetServoLow()->Disable();
 	robot->GetMan()->GetServoUp()->Disable();
 	robot->GetCamRot()->GetServo()->Disable();
-	int degLow  = robot->GetMan()->GetServoLow()->GetDegrees();
-	int degUp = robot->GetMan()->GetServoUp()->GetDegrees();
-	int deg_up = robot->GetCamRot()->GetServo()->GetDegrees();//268
+	while (1)
+	{
+		int degLow  = robot->GetMan()->GetServoLow()->GetDegrees();
+		int degUp = robot->GetMan()->GetServoUp()->GetDegrees();
+		int deg_up = robot->GetCamRot()->GetServo()->GetDegrees(); //268
 		
-	int deg2Low  = robot->GetMan()->GetServoLow()->GetDegrees();
-	int deg2Up  = robot->GetMan()->GetServoUp()->GetDegrees();
-	int deg2_up = robot->GetCamRot()->GetServo()->GetDegrees();
+		int deg2Low  = robot->GetMan()->GetServoLow()->GetDegrees();
+		int deg2Up  = robot->GetMan()->GetServoUp()->GetDegrees();
+		int deg2_cam = robot->GetCamRot()->GetServo()->GetDegrees();
 	
-	int deg3Low  = robot->GetMan()->GetServoLow()->GetDegrees();
-	int deg3Up  = robot->GetMan()->GetServoUp()->GetDegrees();
-	int deg3_up = robot->GetCamRot()->GetServo()->GetDegrees();
-	
-	std::cout  << "degLow = " << degLow << " deg2Low = " << deg2Low << " deg3Low = " << deg3Low << std::endl;
+		int deg3Low  = robot->GetMan()->GetServoLow()->GetDegrees();
+		int deg3Up  = robot->GetMan()->GetServoUp()->GetDegrees();
+		int deg3_up = robot->GetCamRot()->GetServo()->GetDegrees();
+		std::cout  << "degLow = " << degLow << " deg2Up = " << deg2Up << " deg2_cam = " << deg2_cam << std::endl;
+	}
+
 }
 TEST(HardwareTestGroup, Manipulator_test)
 {	

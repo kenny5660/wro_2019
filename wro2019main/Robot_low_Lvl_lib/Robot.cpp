@@ -52,13 +52,13 @@ void RobotGardener::Init()
 	std::shared_ptr<Spi> spi_A(std::make_shared<SpiMyRio>(SpiMyRio::SPIA, SpiMyRio::SpiSpeed::kSpeed02Mbit));
 	std::shared_ptr<Uart> uart_Bridge(std::make_shared<UartSc16is750>(spi_A, std::make_shared<GPIOmyRio>(GPIOmyRio::PortMyRio::A, 4), 115200));
 	
-	std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
-	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar, LidarA1::LidarMod::k8k));
-	lidar_->StartScan(0.5);
-	
 	std::shared_ptr<Servo> servo_cam(new Servo_ocs251(8, uart_Bridge));
 	std::shared_ptr<Servo> servo_up(new Servo_ocs251(5, uart_Bridge));
 	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9, uart_Bridge));
+	
+
+	
+	
 
 	cam_rot_ = std::make_shared<CameraRotate>(0, servo_cam);
 	cam_rot_->SetResolution(std::make_pair(1024, 768));
@@ -88,6 +88,11 @@ void RobotGardener::Init()
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", std::make_pair(0.111526935, 0.117526935), 90);    //0.018,-90);
+	
+		std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
+	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar, LidarA1::LidarMod::k8k));
+	lidar_->StartScan(0.4);
+	
 	man_->CatchRight();
 	man_->Home();
 	indicator_->Display(Indicator::WHITE);
@@ -177,7 +182,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 	const int kDistAfter = 56;
 	const int kOfsetAngle = 0;
 	const int kSpeed = 200;
-	const int kCamAng = 17;
+	const int kCamAng = 13;
 		
 	CatchCubeSideEnum side_relative_cube  = AlliginByDist(kDist, kOfsetAngle);
 	const int mid_dist = 110;
@@ -291,7 +296,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 	const int err_align_limit = 30;
 	const double P_align = 5;
 	const double D_aligin = 8;
-	const double P_dist = -8;
+	const double P_dist = -9;
 	const double D_dist = 4;
 	int alg_speed = 0;
 	int x_speed = 0;
@@ -335,7 +340,7 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 
 std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 {
-	const int kDegServo = 296;
+	const int kDegServo = 286;
 	const int kmidDist  = 200;
 	AlliginByDist(48, 0);
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);

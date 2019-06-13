@@ -30,7 +30,7 @@ Manipulator::~Manipulator()
 
 void Manipulator::Home(bool wait, int time)
 {
-	servo_low_->SetDegrees(75, wait,time);
+	servo_low_->SetDegrees(61, wait,time);
 }
 
 
