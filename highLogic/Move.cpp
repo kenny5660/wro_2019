@@ -395,9 +395,6 @@ bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>>
                 return false;
             }
         }
-        if (!add_point(ans, borders[ind_cross][corn_end], kamikaze_mode, death_zone)) {
-            return false;
-        }
     }
     return do_line_way(corn_end, borders, end_point, ans, kamikaze_mode, death_zone);
 }
