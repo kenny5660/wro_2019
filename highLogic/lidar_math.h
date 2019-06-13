@@ -50,7 +50,7 @@ double dist_line2point(const Point &line_a,
                               const Point &p);
 Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, int cube, const Point &to = {0, 0}, show_img_debug debug = nullptr);
 void line_detect_from_pos(std::vector<std::vector<std::pair<Point, line_t>>> &ans, std::pair<Point, Point> parking_zone,
-                          const std::vector<std::vector<Point>> &points, std::pair<double , double> support_angle, const RobotPoint &pos = {0, 0});
+                          const std::vector<std::vector<Point>> &points, const std::vector<std::pair<double , double>> support_angle, const RobotPoint &pos = {0, 0});
 std::pair<Point, int> get_cross_line_with_outline(const std::vector<Point> &outline, const Point &a, const Point &b); // даёт ближнию точку к a
 
 //---FOR TEST---//

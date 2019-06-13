@@ -45,8 +45,9 @@ namespace lidar_sett {
     const double max_tr_error = truncation_error * M_SQRT2;
     const double corner_step = 1 / M_PI;
     const double max_visible_black = 1200;
-    const double ang_death_start = 160 * M_PI / 180;// TODO
-    const double ang_death_end = 200 * M_PI / 180;// TODO
+    const std::vector<std::pair<double, double>> ang_death = {
+        {160 * M_PI / 180, 160 * M_PI / 180},
+        {160 * M_PI / 180, 160 * M_PI / 180}}; // TODO
     const double min_dist = 50;
 }
 
