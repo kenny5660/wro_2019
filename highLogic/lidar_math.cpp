@@ -807,6 +807,8 @@ Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, 
     if (debug != nullptr) {
         DebugFieldMat mat;
         add_lines_img(mat, points);
+        add_point_img(mat);
+        add_point_img(mat, to);
         debug("Box_side_detect", mat);
     }
     for (int i = 0; i < points.size(); i++) {
