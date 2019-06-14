@@ -609,6 +609,17 @@ TEST(MapCreateBorder, NonMerge) {
     show_debug_img("", img);
 }
 
+TEST(MapCreateBorder, r) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz; // TODO:
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(C,C,G,C)(H,H,J,J)(Q,Q,O,S)(A,R,C,T)");
+    start_position.set_angle(0);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("", img);
+}
+
 TEST(MapUpdate, up1) {
     cv::Mat QRCodeImg;
     std::array<BoxMap, 3> boxes;

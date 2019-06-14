@@ -154,6 +154,10 @@ void Map::add_box2boarder(std::vector<Point> &border, std::vector<Point> &border
 //    }
 //    ans.pop_back();
     // Версия 2
+    const double offset_contures = 1;
+    for (int i = 0; i < border.size(); i++) {
+        border[i] += {offset_contures, offset_contures};
+    }
     int ind_start_box_point = -1;
     for (int i = 0; i < border_from.size(); i++) {
         if (!in_outline(border, border_from[i])) {
@@ -164,32 +168,58 @@ void Map::add_box2boarder(std::vector<Point> &border, std::vector<Point> &border
     if (ind_start_box_point == -1) {
         return;
     }
-    std::pair<Point, std::pair<int, int>> up_cross; // первое - индекс добавляемого, второе - зоны
-    std::pair<Point, std::pair<int, int>> down_cross; // первое - индекс добавляемого, второе - зоны
-    bool is_was = false;
-    for (int k = ind_start_box_point; (k != ind_start_box_point) || (!is_was); k = (k + 1) % border_from.size()) {
-        is_was = true;
-        auto buff = get_cross_line_with_outline(border, border_from[k], border_from[((k + 1) % border_from.size())]);
-        if (buff.second != -1) {
-            up_cross.first = buff.first;
-            up_cross.second = std::make_pair(k, buff.second);
-            break;
+    std::pair<Point, std::pair<int, int>> up_cross = {{4 * field_sett::max_field_width, 4 * field_sett::max_field_width}, {0, 0}}; // первое - индекс добавляемого, второе - зоны
+    std::pair<Point, std::pair<int, int>> down_cross = {{4 * field_sett::max_field_width, 4 * field_sett::max_field_width}, {0, 0}}; // первое - индекс добавляемого, второе - зоны
+    // Получаем все возможные пересечения.
+    std::vector<std::pair<Point, std::pair<int, int>>> all_crosses;
+    for (int i = 0; i < border_from.size(); i++) {
+        for (int j = 0; j < border.size(); j++) {
+            Point p = get_line_cross(border_from[i], border_from[((i + 1) % border_from.size())], border[j], border[(j + 1) % border.size()]);
+            if (!std::isnan(p.get_x())) {
+                all_crosses.emplace_back(p, std::make_pair(i, j));
+            }
         }
     }
-    is_was = false;
-    for (int k = ind_start_box_point; (k != ind_start_box_point) || (!is_was); k = ((k + border_from.size() - 1) % border_from.size())) {
-        is_was = true;
-        auto buff = get_cross_line_with_outline(border, border_from[k], border_from[(k + border_from.size() - 1) % border_from.size()]);
-        if (buff.second != -1) {
-            down_cross.first = buff.first;
-            down_cross.second = std::make_pair(((k + border_from.size() - 1) % border_from.size()), buff.second);
-            break;
+
+
+    for (int i = 0; i < all_crosses.size(); i++) {
+        if (border_from[ind_start_box_point].dist(all_crosses[i].first)
+            < border_from[ind_start_box_point].dist(up_cross.first)) {
+            up_cross = all_crosses[i];
         }
     }
+    down_cross = up_cross;
+    for (int i = 0; i < all_crosses.size(); i++) {
+        if (up_cross.first.dist(all_crosses[i].first)
+            > up_cross.first.dist(down_cross.first)) {
+            down_cross = all_crosses[i];
+        }
+    }
+
+    //    bool is_was = false;
+//    for (int k = ind_start_box_point; (k != ind_start_box_point) || (!is_was); k = (k + 1) % border_from.size()) {
+//        is_was = true;
+//        auto buff = get_cross_line_with_outline(border, border_from[k], border_from[((k + 1) % border_from.size())]);
+//        if (buff.second != -1) {
+//            up_cross.first = buff.first;
+//            up_cross.second = std::make_pair(k, buff.second);
+//            break;
+//        }
+//    }
+//    is_was = false;
+//    for (int k = ind_start_box_point; (k != ind_start_box_point) || (!is_was); k = ((k + border_from.size() - 1) % border_from.size())) {
+//        is_was = true;
+//        auto buff = get_cross_line_with_outline(border, border_from[k], border_from[(k + border_from.size() - 1) % border_from.size()]);
+//        if (buff.second != -1) {
+//            down_cross.first = buff.first;
+//            down_cross.second = std::make_pair(((k + border_from.size() - 1) % border_from.size()), buff.second);
+//            break;
+//        }
+//    }
     // Не Костыль, А КОСТЫЛИЩЕ. Специально для абонентов DNDV
     bool was_s = false;
     bool is_include = false;
-    for (int i = (up_cross.second.second + 1) % border.size(); (!was_s) || (i != ((down_cross.second.second + 1) % border.size())); i = ((i + 1) % border.size())) {
+    for (int i = (down_cross.second.first + 1) % border_from.size(); (!was_s) || (i != ((up_cross.second.first + 1) % border_from.size())); i = ((i + 1) % border_from.size())) {
         was_s = true;
         is_include = is_include || (i == ind_start_box_point);
     }
