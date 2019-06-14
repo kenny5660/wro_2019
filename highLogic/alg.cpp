@@ -82,6 +82,25 @@ void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch, Point catch_fl
     robot.CatchCube(side_catch);
 }
 
+void frame_connect(Robot &robot, double out_way_offset, double start_angle) {
+    Point point_offset = {(double)((PolarPoint::angle_norm(start_angle) > M_PI) ? (-1) : (1)) * field_sett::parking_zone_door_size,
+                           out_way_offset};
+    std::vector<PolarPoint> lidar_dt;
+    robot.GetLidarPolarPoints(lidar_dt);
+    auto points = get_corners(lidar_dt);
+    std::pair<int, int> ind_nearly_point = {0, 0};
+    for (int i = 1; i < points.size(); i++) {
+        for (int j = 0; j < points[i].size(); j++) {
+            if (points[ind_nearly_point.first][ind_nearly_point.second].dist(point_offset) >
+                points[i][j].dist(point_offset)) {
+                ind_nearly_point = std::make_pair(i, j);
+            }
+        }
+    }
+    robot.Go2({{points[ind_nearly_point.first][ind_nearly_point.second].get_y(), -points[ind_nearly_point.first][ind_nearly_point.second].get_x() - field_sett::parking_zone_door_size / 2.0}});
+    robot.Turn(-start_angle);
+}
+
 void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     const double out_way_offset = 300;
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
@@ -172,6 +191,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     }
     way.clear();
     Point b;
-    go_to2(map, Point{start_position.get_x() - out_way_offset, start_position.get_y()}, way, b, kamikaze_mode);
-    // TODO: вернуться домой
+    if(!go_to2(map, Point{start_position.get_x() - out_way_offset, start_position.get_y()}, way, b, kamikaze_mode))
+        return;
+    robot.Turn(map.get_position().get_angle() - M_PI);
+    robot.Go2(way);
+    frame_connect(robot, out_way_offset, start_angle);
 }
