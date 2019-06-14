@@ -11,7 +11,7 @@ int Sharp2_15::GetDistance()
 } 
 void Sharp2_15::SkipWindow()
 {
-	for (int i = 0; i < m_filter_.getWindowSize() + 1; ++i)
+	for (int i = 0; i < m_filter_.getWindowSize()*2; ++i)
 	{
 		GetDistance();
 	}

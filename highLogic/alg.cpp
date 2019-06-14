@@ -78,7 +78,8 @@ void go2box(Robot &robot, std::vector<Point> way) {
 }
 
 void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch, Point catch_flower_off) {
-    box_connect(robot);
+    //
+	box_connect(robot);
     robot.CatchCube(side_catch);
 }
 
