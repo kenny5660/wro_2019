@@ -1083,13 +1083,6 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
             points[i][j] = (new_point + Point(position_.get_x(), -position_.get_y())) * Point{1, -1};
         }
     }
-    double a = PolarPoint::angle_norm(
-        lidar_sett::ang_death_start
-            + position_.get_angle());
-    double b = PolarPoint::angle_norm(
-        lidar_sett::ang_death_end
-            + position_.get_angle());
-    auto p = std::make_pair(a, b);
     std::vector<std::vector<std::pair<Point, line_t>>> lines;
     line_detect_from_pos(lines, parking_zone_circles_,
                          points, lidar_sett::ang_death, position_);

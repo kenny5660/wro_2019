@@ -809,6 +809,7 @@ Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, 
         add_lines_img(mat, points);
         add_point_img(mat);
         add_point_img(mat, to);
+	    save_ld_data(polar_point);
         debug("Box_side_detect", mat);
     }
     for (int i = 0; i < points.size(); i++) {
