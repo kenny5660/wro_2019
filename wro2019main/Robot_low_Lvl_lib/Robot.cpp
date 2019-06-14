@@ -71,7 +71,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50.5,
-		132.1,
+		133.3,
 		motor_left,
 		motor_front,
 		motor_right,
@@ -173,26 +173,29 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 	} sort_object_PolarPoint;
 	std::sort(polar_points.begin(), polar_points.end(), sort_object_PolarPoint);
 	data_filter(polar_points);
+	save_ld_data(polar_points);
 }
 
 
 box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 {
-	const int kDist = 58;
-	const int kDistAfter = 56;
+	const int kDist = 60;
+	//const int kDistAfter = 110;
 	const int kOfsetAngle = 0;
-	const int kSpeed = 200;
+	const int kSpeed = 130;
+	const int kSpeedAfter = 150;
+	const int kSpeedLow = 31;
 	const int kCamAng = 13;
 		
 	CatchCubeSideEnum side_relative_cube  = AlliginByDist(kDist, kOfsetAngle);
-	const int mid_dist = 110;
+	const int mid_dist = 115;
 	int speed = side == CatchCubeSideEnum::LEFT ? kSpeed : -kSpeed;
+	int speedLow = side == CatchCubeSideEnum::LEFT ? kSpeedLow : -kSpeedLow;
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);
 	std::shared_ptr<DistanceSensor> dist_left =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_LEFT) : GetDistSensor(DIST_C_RIGHT);
 	std::shared_ptr<DistanceSensor> dist_right =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_RIGHT) : GetDistSensor(DIST_C_LEFT);
 	man_->Middle(true);
 	Delay(100);
-	int offset_after_hor = 0;
 	std::cout << "Dist aligin before = " <<  dist->GetRealDistance() << std::endl;
 	if (dist->GetRealDistance() > mid_dist)
 	{
@@ -210,18 +213,28 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 				dist->GetRealDistance();
 				while (dist->GetDistance() > mid_dist) ;
 				std::cout << "Dist after1 left edge = " <<  dist->GetDistance() << std::endl;
-				offset_after_hor = -29;
 				dist->GetRealDistance();
 				std::cout << "Dist after left edge = " <<  dist->GetDistance() << std::endl;
+				AlliginByDist(kDist, kOfsetAngle);
 				GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
+				Delay(100);
 				while (dist->GetDistance() < mid_dist) ;
+				dist->GetRealDistance();
+				std::cout << "Dist back= " <<  dist->GetDistance() << std::endl;
+				GetOmni()->MoveWithSpeed(std::make_pair(0, speedLow), 0);
+				while (dist->GetDistance() > mid_dist) ;
+				GetOmni()->Stop();
 				break;
 			}
 		}
-		if (side_relative_cube != CatchCubeSideEnum::LEFT)
-		{
-			offset_after_hor = -29;
-		}
+		
+			GetOmni()->Stop();
+			dist->GetRealDistance();
+			std::cout << "Dist back= " <<  dist->GetDistance() << std::endl;
+			GetOmni()->MoveWithSpeed(std::make_pair(0, -speedLow), 0);
+			while (dist->GetDistance() < mid_dist) ;
+		
+		
 		std::cout << "Dist aligin after j = " <<  dist->GetDistance() << std::endl;
 	}
 	else
@@ -229,7 +242,13 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 		GetOmni()->MoveWithSpeed(std::make_pair(0, -speed), 0);
 		while (dist->GetDistance() < mid_dist) ;
 		GetOmni()->Stop();
-		offset_after_hor = -2;
+		dist->GetRealDistance();
+		std::cout << "Dist back= " <<  dist->GetDistance() << std::endl;
+		GetOmni()->MoveWithSpeed(std::make_pair(0, speedLow), 0);
+		while (dist->GetDistance() > mid_dist) ;
+		GetOmni()->Stop();
+			
+		
 	}
 	GetOmni()->Stop();
 	std::cout << "Dist aligin after = " <<  dist->GetDistance() << std::endl;
@@ -239,27 +258,33 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 	{
 	case CatchCubeSideEnum::LEFT: 
 		man_->CatchRight();
-		MoveByOptFlow(std::make_pair(0, 35 /* + offset_after_hor*/), speed);
-		AlliginByDist(kDist, kOfsetAngle);
+		MoveByOptFlow(std::make_pair(0, 30 /* + offset_after_hor*/), kSpeedAfter);
+//		AlliginByDist(kDist, kOfsetAngle);
 		man_->Out(true);
-		MoveByOptFlow(std::make_pair(0, 100), speed);
-		MoveByOptFlow(std::make_pair(5, 0), speed);
+		MoveByOptFlow(std::make_pair(0, 93), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
-		man_->CatchLeft(true, 200);
-		MoveByOptFlow(std::make_pair(0, 45), speed);
-		man_->Home();
-		
+		man_->CatchLeft(true, 300);
+		MoveByOptFlow(std::make_pair(0, 45), kSpeedAfter+50);
+		man_->Home(true);
+		MoveByOptFlow(std::make_pair(0, -78), kSpeedAfter + 50);
+		AlliginByDist(kDist, 0);
+		MoveByOptFlow(std::make_pair(-41, 0), kSpeedAfter + 50);
 		break;
 	case CatchCubeSideEnum::RIGHT: 
 		man_->CatchLeft();
-		MoveByOptFlow(std::make_pair(0, 105 + offset_after_hor), speed);
+		MoveByOptFlow(std::make_pair(0, 105), kSpeedAfter);
 		man_->Out(true);
-		MoveByOptFlow(std::make_pair(0, -107), speed);
-		MoveByOptFlow(std::make_pair(10, 0), speed);
+		MoveByOptFlow(std::make_pair(0, -85), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
-		man_->CatchRight(true, 200);
-		MoveByOptFlow(std::make_pair(0, -40), speed);
-		man_->Home();
+		man_->CatchRight(true, 300);
+		MoveByOptFlow(std::make_pair(0, -40), kSpeedAfter + 50);
+		man_->Home(true);
+		MoveByOptFlow(std::make_pair(0, 55), kSpeedAfter + 50);
+		AlliginByDist(kDist, 0);
+		MoveByOptFlow(std::make_pair(-45,0), kSpeedAfter + 50);
+		
 		break;
 	default:
 		throw std::runtime_error("wrong CatchCubeSideEnum");
@@ -416,6 +441,13 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 	const double kSmoothStartTime = 600;
 	const double kSmoothStartStep = 5;
 
+	if (speed < 0)
+	{
+		toPos.first *= -1;
+		toPos.second *= -1;
+		speed *= -1;
+	}
+	
 	std::pair<double, double> max_speed = std::make_pair(0, 0);
 	std::pair<double, double> max_speed_end = std::make_pair(speed, speed);
 	std::pair<double, double> err;
@@ -480,7 +512,7 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 		err_old = err;
 		omni_->MoveWithSpeed(sp, 0);
 		Delay(1);
-	} while (std::abs(err.first) > 2 || std::abs(err.second) > 2);
+	} while (std::abs(err.first) > 2 || std::abs(err.second) > 1);
 	std::pair<double, double> pos = GetOptFlow()->GetPos();
 	std::cout << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }
