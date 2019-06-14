@@ -14,8 +14,4 @@
 
 void do_alg_code(Robot &robot, bool kamikaze_mode = false, std::string s = "");
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-    void go2box(Robot &robot, std::vector<Point> way);
-#endif
-
 #endif //LIDAR_MATH_ALG_H
