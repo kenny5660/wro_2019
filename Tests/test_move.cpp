@@ -4,6 +4,7 @@
 
 #include "test.h"
 #include "../highLogic/CV.h"
+#include "../highLogic/alg.h"
 
 TEST(Move, MakeWayFree) {
     std::vector<PolarPoint> points;
