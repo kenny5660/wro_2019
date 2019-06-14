@@ -180,7 +180,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 {
 	const int kDist = 60;
-	const int kDistAfter = 56;
+	//const int kDistAfter = 110;
 	const int kOfsetAngle = 0;
 	const int kSpeed = 130;
 	const int kSpeedAfter = 150;
@@ -188,7 +188,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 	const int kCamAng = 13;
 		
 	CatchCubeSideEnum side_relative_cube  = AlliginByDist(kDist, kOfsetAngle);
-	const int mid_dist = 105;
+	const int mid_dist = 115;
 	int speed = side == CatchCubeSideEnum::LEFT ? kSpeed : -kSpeed;
 	int speedLow = side == CatchCubeSideEnum::LEFT ? kSpeedLow : -kSpeedLow;
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);
@@ -258,27 +258,33 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 	{
 	case CatchCubeSideEnum::LEFT: 
 		man_->CatchRight();
-		MoveByOptFlow(std::make_pair(0, 31 /* + offset_after_hor*/), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, 30 /* + offset_after_hor*/), kSpeedAfter);
 //		AlliginByDist(kDist, kOfsetAngle);
 		man_->Out(true);
 		MoveByOptFlow(std::make_pair(0, 93), kSpeedAfter);
 		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchLeft(true, 300);
-		MoveByOptFlow(std::make_pair(0, 45), kSpeedAfter);
-		man_->Home();
-		
+		MoveByOptFlow(std::make_pair(0, 45), kSpeedAfter+50);
+		man_->Home(true);
+		MoveByOptFlow(std::make_pair(0, -78), kSpeedAfter + 50);
+		AlliginByDist(kDist, 0);
+		MoveByOptFlow(std::make_pair(-41, 0), kSpeedAfter + 50);
 		break;
 	case CatchCubeSideEnum::RIGHT: 
 		man_->CatchLeft();
-		MoveByOptFlow(std::make_pair(0, 100), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, 105), kSpeedAfter);
 		man_->Out(true);
 		MoveByOptFlow(std::make_pair(0, -85), kSpeedAfter);
 		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 300);
-		MoveByOptFlow(std::make_pair(0, -40), kSpeedAfter);
-		man_->Home();
+		MoveByOptFlow(std::make_pair(0, -40), kSpeedAfter + 50);
+		man_->Home(true);
+		MoveByOptFlow(std::make_pair(0, 55), kSpeedAfter + 50);
+		AlliginByDist(kDist, 0);
+		MoveByOptFlow(std::make_pair(-45,0), kSpeedAfter + 50);
+		
 		break;
 	default:
 		throw std::runtime_error("wrong CatchCubeSideEnum");
