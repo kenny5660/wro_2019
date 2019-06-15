@@ -101,8 +101,9 @@ void frame_connect(Robot &robot, double out_way_offset, double start_angle) {
     robot.Turn(-start_angle);
 }
 
-Point go_from_frame(Robot robot, double dist, double ang) {
+Point go_from_frame(Robot &robot, double dist, double ang) {
     robot.Go2({{0, dist}});
+	robot.Turn(ang);
     return {cos(ang) * dist, sin(ang) * dist};
 }
 
@@ -198,7 +199,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     }
     way.clear();
     Point b;
-    if(!go_to2(map, start_position, way, b, kamikaze_mode))
+    if(!go_to2(map, start_position, way, b, kamikaze_mode, db))
         return;
     robot.Turn(-map.get_position().get_angle() + M_PI_2);
     robot.Go2(way);
