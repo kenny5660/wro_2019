@@ -156,7 +156,7 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 
 void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 {
-	const double kLidarDegOffset = -43.5; // 45;
+	const double kLidarDegOffset = -48.9; // 45;
 	
 	std::vector<LidarA1::Point> points_lidar;
 	lidar_->GetScan(points_lidar);
@@ -261,7 +261,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 		MoveByOptFlow(std::make_pair(0, 30 /* + offset_after_hor*/), kSpeedAfter);
 //		AlliginByDist(kDist, kOfsetAngle);
 		man_->Out(true);
-		MoveByOptFlow(std::make_pair(0, 93), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, 95), kSpeedAfter);
 		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchLeft(true, 300);
@@ -273,9 +273,9 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 		break;
 	case CatchCubeSideEnum::RIGHT: 
 		man_->CatchLeft();
-		MoveByOptFlow(std::make_pair(0, 105), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, 110), kSpeedAfter);
 		man_->Out(true);
-		MoveByOptFlow(std::make_pair(0, -85), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, -90), kSpeedAfter);
 		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 300);
