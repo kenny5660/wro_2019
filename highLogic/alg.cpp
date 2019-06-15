@@ -62,7 +62,7 @@ void box_connect(Robot &robot) {
     robot.Go2({{0, -center.get_x()}});
 }
 
-void go2box(Robot &robot, std::vector<Point> way) {
+void go2box(Robot &robot, std::vector<Point> way, Robot::CatchCubeSideEnum side_catch) {
     const double care_way_dist = field_sett::size_field_unit * 2;
     Point end_p = way.back();
     double dist = way.back().dist() - care_way_dist;
@@ -73,13 +73,13 @@ void go2box(Robot &robot, std::vector<Point> way) {
     std::vector<PolarPoint> lidar_data;
     robot.GetLidarPolarPoints(lidar_data);
     Point center = position_box_side(lidar_data, 1, 1, {-sin(ang) * care_way_dist - (field_sett::climate_box_width / 2.0), cos(ang) * care_way_dist + care_way_dist}, save_debug_img);
-    center = {center.get_y() - care_way_dist, -center.get_x()};
+    center = {center.get_y() - care_way_dist, -center.get_x() - ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (field_sett::size_field_unit / 3) : (-10))};
     robot.Go2({{center}});
 }
 
 void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch, Point catch_flower_off) {
     //
-	box_connect(robot);
+	//box_connect(robot);
     robot.CatchCube(side_catch);
 }
 
@@ -136,7 +136,13 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     start_position.set_angle(start_angle);
     save_debug_img("QRCodeDetection", map.get_img());
     std::vector<Point> way;
-    for (auto i : boxes) {
+	show_img_debug db;	
+	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+		db = show_debug_img;
+	#else
+		db = save_debug_img;
+	#endif
+	for (auto i : boxes) {
         way.clear();
         int need_rot = turn2box(robot, i, map);
         {
@@ -145,12 +151,6 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
                       "\n y = " + std::to_string(i.get_box_indent().get_y()));
         }
 	    Point end_point;
-        show_img_debug db;
-        #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-            db = show_debug_img;
-        #else
-            db = save_debug_img;
-        #endif
         bool way_found = go_to2(map, i.get_box_indent(), way, end_point, kamikaze_mode, db);
         while (!way_found) {
             robot.Go2(way);
@@ -178,10 +178,10 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
             {
                 write_log("Way founded.");
             }
-        go2box(robot, way);
+	    go2box(robot, way, side_catch);
         map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
         catch_box(robot, side_catch, catch_flower_offset[need_rot]);
-        side_catch = (side_catch == Robot::CatchCubeSideEnum::LEFT) ?
+	    side_catch = (side_catch == Robot::CatchCubeSideEnum::LEFT) ?
                      (Robot::CatchCubeSideEnum::RIGHT) :
                      (Robot::CatchCubeSideEnum::LEFT);
         {
@@ -192,9 +192,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     }
     way.clear();
     Point b;
-    if(!go_to2(map, Point{start_position.get_x() - out_way_offset, start_position.get_y()}, way, b, kamikaze_mode))
+    if(!go_to2(map, Point{start_position.get_x(), start_position.get_y()}, way, b, kamikaze_mode, db))
         return;
-    robot.Turn(map.get_position().get_angle() - M_PI);
+    robot.Turn(-map.get_position().get_angle() + M_PI_2);
     robot.Go2(way);
     frame_connect(robot, out_way_offset, start_angle);
 }
