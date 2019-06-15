@@ -168,3 +168,20 @@ TEST(Move2, RealKamicadthe) {
     go_to2(map, Point{8 * field_sett::size_field_unit, 14 * field_sett::size_field_unit}, ans, end_p,
            true, show_debug_img);
 }
+
+TEST(Move2, RealKamicadthe2) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+    start_position.set_angle(0);
+    start_position.set_x(15 * field_sett::size_field_unit);
+    start_position.set_y(11 * field_sett::size_field_unit);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<Point> ans;
+    Point end_p;
+    go_to2(map, Point{383.3, 1208.4}, ans, end_p,
+           true, show_debug_img);
+}
