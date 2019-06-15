@@ -84,7 +84,8 @@ void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch, Point catch_fl
 }
 
 void frame_connect(Robot &robot, double out_way_offset, double start_angle) {
-    Point point_offset = {out_way_offset, -field_sett::parking_zone_door_size / 2.};
+	robot.Turn(-start_angle);
+    Point point_offset = {-field_sett::parking_zone_door_size / 2., out_way_offset};
     std::vector<PolarPoint> lidar_dt;
     robot.GetLidarPolarPoints(lidar_dt);
     auto points = get_corners(lidar_dt);
@@ -97,8 +98,18 @@ void frame_connect(Robot &robot, double out_way_offset, double start_angle) {
             }
         }
     }
-    robot.Go2({{points[ind_nearly_point.first][ind_nearly_point.second].get_y(), -points[ind_nearly_point.first][ind_nearly_point.second].get_x() - field_sett::parking_zone_door_size / 2.0}});
-    robot.Turn(-start_angle);
+	{
+		DebugFieldMat mat;
+		auto ln = line2line_type(points);
+		add_lines_img(mat, ln);
+		add_point_img(mat);
+		add_point_img(mat, point_offset);
+		save_debug_img("frame_conect", mat);
+	}
+	Point p = { points[ind_nearly_point.first][ind_nearly_point.second].get_y(), -points[ind_nearly_point.first][ind_nearly_point.second].get_x() - field_sett::parking_zone_door_size / 2.0 };
+    robot.Go2({{0, p.get_y()}});
+	robot.Go2({{p.get_x() + 110,0}});
+	robot.AlliginByDist(45, 0);
 }
 
 Point go_from_frame(Robot &robot, double dist, double ang) {

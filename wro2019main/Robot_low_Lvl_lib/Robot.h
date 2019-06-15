@@ -38,6 +38,7 @@ public:
 	virtual box_color_t CatchCube(CatchCubeSideEnum side) = 0;
 	virtual void Delay(int msec);
 	virtual void Go2(std::vector<Point>) = 0;
+	virtual CatchCubeSideEnum AlliginByDist(int dist, int offset_alg) = 0;
 	//@brief in radians
 	virtual void Turn(double angle) = 0;
 	virtual void GetQRCode(cv::Mat& frame) = 0;
@@ -60,7 +61,7 @@ public:
 
 	void WaitStartButton();
 	box_color_t CatchCube(CatchCubeSideEnum side) override;
-	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg);
+	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg) override;
 	void GetQRCode(cv::Mat &frame) override;
 	std::shared_ptr<OpticalFlow> GetOptFlow();
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();
