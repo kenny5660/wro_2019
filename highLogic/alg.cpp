@@ -203,4 +203,5 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     robot.Turn(map.get_position().get_angle() - M_PI);
     robot.Go2(way);
     frame_connect(robot, out_way_offset, start_angle);
+    //
 }
