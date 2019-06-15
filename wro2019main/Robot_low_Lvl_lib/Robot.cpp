@@ -179,7 +179,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 
 box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 {
-	const int kDist = 60;
+	const int kDist = 61;
 	//const int kDistAfter = 110;
 	const int kOfsetAngle = 0;
 	const int kSpeed = 130;
@@ -188,7 +188,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 	const int kCamAng = 13;
 		
 	CatchCubeSideEnum side_relative_cube  = AlliginByDist(kDist, kOfsetAngle);
-	const int mid_dist = 115;
+	const int mid_dist = 205;
 	int speed = side == CatchCubeSideEnum::LEFT ? kSpeed : -kSpeed;
 	int speedLow = side == CatchCubeSideEnum::LEFT ? kSpeedLow : -kSpeedLow;
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);
@@ -230,6 +230,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 		
 			GetOmni()->Stop();
 			dist->GetRealDistance();
+			dist->GetRealDistance();
 			std::cout << "Dist back= " <<  dist->GetDistance() << std::endl;
 			GetOmni()->MoveWithSpeed(std::make_pair(0, -speedLow), 0);
 			while (dist->GetDistance() < mid_dist) ;
@@ -258,10 +259,10 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 	{
 	case CatchCubeSideEnum::LEFT: 
 		man_->CatchRight();
-		MoveByOptFlow(std::make_pair(0, 30 /* + offset_after_hor*/), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, 30/* + offset_after_hor*/), kSpeedAfter);
 //		AlliginByDist(kDist, kOfsetAngle);
 		man_->Out(true);
-		MoveByOptFlow(std::make_pair(0, 95), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, 100), kSpeedAfter);
 		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchLeft(true, 300);
@@ -273,9 +274,9 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 		break;
 	case CatchCubeSideEnum::RIGHT: 
 		man_->CatchLeft();
-		MoveByOptFlow(std::make_pair(0, 110), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, 115), kSpeedAfter);
 		man_->Out(true);
-		MoveByOptFlow(std::make_pair(0, -90), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, -97), kSpeedAfter);
 		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 300);
