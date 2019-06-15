@@ -84,8 +84,7 @@ void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch, Point catch_fl
 }
 
 void frame_connect(Robot &robot, double out_way_offset, double start_angle) {
-    Point point_offset = {(double)((PolarPoint::angle_norm(start_angle) > M_PI) ? (-1) : (1)) * field_sett::parking_zone_door_size,
-                           out_way_offset};
+    Point point_offset = {out_way_offset, -field_sett::parking_zone_door_size / 2.};
     std::vector<PolarPoint> lidar_dt;
     robot.GetLidarPolarPoints(lidar_dt);
     auto points = get_corners(lidar_dt);
@@ -100,6 +99,11 @@ void frame_connect(Robot &robot, double out_way_offset, double start_angle) {
     }
     robot.Go2({{points[ind_nearly_point.first][ind_nearly_point.second].get_y(), -points[ind_nearly_point.first][ind_nearly_point.second].get_x() - field_sett::parking_zone_door_size / 2.0}});
     robot.Turn(-start_angle);
+}
+
+Point go_from_frame(Robot robot, double dist, double ang) {
+    robot.Go2({{0, dist}});
+    return {cos(ang) * dist, sin(ang) * dist};
 }
 
 void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
@@ -121,10 +125,12 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
         write_log("Start angle: " + std::to_string(start_angle));
         std::cout << start_angle << std::endl;
     }
-    robot.Turn(start_angle);
-    robot.Go2({Point{0, out_way_offset}});
+    {
+        Point st_bf_off = go_from_frame(robot, out_way_offset, start_angle);
+        start_position.set_x(start_position.get_x() - st_bf_off.get_x());
+        start_position.set_y(start_position.get_y() - st_bf_off.get_y());
+    }
     start_position.set_angle(0);
-    start_position.set_x(start_position.get_x() - out_way_offset);
     Map map(pz.first, pz.second, boxes, start_position);
     {
         write_log(
@@ -192,7 +198,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     }
     way.clear();
     Point b;
-    if(!go_to2(map, Point{start_position.get_x() - out_way_offset, start_position.get_y()}, way, b, kamikaze_mode))
+    if(!go_to2(map, start_position, way, b, kamikaze_mode))
         return;
     robot.Turn(map.get_position().get_angle() - M_PI);
     robot.Go2(way);
