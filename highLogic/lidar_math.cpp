@@ -155,7 +155,7 @@ void get_extr_point_from_obj(const std::vector<Point> &points,
         ans.push_back(points[end]);
         index.push_back(end);
     }
-    if (end - begin < 0) {
+    if (end - begin < 1) {
         return;
     }
     std::pair<size_t, double> max = fiend_max_distant_point(points, points[begin], points[end], begin + 1, end - 1);
