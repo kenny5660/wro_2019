@@ -76,7 +76,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50.5,
-		133.3,
+		133.5,
 		motor_left,
 		motor_front,
 		motor_right,
@@ -96,7 +96,7 @@ void RobotGardener::Init()
 	
 		std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
 	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar, LidarA1::LidarMod::k8k));
-	lidar_->StartScan(0.4);
+	lidar_->StartScan(0.2);
 	
 	man_->CatchRight();
 	man_->Home();
@@ -182,7 +182,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 }
 
 
-box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
+box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
 	const int kDist = 61;
 	//const int kDistAfter = 110;
@@ -190,7 +190,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 	const int kSpeed = 130;
 	const int kSpeedAfter = 150;
 	const int kSpeedLow = 31;
-	const int kCamAng = 13;
+	const int kCamAng = 21;
 		
 	CatchCubeSideEnum side_relative_cube  = AlliginByDist(kDist, kOfsetAngle);
 	const int mid_dist = 205;
@@ -258,8 +258,17 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 	}
 	GetOmni()->Stop();
 	std::cout << "Dist aligin after = " <<  dist->GetDistance() << std::endl;
-	auto frame = cam_rot_->GetFrame(kCamAng);
-	box_color_t colorbox = VisionGetSmallBox(*frame);
+
+	box_color_t colorbox;
+	if (IsTakePhoto)
+	{
+		man_->Home(true);
+		Delay(359);
+		auto frame = cam_rot_->GetFrame(kCamAng);
+		colorbox = VisionGetSmallBox(*frame);
+	}
+	
+	
 	switch (side)
 	{
 	case CatchCubeSideEnum::LEFT: 
@@ -273,7 +282,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 		man_->CatchLeft(true, 300);
 		MoveByOptFlow(std::make_pair(0, 45), kSpeedAfter+50);
 		man_->Home(true);
-		MoveByOptFlow(std::make_pair(0, -78), kSpeedAfter + 50);
+		MoveByOptFlow(std::make_pair(0, -80), kSpeedAfter + 50);
 		AlliginByDist(kDist, 0);
 		MoveByOptFlow(std::make_pair(-41, 0), kSpeedAfter + 50);
 		break;
@@ -281,8 +290,8 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side)
 		man_->CatchLeft();
 		MoveByOptFlow(std::make_pair(0, 115), kSpeedAfter);
 		man_->Out(true);
-		MoveByOptFlow(std::make_pair(0, -97), kSpeedAfter);
-		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(0, -102), kSpeedAfter);
+		MoveByOptFlow(std::make_pair(2, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 300);
 		MoveByOptFlow(std::make_pair(0, -40), kSpeedAfter + 50);
