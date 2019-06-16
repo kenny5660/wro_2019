@@ -400,7 +400,8 @@ bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>>
 }
 
 bool go_to2(Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode, show_img_debug debug) {
-    std::vector<Point> way;
+	ans.clear();
+	std::vector<Point> way;
     way.push_back(map.get_position());
     bool way_founded = do_line_way(map.get_position(), map.borders, point, way, kamikaze_mode, map.get_death_zone());
     if (!way_founded) {
