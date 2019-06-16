@@ -1119,6 +1119,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
     if (debug != nullptr) {
         DebugFieldMat mat1;
         add_lines_img(mat1, lines, true);
+        add_point_img(mat1, position_);
         debug("Update_map_in_global", mat1);
     }
     MassPoint new_pos;
@@ -1126,8 +1127,9 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
         for (int j = 0; j < i.size() - 1; j++) {
             if (i[j].second == border_lt) {
                 MassPoint buff_p;
+                // изменения по x меньше => из неё берём x
                 if (fabs(i[j].first.get_x() - i[j + 1].first.get_x()) < fabs(i[j].first.get_y() - i[j + 1].first.get_y())) {
-                    if (i[j].first.get_y() > position_.get_y()) {
+                    if (i[j].first.get_x() > position_.get_x()) {
                         buff_p.set_x(dist_line2point(i[j].first,
                                                      i[j + 1].first,
                                                      position_));
@@ -1138,8 +1140,9 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
                                                      position_));
                     }
                 } else {
-                    if (i[j].first.get_x() < position_.get_x()) {
-                        buff_p.set_y(dist_line2point(i[j].first,
+                    if (i[j].first.get_y() < position_.get_y()) {
+                        buff_p.set_y(
+                            dist_line2point(i[j].first,
                                                      i[j + 1].first ,
                                                      position_));
                     } else {
