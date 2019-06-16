@@ -398,7 +398,7 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	omni_->Stop();
 	Delay(200);
 	auto frame = cam_rot_->GetFrame(kDegServo);
-	omni_->MoveToPosInc(std::make_pair(0, 40), 250);
+	omni_->MoveToPosInc(std::make_pair(0, 40), 150);
 	save_debug_img("Qrcode.jpg", *frame);
 	//	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
 	//	dist_c_sensor->GetRealDistance();
@@ -516,14 +516,14 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 		err.first = toPos.first - cur_pos.first;
 		err.second = toPos.second - cur_pos.second;
 		
-		if (steady_clock::now() - smooth_start_startTime.first >  kSlippageTime && (err.first - slippage_err_old.first) >= max_speed.first*(kSlippageTime.count() / 1000.0))
-		{
-			omni_->MoveWithSpeed(max_speed, 0);
-			Delay(50);
-			//max_speed.first = max_speed_end.first + kSlippageSpeedInc;
-			smooth_start_startTime.first = steady_clock::now();
-			slippage_err_old.first  = err.first;
-		}
+//		if (steady_clock::now() - smooth_start_startTime.first >  kSlippageTime && (err.first - slippage_err_old.first) >= max_speed.first*(kSlippageTime.count() / 1000.0))
+//		{
+//			omni_->MoveWithSpeed(max_speed, 0);
+//			Delay(50);
+//			//max_speed.first = max_speed_end.first + kSlippageSpeedInc;
+//			smooth_start_startTime.first = steady_clock::now();
+//			slippage_err_old.first  = err.first;
+//		}
 		
 		std::pair<double, double> sp  = std::make_pair(err.first * P + D*(err.first - err_old.first), err.second * P + D*(err.second - err_old.second));
 		sp.first = std::abs(sp.first) > max_speed.first ? Sign(sp.first)*max_speed.first : sp.first;
@@ -533,5 +533,5 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 		Delay(1);
 	} while (std::abs(err.first) > 2 || std::abs(err.second) > 1);
 	std::pair<double, double> pos = GetOptFlow()->GetPos();
-	std::cout << "x = " << pos.first  << " y = "  << pos.second << std::endl;
+	std::cout  << "Mouse" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }

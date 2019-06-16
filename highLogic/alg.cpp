@@ -215,9 +215,12 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     }
     way.clear();
     Point b;
+	robot.Turn(map.get_position().get_angle() - M_PI_2);
+	auto buff = map.get_position();
+	buff.add_angle(-map.get_position().get_angle() + M_PI_2);
+	map.set_new_position(buff);
     if(!go_to2(map, start_position, way, b, kamikaze_mode, db))
         return;
-    robot.Turn(-map.get_position().get_angle() + M_PI_2);
     robot.Go2(way);
     frame_connect(robot, out_way_offset, start_angle);
     //
