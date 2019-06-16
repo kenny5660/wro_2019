@@ -171,11 +171,12 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 	    Point end_point;
         bool way_found = go_to2(map, i.get_box_indent(), way, end_point, kamikaze_mode, db);
         while (!way_found) {
+	        save_debug_img("map_befor", map.get_img());
             robot.Go2(way);
             map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
             double ang = M_PI - atan2(
                 way[way.size() - 1].get_y() - way[way.size() - 2].get_y(),
-                way[way.size() - 1].get_y() - way[way.size() - 2].get_y());
+                way[way.size() - 1].get_x() - way[way.size() - 2].get_x());
             ang = PolarPoint::angle_norm(ang) - map.get_position().get_angle();
             robot.Turn(ang);
             RobotPoint pos = map.get_position();
@@ -183,15 +184,17 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
             map.set_new_position(pos);
             std::vector<PolarPoint> ld;
             robot.GetLidarPolarPoints(ld);
+	        map.update(ld);
             robot.Turn(-ang);
             pos.add_angle(-ang);
             map.set_new_position(pos);
+	        save_debug_img("map_after", map.get_img());
             way_found = go_to2(map, i.get_box_indent(), way, end_point, kamikaze_mode, db);
-            if (!way_found && (way.size() == 2) &&
-               ((fabs(way.front().get_x() - way.back().get_x())) < 10) &&
-               ((fabs(way.front().get_x() - way.back().get_x())) < 10)) {
-                //TODO: если нет путит
-            }
+//            if (!way_found && (way.size() == 2) &&
+//               ((fabs(way.front().get_x() - way.back().get_x())) < 10) &&
+//               ((fabs(way.front().get_x() - way.back().get_x())) < 10)) {
+//                //TODO: если нет путит
+//            }
         }
             {
                 write_log("Way founded.");

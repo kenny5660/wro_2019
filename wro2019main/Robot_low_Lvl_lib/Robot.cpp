@@ -172,7 +172,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 		{ return (i.get_f()  < j.get_f());}
 	} sort_object_PolarPoint;
 	std::sort(polar_points.begin(), polar_points.end(), sort_object_PolarPoint);
-	data_filter(polar_points);
+	//data_filter(polar_points);
 	save_ld_data(polar_points);
 }
 

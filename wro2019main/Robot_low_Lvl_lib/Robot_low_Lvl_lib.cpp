@@ -18,8 +18,8 @@ int start_robot()
 	try
 	{
 		robot.Init();
-		do_alg_code(robot, true);
-		robot.~RobotGardener();
+		do_alg_code(robot, false);
+		
 	}
 	catch (std::runtime_error e)
 	{
@@ -27,7 +27,7 @@ int start_robot()
 		robot.GetIndicator()->Display(Indicator::RED);
 	}
 
-
+//	robot.~RobotGardener();
 
 	return 0;
 }
