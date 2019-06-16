@@ -177,8 +177,8 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
             {
                 save_debug_img("map_after", map.get_img());
             }
-            robot.Turn(ang);
-            pos.add_angle(-ang);
+	        robot.Turn(-ang);
+            pos.add_angle(ang);
             map.set_new_position(pos);
             way_found = go_to2(map, i.get_box_indent(), way, end_point, kamikaze_mode, db);
             if (!way_found && (way.size() == 2) &&

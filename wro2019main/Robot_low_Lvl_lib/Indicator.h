@@ -14,7 +14,8 @@ public:
 		D_BLUE,
 		ORANGE,
 		WHITE,
-		OFF
+		OFF,
+		YELLOW
 	};
 
 	virtual void Display(DisplayEnum disp);
@@ -42,5 +43,5 @@ private:
 	std::shared_ptr<MyRio_Aio>  ao_B_;
 	const std::vector<RgbLedVal> rgb_led_vals_ = 
 		{ /*ERROR*/{ 255, 0, 0 }, /*GREEN*/{ 0, 255, 0 }, /*RED*/{ 255, 0, 0 },
-		/*D_BLUE*/{ 0, 0, 255 }, /*ORANGE*/{ 255, 255, 0 }, /*WHITE*/{ 255,255,255 }, /*OFF*/{ 0, 0, 0 } };
+		/*D_BLUE*/{ 0, 0, 255 }, /*ORANGE*/{ 255, 200, 0 }, /*WHITE*/{ 255,255,255 }, /*OFF*/{ 0, 0, 0 }, /*YELLOW*/{ 211, 190, 13 }};
 };
