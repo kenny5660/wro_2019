@@ -66,6 +66,23 @@ Point BoxMap::get_box_indent() {
     }
 }
 
+std::array<Point, 4> BoxMap::get_corners() const {
+    return std::array<Point, 4>{left_up_corner_, left_up_corner_
+        + Point(field_sett::climate_box_width, 0),
+                                left_up_corner_
+                                    + Point(field_sett::climate_box_width,
+                                            field_sett::climate_box_height),
+                                left_up_corner_
+                                    + Point(0, field_sett::climate_box_height)};
+}
+
+std::pair <int, int> Map::get_field_unit(const Point &p) {
+    int n_x = fdiv(p.get_x() + (field_sett::size_field_unit / 2), field_sett::size_field_unit);
+    int n_y = fdiv(p.get_y() + (field_sett::size_field_unit / 2), field_sett::size_field_unit);
+    return std::make_pair(std::min(n_x, field_sett::number_field_unit - 1),
+                          std::min(n_y, field_sett::number_field_unit - 1));
+}
+
 Point BoxMap::get_box_corner(unsigned int i, const Point &offset) const {
     i = i % 4;
     const Point point_offset[4] = {{0, 0},
@@ -77,7 +94,10 @@ Point BoxMap::get_box_corner(unsigned int i, const Point &offset) const {
                                     {-1, -1},
                                     {1, -1}};
     const Point box(field_sett::climate_box_width, field_sett::climate_box_height);
-    return left_up_corner_ + (point_offset[i] * box) + (offset_offset[i] * offset);
+    std::pair <int, int> unit_p = Map::get_field_unit(left_up_corner_);
+    Point box_left_corner(unit_p.first * field_sett::size_field_unit,
+                          unit_p.second * field_sett::size_field_unit);
+    return box_left_corner + (point_offset[i] * box) + (offset_offset[i] * offset);
 }
 
 Point BoxMap::cross_box_line(const Point &a, const Point &b, const Point &offset) {
@@ -96,16 +116,6 @@ Point BoxMap::cross_box_line(const Point &a, const Point &b, const Point &offset
         return {};
     }
     return min_p;
-}
-
-std::array<Point, 4> BoxMap::get_corners() const {
-    return std::array<Point, 4>{left_up_corner_, left_up_corner_
-        + Point(field_sett::climate_box_width, 0),
-                                left_up_corner_
-                                    + Point(field_sett::climate_box_width,
-                                            field_sett::climate_box_height),
-                                left_up_corner_
-                                    + Point(0, field_sett::climate_box_height)};
 }
 
 void Map::add_box2boarder(std::vector<Point> &border, std::vector<Point> &border_from, const Point &offset) {
@@ -364,41 +374,43 @@ void Map::add_boxes_in_robot_pos(const Point &corner, const Point &p) {
 }
 
 box_corner_type get_box_corner_type(const std::vector<std::pair<Point, line_t>> &points, int j) {
-    if ((points[j].first.get_x() < 0) && (points[j].first.get_y() < 0)) {
-        if (j == 0) {
-            return right_down_bt;
-        } else if (j == (points.size() - 1)) {
-            return left_up_bt;
-        } else if ((points.size() >= 3) &&
-            (position_relative_line(points[j + 1].first, points[j - 1].first, points[j].first) == 1)){
-            return right_up_bt;
-        }
-    } else if ((points[j].first.get_x() < 0) && (points[j].first.get_y() > 0)) {
-        if (j == 0) {
-            return left_down_bt;
-        } else if (j == (points.size() - 1)){
-            return right_up_bt;
-        } else if ((points.size() >= 3) &&
-            (position_relative_line(points[j + 1].first, points[j - 1].first, points[j].first) == -1)){
-            return right_down_bt;
-        }
-    } else if ((points[j].first.get_x() > 0) && (points[j].first.get_y() > 0)) {
-        if (j == 0) {
-            return left_up_bt;
-        } else if (j == (points.size() - 1)) {
-            return right_down_bt;
-        } else if ((points.size() >= 3) &&
-            (position_relative_line(points[j + 1].first, points[j - 1].first, points[j].first) == -1)){
-            return left_down_bt;
+    int next;
+    if (((j - 1) >= 0) && ((j + 1) < points.size())) {
+        next = (points[j].first.dist(points[j + 1].first) > points[j].first.dist(points[j - 1].first)) ?
+               (j + 1) : (j - 1);
+    } else if ((j - 1) >= 0) {
+        next = j - 1;
+    } else {
+        next = j + 1;
+    }
+    if (fabs(points[j].first.get_x() - points[next].first.get_x())
+        > fabs(points[j].first.get_y() - points[next].first.get_y())) { // если параллельно y
+        if (points[j].first.get_y() > 0) { // значит это низ
+            if (points[j].first.get_x() - points[next].first.get_x() > 0) { // правее наша точка
+                return right_down_bt;
+            } else {
+                return left_down_bt;
+            }
+        } else { // верх
+            if (points[j].first.get_x() - points[next].first.get_x() > 0) { // правее наша точка
+                return right_up_bt;
+            } else {
+                return left_up_bt;
+            }
         }
     } else {
-        if (j == 0) {
-            return right_up_bt;
-        } else if (j == (points.size() - 1)) {
-            return left_down_bt;
-        } else if ((points.size() >= 3) &&
-            (position_relative_line(points[j + 1].first, points[j - 1].first, points[j].first) == 1)){
-            return left_up_bt;
+        if (points[j].first.get_x() > 0) { // это левая сторона
+            if ((points[j].first.get_y() - points[next].first.get_y()) > 0) { // верхняя
+                return  left_up_bt;
+            } else {
+                return  left_down_bt;
+            }
+        } else {
+            if ((points[j].first.get_y() - points[next].first.get_y()) > 0) { // верхняя
+                return  right_up_bt;
+            } else {
+                return  right_down_bt;
+            }
         }
     }
     return undef_bt;
@@ -888,13 +900,6 @@ cv::Mat Map::get_img(int width, int height) {
     return img;
 }
 
-std::pair <int, int> Map::get_field_unit(const Point &p) {
-    int n_x = fdiv(p.get_x() + (field_sett::size_field_unit / 2), field_sett::size_field_unit);
-    int n_y = fdiv(p.get_y() + (field_sett::size_field_unit / 2), field_sett::size_field_unit);
-    return std::make_pair(std::min(n_x, field_sett::number_field_unit - 1),
-                          std::min(n_y, field_sett::number_field_unit - 1));
-}
-
 Point Map::normal_point(const Point &p) {
     auto n = get_field_unit(p);
     return Point(field_sett::size_field_unit * n.first,
@@ -1195,6 +1200,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
         DebugFieldMat mat1;
         add_lines_img(mat1, lines, true);
         debug("Update_map_in_robot", mat1);
+        debug("Death_zone", get_img());
     }
     for (int i = 0; i < lines.size(); i++) {
         for (int j = 0; j < lines[i].size(); j++) {

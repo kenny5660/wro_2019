@@ -108,11 +108,9 @@ Point go_from_frame(Robot &robot, double dist, double ang) {
 }
 
 void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
-    const double out_way_offset = 300;
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 	clear_logs();
 #endif
-
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
     cv::Mat QRCodeImg;
     if (s == "") {
@@ -175,7 +173,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
             map.set_new_position(pos);
             std::vector<PolarPoint> ld;
             robot.GetLidarPolarPoints(ld);
-            map.update(ld);
+            map.update(ld, db);
             {
                 save_debug_img("map_after", map.get_img());
             }
@@ -212,4 +210,8 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     robot.Go2(way);
     frame_connect(robot, out_way_offset, start_angle);
     //
+}
+
+void alg(Robot &robot) {
+    robot.Go2({{0, out_way_offset}});
 }
