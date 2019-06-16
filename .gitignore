@@ -38,3 +38,10 @@ Tests/lidar_math/*.ld
 /wro2019main/TestCpp/VisualGDB/VisualGDBCache/TestCpp-Debug
 *.ino
 *.TMP
+/wro2019main/Wro_Vision_Opencv/Wro_Vision_Opencv/Debug/Wro_Visi.93612EAB.tlog
+*.idb
+*.pdb
+*.obj
+*.pch
+/wro2019main/Wro_Vision_Opencv/Debug
+/wro2019main/Wro_Vision_Opencv/.vs/Wro_Vision_Opencv/v15
