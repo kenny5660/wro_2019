@@ -4,7 +4,7 @@
 Camera::Camera(int num)
 	: vc_(std::make_shared<cv::VideoCapture>(num))
 	, frame_cur_(std::make_shared<cv::Mat>())
-	, stop_signal_th_(false),
+	, stop_signal_th_(true),
 	th_update_frame_(&Camera::UpdateFrameThread, this)
 	
 {
@@ -12,7 +12,7 @@ Camera::Camera(int num)
 	{
 		throw std::runtime_error("Error, camera isn't opened!");
 	}
-
+	stop_signal_th_ = false;
 }
 
 
@@ -36,6 +36,7 @@ std::shared_ptr<cv::VideoCapture> Camera::GetVc()
 
 void Camera::UpdateFrameThread()
 {
+	while (stop_signal_th_) ;
 	while (!stop_signal_th_)
 	{
 		mutex_update_frame_.lock();

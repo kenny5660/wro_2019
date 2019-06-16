@@ -38,6 +38,7 @@ void Robot::Delay(int msec)
 
 void RobotGardener::Init()
 {
+
 	indicator_ = std::shared_ptr<RgbLed>(new RgbLed(
 				//R
 	std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AOA_0VAL, AOA_0WGHT, AOA_0OFST, AOSYSGO, NiFpga_False, 0.95, 0 }),
@@ -45,7 +46,8 @@ void RobotGardener::Init()
 	std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AOB_1VAL, AOB_1WGHT, AOB_1OFST, AOSYSGO, NiFpga_False, 0.85, 0 }),
 		//B
 	std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AOA_1VAL, AOA_1WGHT, AOA_1OFST, AOSYSGO, NiFpga_False, 0.85, 0 })));
-	
+	indicator_->Display(Indicator::YELLOW);
+	Delay(1000);
 	start_but_ = std::make_shared<ButtonOnMyrio>();
 	std::shared_ptr<Uart> uart_A(new MyRioUart(MyRioUart::UART_A, 115200));
 	std::shared_ptr<Uart> uart_B(new MyRioUart(MyRioUart::UART_B, 115200));
