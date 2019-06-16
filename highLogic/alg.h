@@ -11,6 +11,7 @@
 #else
     #include "../wro2019main/Robot_low_Lvl_lib/Robot.h"
 #endif
+void frame_connect(Robot &robot, double out_way_offset, double start_angle);
 
 void do_alg_code(Robot &robot, bool kamikaze_mode = false, std::string s = "");
 

@@ -6,7 +6,7 @@
 #include "CV.h"
 #include <opencv2/core.hpp>
 #include <csignal>
-
+#include "alg.h"
 TEST_GROUP(DemoTestGroup)
 {
 };
@@ -308,6 +308,11 @@ TEST(HardwareTestGroup, Motors_for_omni_test)
 	DOUBLES_EQUAL((double)kDegs, (double)motor_right->GetCurEncDeg(), 5);
 		
 	robot->Delay(500);
+}
+
+TEST(HardwareTestGroup, Frame_connect_test)
+{
+	frame_connect(*robot, 300, 0);
 }
 
 TEST_GROUP(BUttonTestGroup)

@@ -384,13 +384,13 @@ bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>>
         std::cerr << "Move::do_line_way:: \n There is no way!" << std::endl;
     }
     if ((up_length < 0) || ((down_length < up_length) && (down_length > 0))) {
-        for (int i = nearly_cross.second; i != corn_end; i = (i + borders[ind_cross].size() - 1) % borders[ind_cross].size()) {
+	    for (int i = nearly_cross.second; i != cross_end.second; i = (i + borders[ind_cross].size() - 1) % borders[ind_cross].size()) {
             if (!add_point(ans, borders[ind_cross][i], kamikaze_mode, death_zone)) {
                 return false;
             }
         }
     } else {
-        for (int i = (nearly_cross.second + 1) % borders[ind_cross].size(); i != (corn_end + 1) % borders[ind_cross].size(); i = (i + 1) % borders[ind_cross].size()) {
+	    for (int i = (nearly_cross.second + 1) % borders[ind_cross].size(); i != (cross_end.second + 1) % borders[ind_cross].size(); i = (i + 1) % borders[ind_cross].size()) {
             if (!add_point(ans, borders[ind_cross][i], kamikaze_mode, death_zone)) {
                 return false;
             }

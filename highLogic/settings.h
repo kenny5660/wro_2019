@@ -41,13 +41,13 @@ namespace field_sett {
 }
 
 namespace lidar_sett {
-    const int truncation_error = 5;
+    const int truncation_error = 10;
     const double max_tr_error = truncation_error * M_SQRT2;
     const double corner_step = 1 / M_PI;
     const double max_visible_black = 1200;
     const std::vector<std::pair<double, double>> ang_death = {
-        {160 * M_PI / 180, 160 * M_PI / 180},
-        {160 * M_PI / 180, 160 * M_PI / 180}}; // TODO
+        {2.635, 3.483},
+        {4.7, 4.88}}; // TODO
     const double min_dist = 50;
 }
 
