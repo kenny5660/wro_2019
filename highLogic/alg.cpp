@@ -160,6 +160,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 	    Point end_point;
         bool way_found = go_to2(map, i.get_box_indent(), way, end_point, kamikaze_mode, db);
         while (!way_found) {
+	        {
+		        save_debug_img("map_befor", map.get_img());
+	        }
             robot.Go2(way);
             map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
             double ang = M_PI - atan2(
@@ -170,7 +173,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
             RobotPoint pos = map.get_position();
             pos.add_angle(-ang);
             map.set_new_position(pos);
-            show_debug_img("", map.get_img());
+	        {
+		        save_debug_img("map_after", map.get_img());
+	        }
             std::vector<PolarPoint> ld;
             robot.GetLidarPolarPoints(ld);
             robot.Turn(ang);

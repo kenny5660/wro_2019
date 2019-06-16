@@ -25,6 +25,7 @@ int start_robot()
 	{
 		std::cout << "Runtime error " << e.what() << std::endl;
 		robot.GetIndicator()->Display(Indicator::RED);
+		robot.Delay(1000);
 	}
 
 //	robot.~RobotGardener();

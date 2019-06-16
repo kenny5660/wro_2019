@@ -52,6 +52,9 @@ void RobotGardener::Init()
 	std::shared_ptr<Spi> spi_A(std::make_shared<SpiMyRio>(SpiMyRio::SPIA, SpiMyRio::SpiSpeed::kSpeed02Mbit));
 	std::shared_ptr<Uart> uart_Bridge(std::make_shared<UartSc16is750>(spi_A, std::make_shared<GPIOmyRio>(GPIOmyRio::PortMyRio::A, 4), 115200));
 	
+	uart_A->Clear();
+	uart_B->Clear();
+	uart_Bridge->Clear();
 	std::shared_ptr<Servo> servo_cam(new Servo_ocs251(8, uart_Bridge));
 	std::shared_ptr<Servo> servo_up(new Servo_ocs251(5, uart_Bridge));
 	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9, uart_Bridge));
