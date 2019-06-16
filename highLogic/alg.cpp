@@ -173,11 +173,12 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
             RobotPoint pos = map.get_position();
             pos.add_angle(-ang);
             map.set_new_position(pos);
-	        {
-		        save_debug_img("map_after", map.get_img());
-	        }
             std::vector<PolarPoint> ld;
             robot.GetLidarPolarPoints(ld);
+            map.update(ld);
+            {
+                save_debug_img("map_after", map.get_img());
+            }
             robot.Turn(ang);
             pos.add_angle(-ang);
             map.set_new_position(pos);
