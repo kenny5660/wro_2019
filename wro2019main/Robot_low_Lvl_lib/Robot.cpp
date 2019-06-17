@@ -186,7 +186,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 }
 
 
-box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
+color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
 	const int kDist = 61;
 	//const int kDistAfter = 110;
@@ -263,7 +263,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	GetOmni()->Stop();
 	std::cout << "Dist aligin after = " <<  dist->GetDistance() << std::endl;
 
-	box_color_t colorbox;
+	color_t colorbox;
 	if (IsTakePhoto)
 	{
 		man_->Home(true);
@@ -506,7 +506,7 @@ void RobotGardener::Go2(std::vector<Point> points)
 void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 {
 	using namespace std::chrono;
-	const double P = 5;
+	const double P = 5.3;
 	const double D = 0;
 	
 	const milliseconds kSlippageTime = milliseconds(200);
@@ -585,13 +585,13 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 		err_old = err;
 		omni_->MoveWithSpeed(sp, 0);
 		Delay(1);
-	} while (std::abs(err.first) > 2 || std::abs(err.second) > 1);
+	} while (std::abs(err.first) > 1 || std::abs(err.second) > 1);
 	std::pair<double, double> pos = GetOptFlow()->GetPos();
 	std::cout  << "Mouse" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }
 
 
-box_color_t RobotGardener::GetColorBigBox(double ang)
+color_t RobotGardener::GetColorFromAng(double ang)
 {
 	const double cam_ang_robot0 = 20;
 	
@@ -614,6 +614,6 @@ box_color_t RobotGardener::GetColorBigBox(double ang)
 		Turn(offset_ang_robot_turn*M_PI / 180);
 	}
 	auto frame = cam_rot_->GetFrame(cam_ang - offset_ang_robot_turn);
-	box_color_t colorbox = VisionGetSmallBox(*frame);
+	color_t colorbox = VisionGetSmallBox(*frame);
 	return colorbox;
 }

@@ -320,8 +320,8 @@ TEST(HardwareTestGroup, Frame_connect_test)
 
 TEST(HardwareTestGroup, Get_Color_Big_Box_test)
 {
-	robot->GetColorBigBox(90);
-	robot->GetColorBigBox(135);
+	robot->GetColorFromAng(90);
+	robot->GetColorFromAng(135);
 }
 
 TEST_GROUP(BUttonTestGroup)
