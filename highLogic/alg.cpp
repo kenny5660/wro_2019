@@ -81,25 +81,36 @@ void go2box(Robot &robot, std::vector<Point> way, Robot::CatchCubeSideEnum side_
 void catch_box(Robot &robot, Robot::CatchCubeSideEnum side_catch, Point catch_flower_off) {
     //
 	//box_connect(robot);
-    robot.CatchCube(side_catch);
+    robot.CatchCube(side_catch, false);
 }
 
 void frame_connect(Robot &robot, double out_way_offset, double start_angle) {
-    Point point_offset = {out_way_offset, -field_sett::parking_zone_door_size / 2.};
-    std::vector<PolarPoint> lidar_dt;
-    robot.GetLidarPolarPoints(lidar_dt);
-    auto points = get_corners(lidar_dt);
-    std::pair<int, int> ind_nearly_point = {0, 0};
-    for (int i = 1; i < points.size(); i++) {
-        for (int j = 0; j < points[i].size(); j++) {
-            if (points[ind_nearly_point.first][ind_nearly_point.second].dist(point_offset) >
-                points[i][j].dist(point_offset)) {
-                ind_nearly_point = std::make_pair(i, j);
-            }
-        }
-    }
-    robot.Go2({{points[ind_nearly_point.first][ind_nearly_point.second].get_y(), -points[ind_nearly_point.first][ind_nearly_point.second].get_x() - field_sett::parking_zone_door_size / 2.0}});
-    robot.Turn(-start_angle);
+	robot.Turn(-start_angle);
+	Point point_offset = { -field_sett::parking_zone_door_size / 2., out_way_offset };
+	std::vector<PolarPoint> lidar_dt;
+	robot.GetLidarPolarPoints(lidar_dt);
+	auto points = get_corners(lidar_dt);
+	std::pair<int, int> ind_nearly_point = { 0, 0 };
+	for (int i = 1; i < points.size(); i++) {
+		for (int j = 0; j < points[i].size(); j++) {
+			if (points[ind_nearly_point.first][ind_nearly_point.second].dist(point_offset) >
+			    points[i][j].dist(point_offset)) {
+				ind_nearly_point = std::make_pair(i, j);
+			}
+		}
+	}
+	{
+		DebugFieldMat mat;
+		auto ln = line2line_type(points);
+		add_lines_img(mat, ln);
+		add_point_img(mat);
+		add_point_img(mat, point_offset);
+		save_debug_img("frame_conect", mat);
+	}
+	Point p = { points[ind_nearly_point.first][ind_nearly_point.second].get_y(), -points[ind_nearly_point.first][ind_nearly_point.second].get_x() - field_sett::parking_zone_door_size / 2.0 };
+	robot.Go2({ { 0, p.get_y() } });
+	robot.Go2({ { p.get_x() + 110, 0 } });
+	robot.AlliginByDist(45, 0);
 }
 
 Point go_from_frame(Robot &robot, double dist, double ang) {
@@ -181,7 +192,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 	        robot.Turn(-ang);
             pos.add_angle(ang);
             map.set_new_position(pos);
-            way_found = go_to2(map, i.get_box_indent(), way, end_point, kamikaze_mode, db);
+            way_found = go_to2(map, i.get_box_indent(), way, end_point, false, db);
             if (!way_found && (way.size() == 2) &&
                ((fabs(way.front().get_x() - way.back().get_x())) < 10) &&
                ((fabs(way.front().get_x() - way.back().get_x())) < 10)) {
@@ -205,9 +216,12 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     }
     way.clear();
     Point b;
+	robot.Turn(map.get_position().get_angle() - M_PI_2);
+	auto buff = map.get_position();
+	buff.add_angle(-map.get_position().get_angle() + M_PI_2);
+	map.set_new_position(buff);
     if(!go_to2(map, start_position, way, b, kamikaze_mode, db))
         return;
-    robot.Turn(-map.get_position().get_angle() + M_PI_2);
     robot.Go2(way);
     frame_connect(robot, out_way_offset, start_angle);
     //

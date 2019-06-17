@@ -315,6 +315,12 @@ TEST(HardwareTestGroup, Frame_connect_test)
 	frame_connect(*robot, 300, 0);
 }
 
+TEST(HardwareTestGroup, Get_Color_Big_Box_test)
+{
+	robot->GetColorBigBox(90);
+	robot->GetColorBigBox(135);
+}
+
 TEST_GROUP(BUttonTestGroup)
 {
 
