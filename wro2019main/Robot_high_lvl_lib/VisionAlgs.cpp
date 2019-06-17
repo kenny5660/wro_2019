@@ -40,7 +40,7 @@ color_t VisionGetBigBox(const cv::Mat& frame) {
   // cv::rectangle(frame, cut_rect, cv::Scalar(255, 0, 0));
 #if !(defined(WIN32) || defined(_WIN32) || \
       defined(__WIN32) && !defined(__CYGWIN__))
-  save_debug_img("SmallBox.jpg", frame);
+  save_debug_img("BigBox.jpg", frame);
 #endif
   return undefined_c;
 }
@@ -53,8 +53,8 @@ color_t GetSquareBin(cv::Mat frame) {
   std::vector<int> areas_max;
   color_t color = undefined_c;
   cv::Mat src_hsv, src_hsv_bin, src_canny;
-  cvtColor(frame, src_hsv, cv::COLOR_BGR2HSV);
-  std::vector<std::vector<cv::Point> > contours, brickContours;
+  cv::cvtColor(frame, src_hsv, cv::COLOR_BGR2HSV);
+  std::vector < std::vector < cv::Point >> contours, brickContours;
   std::vector<cv::Point> brickContour;
   std::vector<cv::Vec4i> hierarchy;
   std::vector<cv::Vec3f> circles;

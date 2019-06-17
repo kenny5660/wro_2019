@@ -7,6 +7,7 @@
 #include <chrono>
 #include "debug.h"
 #include "VisionAlgs.h"
+#include <algorithm>
 extern NiFpga_Session myrio_session;
 
 int Sign(double a)
@@ -592,29 +593,55 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 }
 
 
-color_t RobotGardener::GetColorFromAng(double ang)
+std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng( const std::vector<std::pair<int, PolarPoint>> &ang_pps)
 {
-	const double cam_ang_robot0 = 20;
+	const double cam_ang0 = 110;
+	const double cam_ang_offset  = 0;
+	std::vector<std::pair<int, PolarPoint>> ang_pps_ = ang_pps;
+	std::vector<std::pair<int, color_t>> result;
+	double cur_ang = 0;
+	sort(ang_pps_.begin(),ang_pps_.end(), [](const std::pair<int, PolarPoint> & a, const std::pair<int, PolarPoint> & b) -> bool{ return a.second.get_f() > b.second.get_f(); });
 	
-	const double wrong_ang_min  = 30;
-	const double wrong_ang_max  = 310;
-	
-	double offset_ang_robot_turn = 0;
-	double norm_ang = PolarPoint::angle_norm(ang);
-	double cam_ang = norm_ang + cam_ang_robot0;
-	cam_ang = cam_ang * 180 / M_PI;
-	
-	if (cam_ang  > wrong_ang_max)
+	for (auto it : ang_pps_ )
 	{
-		offset_ang_robot_turn =  wrong_ang_max  - cam_ang;
-		Turn(offset_ang_robot_turn*M_PI/180);
+		double ang = it.second.get_f() - cur_ang;
+		Turn(ang);	
+		cur_ang += ang;
+		auto frame = cam_rot_->GetFrame(cam_ang0);
+		color_t color  = VisionGetBigBox(*frame);
+		result.push_back(std::make_pair(it.first, color));
 	}
-	if (cam_ang  < wrong_ang_min)
-	{
-		offset_ang_robot_turn =  cam_ang -wrong_ang_min;
-		Turn(offset_ang_robot_turn*M_PI / 180);
-	}
-	auto frame = cam_rot_->GetFrame(cam_ang - offset_ang_robot_turn);
-	color_t colorbox = VisionGetSmallBox(*frame);
-	return colorbox;
+	sort(result.begin(), result.end(), [](const std::pair<int, PolarPoint> & a, const std::pair<int, PolarPoint> & b) -> bool{ return a.first > b.first; });
+	return result;
 }
+
+//void turn_camera()
+//{
+//	const double cam_ang0 = 20;
+//	const double cam_ang_from_robot_ang0 = 170;
+//	const double cam_r = 140;
+//	double alpha = cam_ang_from_robot_ang0 - PolarPoint::angle_norm(pp.get_f());
+//	
+//	const double wrong_ang_min  = 30;
+//	const double wrong_ang_max  = 310;
+//	
+//	double offset_ang_robot_turn = 0;
+//	//double norm_ang = PolarPoint::angle_norm(pp.get_f());
+//	double cam_ang =; ///norm_ang + cam_ang_robot0;
+//	
+//	
+//	cam_ang = cam_ang * 180 / M_PI;
+//	if (cam_ang  > wrong_ang_max)
+//	{
+//		offset_ang_robot_turn =  wrong_ang_max  - cam_ang;
+//		Turn(offset_ang_robot_turn*M_PI / 180);
+//	}
+//	if (cam_ang  < wrong_ang_min)
+//	{
+//		offset_ang_robot_turn =  cam_ang - wrong_ang_min;
+//		Turn(offset_ang_robot_turn*M_PI / 180);
+//	}
+//	auto frame = cam_rot_->GetFrame(cam_ang - offset_ang_robot_turn);
+//	color_t colorbox = VisionGetSmallBox(*frame);
+//	return colorbox;
+//}
