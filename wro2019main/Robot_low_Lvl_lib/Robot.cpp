@@ -76,7 +76,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50.5,
-		133.4,
+		132,
 		motor_left,
 		motor_front,
 		motor_right,
@@ -337,7 +337,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 	}
 	
 	using namespace std::chrono;
-	const  int x_speed_max = 400;
+	const  int x_speed_max = 300;
 	const milliseconds timeOut(300);
 	const int err_dist_limit = 150;
 	const int err_align_limit = 30;
@@ -368,7 +368,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 		x_speed = std::abs(x_speed) >  x_speed_max ? Sign(x_speed)*x_speed_max : x_speed;
 		GetOmni()->MoveWithSpeed(std::make_pair(x_speed, 0), alg_speed);
 		Delay(5);
-		if ((abs(err_align) > 4 || abs(err_dist) > 4))
+		if ((abs(err_align) > 2 || abs(err_dist) > 2))
 		{
 			startTime = steady_clock::now(); 
 		}
@@ -392,7 +392,7 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	AlliginByDist(48, 0);
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
 	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
-	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
+	omni_->MoveWithSpeed(std::make_pair(0, 150), 0);
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist) ;
 	omni_->Stop();
@@ -417,14 +417,14 @@ void RobotGardener::GetQRCode(cv::Mat &frame)
 
 void  RobotGardener::MouseTurn(double angle,int speed)
 {
-	const double r_phi = 30.33 / 180*M_PI;
-	const double r = 36.1;
+	const double r_phi = 31.76 / 180*M_PI;
+	const double r = 34.7;
 
 	double L_circle = -r*angle; 
 	
 	
 	using namespace std::chrono;
-	const double P = 10;
+	const double P = 9;
 	const double D = 0;
 	
 	const double kSmoothStartTime = 800;
@@ -462,21 +462,22 @@ void  RobotGardener::MouseTurn(double angle,int speed)
 		err_old = err;
 		omni_->MoveWithSpeed({0,0}, sp);
 		Delay(1);
-	} while (std::abs(err) > 0.3);
+	} while (std::abs(err) > 0.1);
 	std::pair<double, double> pos = GetOptFlow()->GetPos();
-	std::cout  << "L_circle = "  << L_circle  << " Mouse" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
+	std::pair<double, double> pos_new(pos.first*std::cos(r_phi) - pos.second*std::sin(r_phi), pos.first*std::sin(r_phi) + pos.second*std::cos(r_phi));
+	std::cout  << "L_circle = "  << L_circle  << " Mouse" << "x = " << pos_new.first  << " y = "  << pos_new.second << std::endl;
 }
 
 void RobotGardener::Turn(double angle)
 {
 	const double pi2 = 2 * M_PI;
-	const int kRobot_rot_speed = 100;
+	const int kRobot_rot_speed = 130;
 	
 	angle = (fmod(fmod(angle, pi2) + pi2, pi2));
 	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
-	MouseTurn(angle, kRobot_rot_speed);
-	omni_->Stop();
-	//omni_->Turn(angle, kRobot_rot_speed);
+	//MouseTurn(angle, kRobot_rot_speed);
+	//omni_->Stop();
+	omni_->Turn(angle, kRobot_rot_speed);
 }
 
 
