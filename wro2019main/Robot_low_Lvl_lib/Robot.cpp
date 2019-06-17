@@ -415,13 +415,68 @@ void RobotGardener::GetQRCode(cv::Mat &frame)
 }
 
 
+void  RobotGardener::MouseTurn(double angle,int speed)
+{
+	const double r_phi = 30.33 / 180*M_PI;
+	const double r = 36.1;
+
+	double L_circle = -r*angle; 
+	
+	
+	using namespace std::chrono;
+	const double P = 10;
+	const double D = 0;
+	
+	const double kSmoothStartTime = 800;
+	const double kSmoothStartStep = 5;
+
+	
+	double max_speed = 0;
+    double max_speed_end = speed;
+	double err;
+	double err_old;
+	
+	opt_flow_->Reset();
+	steady_clock::time_point slippage_startTime = steady_clock::now(); 
+	double slippage_err_old;
+	steady_clock::time_point  smooth_start_startTime = steady_clock::now(); 
+	
+
+
+	do
+	{
+		if (steady_clock::now() - smooth_start_startTime  > milliseconds((int)(kSmoothStartTime / (max_speed_end / kSmoothStartStep))) && max_speed <= max_speed_end)
+		{
+			smooth_start_startTime  = steady_clock::now();
+			max_speed += kSmoothStartStep; 
+			max_speed = max_speed  > max_speed_end ? max_speed_end : max_speed; 
+		}
+
+		std::pair<double, double> pos = GetOptFlow()->GetPos();
+		std::pair<double, double> pos_new(pos.first*std::cos(r_phi) - pos.second*std::sin(r_phi), pos.first*std::sin(r_phi) + pos.second*std::cos(r_phi));
+		
+		err = L_circle - pos_new.second;
+		double sp  = err * P + D*(err - err_old);
+		sp = std::abs(sp) > max_speed ? Sign(sp)*max_speed : sp;
+
+		err_old = err;
+		omni_->MoveWithSpeed({0,0}, sp);
+		Delay(1);
+	} while (std::abs(err) > 0.3);
+	std::pair<double, double> pos = GetOptFlow()->GetPos();
+	std::cout  << "L_circle = "  << L_circle  << " Mouse" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
+}
+
 void RobotGardener::Turn(double angle)
 {
 	const double pi2 = 2 * M_PI;
+	const int kRobot_rot_speed = 100;
+	
 	angle = (fmod(fmod(angle, pi2) + pi2, pi2));
 	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
-	const int kRobot_rot_speed = 150;
-	omni_->Turn(angle, kRobot_rot_speed);
+	MouseTurn(angle, kRobot_rot_speed);
+	omni_->Stop();
+	//omni_->Turn(angle, kRobot_rot_speed);
 }
 
 
