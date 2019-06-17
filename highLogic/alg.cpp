@@ -287,21 +287,32 @@ RobotPoint detect_position(Robot &robot, double frame_offset) {
         }
     }
     RobotPoint pos;
+    std::vector<std::pair<int, PolarPoint>> suspicious_points;
     for (int i = 0; i < extra_line.size(); i++) {
         if (extra_line[i].first >= 0) {
-            color_t color = robot.GetColorFromAng(get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
-                                                    lines[extra_line[i].first][extra_line[i].second + 1],
-                                                    Point{0, 0}));
-            if (color == black_c) {
-                RobotPoint p = dist2coordinates(
-                    dist_line2point(lines[extra_line[i].first][extra_line[i].second],
-                        lines[extra_line[i].first][extra_line[i].second + 1], {0, 0}),
-                    i);
-                pos.merge(p);
-            }
+            suspicious_points.emplace_back(i, PolarPoint(dist_line2point(lines[extra_line[i].first][extra_line[i].second],
+                                                                             lines[extra_line[i].first][extra_line[i].second + 1],
+                                                                             {0, 0}),
+                                                             get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
+                                                                                 lines[extra_line[i].first][extra_line[i].second + 1],
+                                                                                 Point{0, 0})));
         }
     }
-
+    if (suspicious_points.size() > 1) {
+        std::vector<std::pair<int, color_t>> colors = robot.GetColorFromAng(suspicious_points);
+        for (int i = 0; i < colors.size(); i++) {
+            if (colors[i].first != suspicious_points[i].first) {
+                std::cerr << "Misha, BLIA. It might need sort!!!" << std::endl;
+                continue;
+            }
+            RobotPoint p = dist2coordinates(
+                dist_line2point(lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second],
+                                lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second + 1],
+                                {0, 0}),
+                i);
+            pos.merge(p);
+        }
+    }
     pos.set_angle(ang);
     return pos;
 }

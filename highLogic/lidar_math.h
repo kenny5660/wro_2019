@@ -57,6 +57,8 @@ double get_angle_lines(const std::vector<std::vector<Point>> &lines, const std::
 void corners_rot(std::vector<std::vector<Point>> &corners, double ang);
 double get_middle_line_ang(Point a_line, Point b_line, Point from);
 RobotPoint dist2coordinates(double dist, int side);
+bool is_in_ang_segment(double ang, std::pair<double, double> ang_seg);
+bool is_in_ang_segment(double ang, const std::vector<std::pair<double, double>> ang_seg);
 
 //---FOR TEST---//
 std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,

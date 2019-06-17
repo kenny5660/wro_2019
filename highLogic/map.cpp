@@ -1200,6 +1200,23 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
         double end_ang = atan2(lines[(i + 1) % lines.size()].front().first.get_y() - position_.get_y(),
                                       lines[(i + 1) % lines.size()].front().first.get_x() - position_.get_x());
         end_ang = PolarPoint::angle_norm(end_ang);
+        for (int i = 0; i < lidar_sett::ang_death.size(); i++) {
+            if (is_in_ang_segment(lidar_sett::ang_death[i].first, std::make_pair(start_ang, end_ang)) &&
+                is_in_ang_segment(lidar_sett::ang_death[i].second, std::make_pair(start_ang, end_ang))) {
+                delete_from_death_zone_circle_seg(position_, lidar_sett::max_visible_black, start_ang, lidar_sett::ang_death[i].first);
+                delete_from_death_zone_circle_seg(position_, lidar_sett::max_visible_black, lidar_sett::ang_death[i].second, end_ang);
+                break;
+            }
+            if (is_in_ang_segment(end_ang, lidar_sett::ang_death[i])) {
+                end_ang = lidar_sett::ang_death[i].first;
+            }
+            if (is_in_ang_segment(start_ang, lidar_sett::ang_death[i])) {
+                start_ang = lidar_sett::ang_death[i].second;
+            }
+        }
+        if(start_ang > end_ang) {
+            continue;
+        }
         delete_from_death_zone_circle_seg(position_, lidar_sett::max_visible_black, start_ang, end_ang);
     }
     for (int i = 0; i < lines.size(); i++) {
