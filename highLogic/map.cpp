@@ -1123,7 +1123,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
                                                                        Point{parking_zone_circles_.second.get_x() - position_.get_x(),
                                                                              -(parking_zone_circles_.second.get_y() - position_.get_y())}),
                                         2 * field_sett::size_field_unit);
-    corners_rot(points_in_robot, ang_error);
+    corners_rot(points_in_robot, -ang_error);
     for (int i = 0; i < points.size(); i++) {
         for (int j = 0; j < points[i].size(); j++) {
             points[i][j] = (points_in_robot[i][j] + Point(position_.get_x(), -position_.get_y())) * Point{1, -1};

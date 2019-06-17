@@ -39,7 +39,7 @@ enum color_t {
     orange_c,
     yellow_c,
     black_c,
-    wight_c
+    white_c
 };
 
 class PolarPoint;

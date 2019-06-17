@@ -16,8 +16,18 @@ int main() {
        std::filesystem::directory_iterator(path_small_cube)) {
     std::cout << entry.path() << std::endl;
     img = cv::imread(entry.path().string());
-    box_color_t color = VisionGetSmallBox(img);
+    color_t color = VisionGetSmallBox(img);
     std::cout << color << color;
+    while (true) {
+
+      cv::imshow();
+
+	 int k = cv::waitKey(33);
+      if (k == 27) 
+		{
+           break;
+      }
+    }
   }
     
 

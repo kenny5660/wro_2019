@@ -14,7 +14,7 @@ int start_robot()
 {
 	
 	clear_logs();
-	cout_to_file_log_enable();
+	//cout_to_file_log_enable();
 	try
 	{
 		robot.Init();

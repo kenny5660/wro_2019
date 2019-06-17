@@ -76,7 +76,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50.5,
-		133.4,
+		132,
 		motor_left,
 		motor_front,
 		motor_right,
@@ -186,7 +186,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 }
 
 
-box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
+color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
 	const int kDist = 61;
 	//const int kDistAfter = 110;
@@ -263,7 +263,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	GetOmni()->Stop();
 	std::cout << "Dist aligin after = " <<  dist->GetDistance() << std::endl;
 
-	box_color_t colorbox;
+	color_t colorbox;
 	if (IsTakePhoto)
 	{
 		man_->Home(true);
@@ -337,7 +337,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 	}
 	
 	using namespace std::chrono;
-	const  int x_speed_max = 400;
+	const  int x_speed_max = 300;
 	const milliseconds timeOut(300);
 	const int err_dist_limit = 150;
 	const int err_align_limit = 30;
@@ -368,7 +368,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 		x_speed = std::abs(x_speed) >  x_speed_max ? Sign(x_speed)*x_speed_max : x_speed;
 		GetOmni()->MoveWithSpeed(std::make_pair(x_speed, 0), alg_speed);
 		Delay(5);
-		if ((abs(err_align) > 4 || abs(err_dist) > 4))
+		if ((abs(err_align) > 2 || abs(err_dist) > 2))
 		{
 			startTime = steady_clock::now(); 
 		}
@@ -392,7 +392,7 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	AlliginByDist(48, 0);
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
 	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
-	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
+	omni_->MoveWithSpeed(std::make_pair(0, 150), 0);
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist) ;
 	omni_->Stop();
@@ -415,12 +415,68 @@ void RobotGardener::GetQRCode(cv::Mat &frame)
 }
 
 
+void  RobotGardener::MouseTurn(double angle,int speed)
+{
+	const double r_phi = 31.76 / 180*M_PI;
+	const double r = 34.7;
+
+	double L_circle = -r*angle; 
+	
+	
+	using namespace std::chrono;
+	const double P = 9;
+	const double D = 0;
+	
+	const double kSmoothStartTime = 800;
+	const double kSmoothStartStep = 5;
+
+	
+	double max_speed = 0;
+    double max_speed_end = speed;
+	double err;
+	double err_old;
+	
+	opt_flow_->Reset();
+	steady_clock::time_point slippage_startTime = steady_clock::now(); 
+	double slippage_err_old;
+	steady_clock::time_point  smooth_start_startTime = steady_clock::now(); 
+	
+
+
+	do
+	{
+		if (steady_clock::now() - smooth_start_startTime  > milliseconds((int)(kSmoothStartTime / (max_speed_end / kSmoothStartStep))) && max_speed <= max_speed_end)
+		{
+			smooth_start_startTime  = steady_clock::now();
+			max_speed += kSmoothStartStep; 
+			max_speed = max_speed  > max_speed_end ? max_speed_end : max_speed; 
+		}
+
+		std::pair<double, double> pos = GetOptFlow()->GetPos();
+		std::pair<double, double> pos_new(pos.first*std::cos(r_phi) - pos.second*std::sin(r_phi), pos.first*std::sin(r_phi) + pos.second*std::cos(r_phi));
+		
+		err = L_circle - pos_new.second;
+		double sp  = err * P + D*(err - err_old);
+		sp = std::abs(sp) > max_speed ? Sign(sp)*max_speed : sp;
+
+		err_old = err;
+		omni_->MoveWithSpeed({0,0}, sp);
+		Delay(1);
+	} while (std::abs(err) > 0.1);
+	std::pair<double, double> pos = GetOptFlow()->GetPos();
+	std::pair<double, double> pos_new(pos.first*std::cos(r_phi) - pos.second*std::sin(r_phi), pos.first*std::sin(r_phi) + pos.second*std::cos(r_phi));
+	std::cout  << "L_circle = "  << L_circle  << " Mouse" << "x = " << pos_new.first  << " y = "  << pos_new.second << std::endl;
+}
+
 void RobotGardener::Turn(double angle)
 {
 	const double pi2 = 2 * M_PI;
+	const int kRobot_rot_speed = 130;
+	
 	angle = (fmod(fmod(angle, pi2) + pi2, pi2));
 	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
-	const int kRobot_rot_speed = 150;
+	//MouseTurn(angle, kRobot_rot_speed);
+	//omni_->Stop();
 	omni_->Turn(angle, kRobot_rot_speed);
 }
 
@@ -451,7 +507,7 @@ void RobotGardener::Go2(std::vector<Point> points)
 void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 {
 	using namespace std::chrono;
-	const double P = 5;
+	const double P = 5.3;
 	const double D = 0;
 	
 	const milliseconds kSlippageTime = milliseconds(200);
@@ -530,13 +586,13 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 		err_old = err;
 		omni_->MoveWithSpeed(sp, 0);
 		Delay(1);
-	} while (std::abs(err.first) > 2 || std::abs(err.second) > 1);
+	} while (std::abs(err.first) > 1 || std::abs(err.second) > 1);
 	std::pair<double, double> pos = GetOptFlow()->GetPos();
 	std::cout  << "Mouse" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }
 
 
-box_color_t RobotGardener::GetColorBigBox(double ang)
+color_t RobotGardener::GetColorFromAng(double ang)
 {
 	const double cam_ang_robot0 = 20;
 	
@@ -559,6 +615,6 @@ box_color_t RobotGardener::GetColorBigBox(double ang)
 		Turn(offset_ang_robot_turn*M_PI / 180);
 	}
 	auto frame = cam_rot_->GetFrame(cam_ang - offset_ang_robot_turn);
-	box_color_t colorbox = VisionGetSmallBox(*frame);
+	color_t colorbox = VisionGetSmallBox(*frame);
 	return colorbox;
 }
