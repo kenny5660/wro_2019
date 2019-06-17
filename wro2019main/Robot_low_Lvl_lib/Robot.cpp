@@ -76,7 +76,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50.5,
-		133.5,
+		133.4,
 		motor_left,
 		motor_front,
 		motor_right,
@@ -181,7 +181,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 		{ return (i.get_f()  < j.get_f());}
 	} sort_object_PolarPoint;
 	std::sort(polar_points.begin(), polar_points.end(), sort_object_PolarPoint);
-	//data_filter(polar_points);
+	data_filter(polar_points);
 	save_ld_data(polar_points);
 }
 
@@ -286,7 +286,7 @@ box_color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		man_->CatchLeft(true, 300);
 		MoveByOptFlow(std::make_pair(0, 45), kSpeedAfter+50);
 		man_->Home(true);
-		MoveByOptFlow(std::make_pair(0, -80), kSpeedAfter + 50);
+		MoveByOptFlow(std::make_pair(0, -84), kSpeedAfter + 50);
 		AlliginByDist(kDist, 0);
 		MoveByOptFlow(std::make_pair(-41, 0), kSpeedAfter + 50);
 		break;
@@ -448,7 +448,6 @@ void RobotGardener::Go2(std::vector<Point> points)
 	
 }
 
-
 void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 {
 	using namespace std::chrono;
@@ -534,4 +533,32 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 	} while (std::abs(err.first) > 2 || std::abs(err.second) > 1);
 	std::pair<double, double> pos = GetOptFlow()->GetPos();
 	std::cout  << "Mouse" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
+}
+
+
+box_color_t RobotGardener::GetColorBigBox(double ang)
+{
+	const double cam_ang_robot0 = 20;
+	
+	const double wrong_ang_min  = 30;
+	const double wrong_ang_max  = 310;
+	
+	double offset_ang_robot_turn = 0;
+	double norm_ang = PolarPoint::angle_norm(ang);
+	double cam_ang = norm_ang + cam_ang_robot0;
+	cam_ang = cam_ang * 180 / M_PI;
+	
+	if (cam_ang  > wrong_ang_max)
+	{
+		offset_ang_robot_turn =  wrong_ang_max  - cam_ang;
+		Turn(offset_ang_robot_turn*M_PI/180);
+	}
+	if (cam_ang  < wrong_ang_min)
+	{
+		offset_ang_robot_turn =  cam_ang -wrong_ang_min;
+		Turn(offset_ang_robot_turn*M_PI / 180);
+	}
+	auto frame = cam_rot_->GetFrame(cam_ang - offset_ang_robot_turn);
+	box_color_t colorbox = VisionGetSmallBox(*frame);
+	return colorbox;
 }

@@ -5,9 +5,21 @@
 #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
+#include <VisionAlgs.h>
+#include <filesystem>
+#include <string>
+#include <iostream>
 const std::string path_small_cube("C:\\Users\\misha\\YandexDisk\\OneDrive\\Robots\\NImyrio\\WRO2019\\smallBox\\");
 int main() {
   cv::Mat img;
-  img = cv::imread(path_small_cube + "OLL2.jpg");
-  std::cout << "Hello World!\n";
+  for (const auto& entry :
+       std::filesystem::directory_iterator(path_small_cube)) {
+    std::cout << entry.path() << std::endl;
+    img = cv::imread(entry.path().string());
+    box_color_t color = VisionGetSmallBox(img);
+    std::cout << color << color;
+  }
+    
+
+  
 }
