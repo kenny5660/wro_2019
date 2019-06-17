@@ -48,3 +48,23 @@ TEST(MathFunc, PositionRelativeLine) {
     EXPECT_EQ(position_relative_line({-3, 2}, {0, 0}, {0, 2}, 0.1), 1);
     EXPECT_EQ(position_relative_line({-3, 2}, {0, 0}, {0, -1}, 0), -1);
 }
+
+TEST(MathFunc, GetLinesCorne) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Real//6.ld", points));
+    auto corners = get_corners(points);
+    {
+        DebugFieldMat mat;
+        add_lines_img(mat, corners);
+        show_debug_img("", mat);
+    }
+    double ang = get_angle_lines(corners, {Point{-1000},
+                                           Point{-1000}}, 200);
+    std::cout << ang * 180 / M_PI << std::endl;
+    corners_rot(corners, ang);
+    {
+        DebugFieldMat mat;
+        add_lines_img(mat, corners);
+        show_debug_img("", mat);
+    }
+}

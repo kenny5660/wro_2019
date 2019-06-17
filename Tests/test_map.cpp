@@ -12,27 +12,27 @@ TEST(BoxMap, Create) {
         BoxMap m1;
         EXPECT_EQ(m1.get_left_corner_point().get_x(), 0);
         EXPECT_EQ(m1.get_left_corner_point().get_y(), 0);
-        EXPECT_EQ(m1.get_color(), undefined_bc);
+        EXPECT_EQ(m1.get_color(), undefined_c);
     }
     {
         BoxMap m1(Point(1, 1));
         EXPECT_EQ(m1.get_left_corner_point().get_x(), 1);
         EXPECT_EQ(m1.get_left_corner_point().get_y(), 1);
-        EXPECT_EQ(m1.get_color(), undefined_bc);
+        EXPECT_EQ(m1.get_color(), undefined_c);
     }
 }
 
 TEST(BoxMap, SetColor) {
     {
-        BoxMap m1(Point(1, 1), red_bc);
-        EXPECT_EQ(m1.get_color(), red_bc);
+        BoxMap m1(Point(1, 1), red_c);
+        EXPECT_EQ(m1.get_color(), red_c);
     }
     {
         BoxMap m1;
-        m1.set_color(blue_bc);
-        EXPECT_EQ(m1.get_color(), blue_bc);
-        m1.set_color(red_bc);
-        EXPECT_EQ(m1.get_color(), blue_bc);
+        m1.set_color(blue_c);
+        EXPECT_EQ(m1.get_color(), blue_c);
+        m1.set_color(red_c);
+        EXPECT_EQ(m1.get_color(), blue_c);
     }
 }
 
@@ -780,4 +780,38 @@ TEST(MapUpdate, RealUp4) {
     std::vector<PolarPoint> points;
     ASSERT_FALSE(read("Real//4.ld", points));
     map.update(points, show_debug_img);
+}
+
+TEST(MapUpdate, RealUp5) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position =
+        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+    start_position.set_angle(2.6853440000000002);
+    start_position.set_x(1162.1408730350097);
+    start_position.set_y(1266.5040220418102);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Real//5.ld", points));
+    map.update(points, show_debug_img);
+}
+
+TEST(MapUpdate, RealUp6) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    //RobotPoint start_position =
+    //    qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+    //start_position.set_angle(2.6853440000000002);
+    //start_position.set_x(1162.1408730350097);
+    //start_position.set_y(1266.5040220418102);
+    //Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("Real//5.ld", points));
+//    map.update(points, show_debug_img);
 }

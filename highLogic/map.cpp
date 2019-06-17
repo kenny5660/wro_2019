@@ -27,7 +27,7 @@ enum box_corner_type {
     undef_bt
 };
 
-BoxMap::BoxMap(const Point &p, box_color_t color) : color_(color) {
+BoxMap::BoxMap(const Point &p, color_t color) : color_(color) {
     add_point(p);
 }
 
@@ -35,8 +35,8 @@ void BoxMap::add_point(const Point& p) {
     left_up_corner_.merge(MassPoint(p));
 }
 
-void BoxMap::set_color(const box_color_t c) {
-    if (color_ != undefined_bc) {
+void BoxMap::set_color(const color_t c) {
+    if (color_ != undefined_c) {
         std::cerr << "map::BoxMap::set_color\n Re-announcement color of box!";
         return;
     }
@@ -45,7 +45,7 @@ void BoxMap::set_color(const box_color_t c) {
 
 void BoxMap::merge(const BoxMap &b) {
     left_up_corner_.merge(b.left_up_corner_);
-    if (color_ == undefined_bc) {
+    if (color_ == undefined_c) {
         color_ = b.color_;
     } else {
         std::cerr << "map::BoxMap::merge\n Re-announcement color of box!";
@@ -1115,9 +1115,31 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
             Point new_point = {points[i][j].get_x() * cos(ang_offset) - points[i][j].get_y() * sin(ang_offset),
                                points[i][j].get_x() * sin(ang_offset) + points[i][j].get_y() * cos(ang_offset)};
             points_in_robot.back().push_back(new_point);
-            points[i][j] = (new_point + Point(position_.get_x(), -position_.get_y())) * Point{1, -1};
         }
     }
+
+    double ang_error = get_angle_lines(points_in_robot, std::make_pair(Point{parking_zone_circles_.first.get_x() - position_.get_x(),
+                                                                             -(parking_zone_circles_.first.get_y() - position_.get_y())},
+                                                                       Point{parking_zone_circles_.second.get_x() - position_.get_x(),
+                                                                             -(parking_zone_circles_.second.get_y() - position_.get_y())}),
+                                        2 * field_sett::size_field_unit);
+    corners_rot(points_in_robot, ang_error);
+    for (int i = 0; i < points.size(); i++) {
+        for (int j = 0; j < points[i].size(); j++) {
+            points[i][j] = (points_in_robot[i][j] + Point(position_.get_x(), -position_.get_y())) * Point{1, -1};
+        }
+    }
+
+    if (debug != nullptr) {
+        DebugFieldMat mat1;
+        add_lines_img(mat1, points_in_robot);
+        add_point_img(mat1, {parking_zone_circles_.first.get_x() - position_.get_x(),
+                             -(parking_zone_circles_.first.get_y() - position_.get_y())});
+        add_point_img(mat1, Point{parking_zone_circles_.second.get_x() - position_.get_x(),
+                                  -(parking_zone_circles_.second.get_y() - position_.get_y())});
+        debug("Update_map_in_global", mat1);
+    }
+
     std::vector<std::vector<std::pair<Point, line_t>>> lines;
     line_detect_from_pos(lines, parking_zone_circles_,
                          points, lidar_sett::ang_death, position_);

@@ -52,6 +52,11 @@ Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, 
 void line_detect_from_pos(std::vector<std::vector<std::pair<Point, line_t>>> &ans, std::pair<Point, Point> parking_zone,
                           const std::vector<std::vector<Point>> &points, const std::vector<std::pair<double , double>> support_angle, const RobotPoint &pos = {0, 0});
 std::pair<Point, int> get_cross_line_with_outline(const std::vector<Point> &outline, const Point &a, const Point &b); // даёт ближнию точку к a
+double get_angle_lines(const std::vector<std::vector<Point>> &lines, const std::pair<Point, Point> parking_zone,
+                       double min_length);
+void corners_rot(std::vector<std::vector<Point>> &corners, double ang);
+double get_middle_line_ang(Point a_line, Point b_line, Point from);
+RobotPoint dist2coordinates(double dist, int side);
 
 //---FOR TEST---//
 std::vector<std::vector<Point>> get_groups_obj(const std::vector<Point> &points,

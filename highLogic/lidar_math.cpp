@@ -840,3 +840,70 @@ std::pair<Point, int> get_cross_line_with_outline(const std::vector<Point> &outl
     }
     return std::make_pair(min_cross, ind);
 }
+
+bool in_parking_zone(const Point point, const std::pair<Point, Point> pz) {
+    double length = field_sett::parking_zone_free_radius + lidar_sett::truncation_error;
+    return (pz.first.dist(point) < length) || (pz.second.dist(point) < length);
+}
+
+double get_angle_lines(const std::vector<std::vector<Point>> &lines, const std::pair<Point, Point> parking_zone,
+                       double min_length) {
+    std::vector<double> angles;
+    for (int i = 0; i < lines.size(); i++) {
+        for (int j = 0; j < (lines[i].size() - 1); j++) {
+            if ((lines[i][j].dist(lines[i][j + 1]) > (min_length)) &&
+                (!in_parking_zone(lines[i][j], parking_zone)) &&
+                (!in_parking_zone(lines[i][j + 1], parking_zone))) {
+                Point delta = {lines[i][j + 1].get_y() - lines[i][j].get_y(), lines[i][j + 1].get_x() - lines[i][j].get_x()};
+                if (fabs(delta.get_y()) > fabs(delta.get_x())) {
+                    double buff = delta.get_y();
+                    delta.set_y(delta.get_x());
+                    delta.set_x(buff);
+                }
+                double buff_ang = atan2(delta.get_y(),
+                                        delta.get_x());
+                double ch_ang = fabs(buff_ang);
+                if (ch_ang > M_PI_2) {
+                    ch_ang = M_PI - ch_ang;
+                }
+                std::cout << buff_ang << " " << ch_ang << std::endl;
+                angles.push_back(ch_ang);
+            }
+        }
+    }
+    std::sort(angles.begin(), angles.end());
+    double ans = angles[angles.size() / 2];
+    if (angles[angles.size() / 2] > M_PI_4) {
+        ans -= M_PI_2;
+    }
+    return -ans;
+}
+
+void corners_rot(std::vector<std::vector<Point>> &corners, double ang) {
+    for (int i = 0; i < corners.size(); i++) {
+        for (int j = 0; j < corners[i].size(); j++) {
+            Point buff = corners[i][j];
+            corners[i][j].set_x(buff.get_x() * cos(ang) - buff.get_y() * sin(ang));
+            corners[i][j].set_y(buff.get_x() * sin(ang) + buff.get_y() * cos(ang));
+        }
+    }
+}
+
+double get_middle_line_ang(Point a_line, Point b_line, Point from) {
+    Point c = a_line + b_line;
+    c.set_x(c.get_x() / 2.);
+    c.set_y(c.get_y() / 2.);
+    return atan2(c.get_y() - from.get_y(), c.get_x() - from.get_x());
+}
+
+RobotPoint dist2coordinates(double dist, int side) {
+    if ((side >= 4) || (side < 0)) {
+        std::cerr << "lidar_math::dist2coordinates: Wrong side;" << std::endl;
+        return {};
+    }
+    RobotPoint(*coord_factory[4])(double) = {[](double x){ return RobotPoint(x, NAN); },
+                                        [](double x){ return RobotPoint(NAN, x); },
+                                        [](double x){ return RobotPoint(field_sett::max_field_width - x, NAN); },
+                                        [](double x){ return RobotPoint(NAN, field_sett::max_field_height - x); }};
+    return coord_factory[side](dist);
+}
