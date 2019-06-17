@@ -13,15 +13,6 @@
 #include "debug.h"
 #include "settings.h"
 
-enum box_color_t {
-    undefined_bc,
-    blue_bc,
-    red_bc,
-    green_bc,
-    orange_bc,
-    yellow_bc
-};
-
 const cv::Scalar box_color2color[6] = {
     {218, 197, 255},
     {159, 6, 16},
@@ -33,7 +24,7 @@ const cv::Scalar box_color2color[6] = {
 class BoxMap {
  public:
     BoxMap() : left_up_corner_(Point(0, 0)) {};
-    BoxMap(const Point &p, box_color_t color = undefined_bc);
+    BoxMap(const Point &p, color_t color = undefined_c);
 
     void add_point(const Point&);
     MassPoint set_left_corner_point(const MassPoint &p) { left_up_corner_ = p; }
@@ -47,8 +38,8 @@ class BoxMap {
 
     std::array<Point, 4> get_corners() const;
 
-    void set_color(const box_color_t);
-    box_color_t get_color() { return color_; }
+    void set_color(const color_t);
+    color_t get_color() { return color_; }
 
     Point get_box_corner(unsigned int i, const Point &offset = {0, 0}) const;
                         // 0 - верхний левый угол
@@ -59,7 +50,7 @@ class BoxMap {
 
  private:
     MassPoint left_up_corner_;
-    box_color_t color_ = undefined_bc;
+    color_t color_ = undefined_c;
 };
 
 class Map {

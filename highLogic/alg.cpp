@@ -9,6 +9,7 @@
 #include "lidar_math.h"
 #include <iostream>
 #include <opencv2/core.hpp>
+#include <algorithm>
 
 Point catch_flower_offset[4] = {
     {-robot_sett::catch_flower_offset, 0},
@@ -212,6 +213,96 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     //
 }
 
+RobotPoint detect_position(Robot &robot, double frame_offset) {
+    //TODO: проверить, что стойки не мешают алгоритму.
+    show_img_debug debug;
+    #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+        debug = show_debug_img;
+    #else
+        debug = save_debug_img;
+    #endif
+
+    std::vector<PolarPoint> lidar_data;
+    robot.GetLidarPolarPoints(lidar_data);
+    auto lines = get_corners(lidar_data);
+    double min_length = 2 * field_sett::size_field_unit;
+
+    // Нужно развернуть систему координат.
+    double ang = get_angle_lines(lines,
+        {{frame_offset, field_sett::parking_zone_door_size / 2.},
+         {frame_offset, -field_sett::parking_zone_door_size / 2.}},
+         2 * field_sett::size_field_unit);
+    corners_rot(lines, ang);
+    {
+        DebugFieldMat mat;
+        add_lines_img(mat, lines);
+        debug("Init_robot_from_start", mat);
+    }
+
+    std::array<std::pair<int, int>, 4> extra_line = {std::make_pair(-1, 0),
+                                                     std::make_pair(-1, 0),
+                                                     std::make_pair(-1, 0),
+                                                     std::make_pair(-1, 0)};
+    for (int i = 0; i < lines.size(); i++) {
+        for (int j = 0; j < (lines[i].size() - 1); j++) {
+            if (lines[i][j].dist(lines[i][j + 1]) > (min_length)) {
+                field_margin line_type;
+                if (fabs(lines[i][j].get_x() - lines[i][j + 1].get_x()) >
+                    fabs(lines[i][j].get_y() - lines[i][j + 1].get_y())) {
+                    if (lines[i][j].get_y() > 0) {
+                        line_type = top_field_margin;
+                    } else {
+                        line_type = bottom_field_margin;
+                    }
+                } else {
+                    if (lines[i][j].get_x() > 0) {
+                        line_type = right_field_margin;
+                    } else {
+                        line_type = left_field_margin;
+                    }
+                }
+                if ((extra_line[line_type].first == -1) ||
+                    dist_line2point(
+                        lines[extra_line[line_type].first][extra_line[line_type].second],
+                        lines[extra_line[line_type].first][extra_line[line_type].second + 1],
+                        {0, 0}) < dist_line2point(lines[i][j], lines[i][j + 1], {0, 0})) {
+                    extra_line[line_type].first = i;
+                    extra_line[line_type].second = j;
+                }
+            }
+        }
+    }
+    RobotPoint pos;
+    for (int i = 0; i < extra_line.size(); i++) {
+        if (extra_line[i].first >= 0) {
+            color_t color = robot.GetColorFromAng(get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
+                                                    lines[extra_line[i].first][extra_line[i].second + 1],
+                                                    Point{0, 0}));
+            if (color == black_c) {
+                RobotPoint p = dist2coordinates(
+                    dist_line2point(lines[extra_line[i].first][extra_line[i].second],
+                        lines[extra_line[i].first][extra_line[i].second + 1], {0, 0}),
+                    i);
+                pos.merge(p);
+            }
+        }
+    }
+
+    pos.set_angle(ang);
+    return pos;
+}
+
 void alg(Robot &robot) {
+    double frame_offset = out_way_offset;
     robot.Go2({{0, out_way_offset}});
+    RobotPoint position;
+    position = detect_position(robot, frame_offset);
+    while(!position.is_defined()) {
+        robot.Go2({{0, 2 * field_sett::size_field_unit}});
+        frame_offset += 2 * field_sett::size_field_unit;
+        position = detect_position(robot, frame_offset);
+    }
+    std::cout << "Position:/n x: " << position.get_x() <<
+                 " y: " << position.get_y() <<
+                 " ang: " << position.get_angle() << std::endl;
 }

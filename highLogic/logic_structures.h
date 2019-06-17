@@ -31,6 +31,17 @@ enum line_t {
     parking_lt
 };
 
+enum color_t {
+    undefined_c,
+    blue_c,
+    red_c,
+    green_c,
+    orange_c,
+    yellow_c,
+    black_c,
+    wight_c
+};
+
 class PolarPoint;
 
 class Point {
