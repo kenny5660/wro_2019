@@ -270,7 +270,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		man_->Home(true);
 		Delay(359);
 		auto frame = cam_rot_->GetFrame(kCamAng);
-		colorbox = VisionGetSmallBox(*frame);
+		colorbox = VisionGetSmallBox(*frame,side);
 	}
 	
 	

@@ -2,6 +2,7 @@
 #include <opencv2/imgproc.hpp>
 #include "debug.h"
 #include <algorithm>
+
 color_t GetSquareBin(cv::Mat frame);
 struct bin_hsv_params {
   std::pair<int, int> hue;
@@ -13,23 +14,31 @@ bin_hsv_params briks_colors[8]{
     {{0, 0}, {0, 0}, {0, 0}},            // undefined_c
     {{89, 115}, {76, 192}, {0, 255}},  // blue_c
     {{157, 176}, {71, 154}, {0, 255}},  // red_c
-    {{55, 85}, {42, 101}, {0, 255}},  // green_c
+    {{55, 85}, {42, 171}, {0, 255}},  // green_c
     {{1, 11}, {71, 154}, {0, 255}},  // orange_c
     {{16, 38}, {49, 137}, {0, 255}},  // yellow_c
     {{0, 255}, {20, 42}, {0, 111}},  // black_c
     {{0, 255}, {0, 17}, {120, 255}}   // white_c
 };
 
-color_t VisionGetSmallBox(const cv::Mat& frame) {
-  cv::Rect cut_rect(cv::Point(400, 400), cv::Point(345, 371));
+color_t VisionGetSmallBox(const cv::Mat& frame, Robot::CatchCubeSideEnum side) {
+  cv::Rect cut_rect;
+	if (side == Robot::CatchCubeSideEnum::LEFT) {
+    cut_rect = cv::Rect(cv::Point(383, 408), cv::Size(20, 20));
+  } else {
+          cut_rect = cv::Rect(cv::Point(551, 384), cv::Size(20, 20));
+  }
   cv::Mat cut_mat(frame, cut_rect);
- 
+  cv::Mat f_with_rect;
+  frame.copyTo(f_with_rect);
+
   color_t  color = GetSquareBin(cut_mat);
 
-  // cv::rectangle(frame, cut_rect, cv::Scalar(255, 0, 0));
+   cv::rectangle(f_with_rect, cut_rect, cv::Scalar(255, 0, 0));
 #if !(defined(WIN32) || defined(_WIN32) || \
       defined(__WIN32) && !defined(__CYGWIN__))
   save_debug_img("SmallBox.jpg", frame);
+  save_debug_img("SmallBoxRect.jpg", f_with_rect);
 #endif
   return color;
 }

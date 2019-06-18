@@ -259,14 +259,14 @@ TEST(HardwareTestGroup, Aligin_by_Dist_test)
 }
 TEST(HardwareTestGroup, CatchCube_Left_test)
 {
-	robot->CatchCube(RobotGardener::CatchCubeSideEnum::LEFT);
-	robot->Delay(500);
+	color_t col  = robot->CatchCube(RobotGardener::CatchCubeSideEnum::LEFT);
+	std::cout << "Col: " << col  << std::endl;
 }
 TEST(HardwareTestGroup, CatchCube_RIGHT_test)
 {
 	robot->GetMan()->CatchLeft(true);
-	robot->CatchCube(RobotGardener::CatchCubeSideEnum::RIGHT);
-	robot->Delay(500);
+	color_t col  = robot->CatchCube(RobotGardener::CatchCubeSideEnum::RIGHT);
+	std::cout << "Col: " << col  << std::endl;
 }
 TEST(HardwareTestGroup, Dist_sensors_test)
 {
