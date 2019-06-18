@@ -178,7 +178,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
     cv::Mat QRCodeImg;
     if (s == "") {
-        robot.GetQRCode(QRCodeImg);
+        robot.WayFromFrame(QRCodeImg);
     }
     std::array<BoxMap, 3> boxes;
     std::pair<Point, Point> pz;
