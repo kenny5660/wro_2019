@@ -8,17 +8,18 @@
 #include "alg.h"
 #include <csignal>
 
-RobotGardener robot;
 
 int start_robot()
 {
 	
+	RobotGardener robot;
 	clear_logs();
 	//cout_to_file_log_enable();
 	try
 	{
 		robot.Init();
-		do_alg_code(robot, false);
+		//do_alg_code(robot, false);
+		alg(robot);
 		
 	}
 	catch (std::runtime_error e)

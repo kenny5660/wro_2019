@@ -1,7 +1,7 @@
 //
 // Created by Danila on 14.02.2019.
 //
-
+#pragma once
 #ifndef LIDAR_MATH_LOGIC_STRUCTURES_H
 #define LIDAR_MATH_LOGIC_STRUCTURES_H
 

@@ -7,6 +7,7 @@
 #include <chrono>
 #include "debug.h"
 #include "VisionAlgs.h"
+#include <algorithm>
 extern NiFpga_Session myrio_session;
 
 int Sign(double a)
@@ -162,7 +163,7 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 {
 	const double kLidarDegOffset = -48.9; // 45;
-	
+	polar_points.clear();
 	std::vector<LidarA1::Point> points_lidar;
 	lidar_->GetScan(points_lidar);
 	points_lidar.clear();
@@ -269,7 +270,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		man_->Home(true);
 		Delay(359);
 		auto frame = cam_rot_->GetFrame(kCamAng);
-		colorbox = VisionGetSmallBox(*frame);
+		colorbox = VisionGetSmallBox(*frame,side);
 	}
 	
 	
@@ -385,7 +386,9 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 	
 }
 
-std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
+
+
+void RobotGardener::WayFromFrame()
 {
 	const int kDegServo = 286;
 	const int kmidDist  = 200;
@@ -396,22 +399,26 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist) ;
 	omni_->Stop();
-	Delay(200);
-	auto frame = cam_rot_->GetFrame(kDegServo);
 	omni_->MoveToPosInc(std::make_pair(0, 40), 150);
-	save_debug_img("Qrcode.jpg", *frame);
-	//	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
-	//	dist_c_sensor->GetRealDistance();
-	//	while (dist_c_sensor->GetDistance() < kmidDist) ;
-	//	omni_->Stop();
-
-		return frame;
 }
 
-
-void RobotGardener::GetQRCode(cv::Mat &frame)
+void RobotGardener::WayFromFrame(cv::Mat &frame)
 {
-	frame = *GetQrCodeFrame();
+	const int kDegServo = 286;
+	const int kmidDist  = 200;
+	AlliginByDist(48, 0);
+	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
+	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
+	omni_->MoveWithSpeed(std::make_pair(0, 150), 0);
+	dist_sensor->GetRealDistance();
+	while (dist_sensor->GetDistance() < kmidDist) ;
+	omni_->Stop();
+	
+	Delay(200);
+	auto fram = cam_rot_->GetFrame(kDegServo);
+	omni_->MoveToPosInc(std::make_pair(0, 40), 150);
+	save_debug_img("Qrcode.jpg", *fram);
+	frame = *fram;
 }
 
 
@@ -592,29 +599,61 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 }
 
 
-color_t RobotGardener::GetColorFromAng(double ang)
+std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng( const std::vector<std::pair<int, PolarPoint>> &ang_pps)
 {
-	const double cam_ang_robot0 = 20;
-	
-	const double wrong_ang_min  = 30;
-	const double wrong_ang_max  = 310;
-	
-	double offset_ang_robot_turn = 0;
-	double norm_ang = PolarPoint::angle_norm(ang);
-	double cam_ang = norm_ang + cam_ang_robot0;
-	cam_ang = cam_ang * 180 / M_PI;
-	
-	if (cam_ang  > wrong_ang_max)
+	const double cam_ang0 = 106;
+	const double cam_ang_offset  = 180;
+	std::vector<std::pair<int, PolarPoint>> ang_pps_ = ang_pps;
+	std::vector<std::pair<int, color_t>> result;
+	double cur_ang = 0;
+	for (int i = 0; i < ang_pps_.size();++i)
 	{
-		offset_ang_robot_turn =  wrong_ang_max  - cam_ang;
-		Turn(offset_ang_robot_turn*M_PI/180);
+		ang_pps_[i].second.set_f(ang_pps_[i].second.get_f() - (cam_ang_offset / 180*M_PI));
 	}
-	if (cam_ang  < wrong_ang_min)
+	sort(ang_pps_.begin(),ang_pps_.end(), [](const std::pair<int, PolarPoint> & a, const std::pair<int, PolarPoint> & b) -> bool{ return a.second.get_f() < b.second.get_f(); });
+	
+	for (auto it : ang_pps_ )
 	{
-		offset_ang_robot_turn =  cam_ang -wrong_ang_min;
-		Turn(offset_ang_robot_turn*M_PI / 180);
+		double ang = (it.second.get_f()) - cur_ang;
+		Turn(ang);	
+		cur_ang += ang;
+		Delay(200);
+		auto frame = cam_rot_->GetFrame(cam_ang0);
+		color_t color  = VisionGetBigBox(*frame, it.second.get_r());
+		result.push_back(std::make_pair(it.first, color));
 	}
-	auto frame = cam_rot_->GetFrame(cam_ang - offset_ang_robot_turn);
-	color_t colorbox = VisionGetSmallBox(*frame);
-	return colorbox;
+	Turn(0-cur_ang);	
+	sort(result.begin(), result.end(), [](const std::pair<int, PolarPoint> & a, const std::pair<int, PolarPoint> & b) -> bool{ return a.first < b.first; });
+	return result;
 }
+
+//void turn_camera()
+//{
+//	const double cam_ang0 = 20;
+//	const double cam_ang_from_robot_ang0 = 170;
+//	const double cam_r = 140;
+//	double alpha = cam_ang_from_robot_ang0 - PolarPoint::angle_norm(pp.get_f());
+//	
+//	const double wrong_ang_min  = 30;
+//	const double wrong_ang_max  = 310;
+//	
+//	double offset_ang_robot_turn = 0;
+//	//double norm_ang = PolarPoint::angle_norm(pp.get_f());
+//	double cam_ang =; ///norm_ang + cam_ang_robot0;
+//	
+//	
+//	cam_ang = cam_ang * 180 / M_PI;
+//	if (cam_ang  > wrong_ang_max)
+//	{
+//		offset_ang_robot_turn =  wrong_ang_max  - cam_ang;
+//		Turn(offset_ang_robot_turn*M_PI / 180);
+//	}
+//	if (cam_ang  < wrong_ang_min)
+//	{
+//		offset_ang_robot_turn =  cam_ang - wrong_ang_min;
+//		Turn(offset_ang_robot_turn*M_PI / 180);
+//	}
+//	auto frame = cam_rot_->GetFrame(cam_ang - offset_ang_robot_turn);
+//	color_t colorbox = VisionGetSmallBox(*frame);
+//	return colorbox;
+//}
