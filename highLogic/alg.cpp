@@ -382,6 +382,7 @@ void alg(Robot &robot) {
     #else
         debug = save_debug_img;
     #endif
+	robot.WayFromFrame();
     double frame_offset = out_way_offset;
     robot.Go2({{0, out_way_offset}});
     RobotPoint start_position;
