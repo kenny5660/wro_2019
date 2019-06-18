@@ -47,7 +47,7 @@ namespace lidar_sett {
     const double max_visible_black = 1200;
     const std::vector<std::pair<double, double>> ang_death = {
         {2.635, 3.483},
-        {4.7, 4.88}}; // TODO
+        {4.6, 4.9}}; // TODO
     const double min_dist = 50;
 }
 
