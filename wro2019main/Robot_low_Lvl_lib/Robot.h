@@ -46,6 +46,7 @@ public:
 	virtual void WayFromFrame() = 0;
 	virtual std::vector<std::pair<int, color_t>> GetColorFromAng(const std::vector<std::pair<int, PolarPoint>> &ang_pps) = 0;
 	virtual void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)=0;
+	virtual std::shared_ptr<CameraRotate> GetCamRot() = 0;
 	virtual  ~Robot();
 private:
 	
@@ -60,7 +61,7 @@ public:
 	std::shared_ptr<Indicator> GetIndicator();
 	std::shared_ptr<Manipulator> GetMan();
 	std::shared_ptr<Lidar> GetLidar();
-	std::shared_ptr<CameraRotate> GetCamRot();
+	std::shared_ptr<CameraRotate> GetCamRot() override;
 
 	void WaitStartButton();
 	color_t CatchCube(CatchCubeSideEnum side, bool IsTakePhoto = true) override;

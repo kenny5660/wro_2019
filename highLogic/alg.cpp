@@ -107,6 +107,7 @@ void frame_connect(Robot &robot, double out_way_offset, double start_angle) {
 		add_point_img(mat, point_offset);
 		save_debug_img("frame_conect", mat);
 	}
+	robot.GetCamRot()->GetServo()->SetDegrees(21);
 	Point p = { points[ind_nearly_point.first][ind_nearly_point.second].get_y(), -points[ind_nearly_point.first][ind_nearly_point.second].get_x() - field_sett::parking_zone_door_size / 2.0 };
 	robot.Go2({ { 0, p.get_y() } });
 	robot.Go2({ { p.get_x() + 110, 0 } });

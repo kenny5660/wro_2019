@@ -3,6 +3,11 @@
 #include "debug.h"
 #include <algorithm>
 
+std::string color_t2str(color_t color)
+{
+	const std::string strs[8] = { "un", "blue", "red", "green", "orange", "yel", "black", "white" };
+	return strs[(int)color];
+}
 color_t GetSquareBin(cv::Mat frame);
 struct bin_hsv_params {
   std::pair<int, int> hue;
@@ -17,7 +22,7 @@ bin_hsv_params briks_colors[8]{
     {{55, 85}, {42, 171}, {0, 255}},  // green_c
     {{1, 11}, {71, 154}, {0, 255}},  // orange_c
     {{16, 38}, {49, 137}, {0, 255}},  // yellow_c
-    {{0, 255}, {20, 42}, {0, 111}},  // black_c
+    {{0, 255}, {20, 69}, {0, 111}},  // black_c
     {{0, 255}, {0, 17}, {120, 255}}   // white_c
 };
 
@@ -33,7 +38,9 @@ color_t VisionGetSmallBox(const cv::Mat& frame, Robot::CatchCubeSideEnum side) {
   frame.copyTo(f_with_rect);
 
   color_t  color = GetSquareBin(cut_mat);
-
+  cv::putText(f_with_rect, color_t2str(color),
+              cv::Point(cut_rect.x, cut_rect.y - 10), cv::FONT_HERSHEY_SIMPLEX,
+              0.8, 255);
    cv::rectangle(f_with_rect, cut_rect, cv::Scalar(255, 0, 0));
 #if !(defined(WIN32) || defined(_WIN32) || \
       defined(__WIN32) && !defined(__CYGWIN__))
@@ -43,15 +50,22 @@ color_t VisionGetSmallBox(const cv::Mat& frame, Robot::CatchCubeSideEnum side) {
   return color;
 }
 color_t VisionGetBigBox(const cv::Mat& frame,double dist) {
-  const double dist_coef = 0.1043478260869565;
+  const double dist_coef = 0.0743478260869565;
 
   //far 355    near 505     off 120  385
-  cv::Rect cut_rect(cv::Point(555, 505 - (dist * dist_coef)), cv::Size(20, 20));
+  cv::Rect cut_rect(cv::Point(555, 495 - (dist * dist_coef)), cv::Size(15, 15));
   cv::Mat cut_mat(frame, cut_rect);
   cv::Mat f_with_rect;
   frame.copyTo(f_with_rect);
+	color_t color = GetSquareBin(cut_mat);
+	cv::putText(f_with_rect,
+		color_t2str(color) + std::to_string(dist),
+		cv::Point(cut_rect.x, cut_rect.y - 10),
+		cv::FONT_HERSHEY_SIMPLEX,
+		0.8,
+		255);
   cv::rectangle(f_with_rect, cut_rect, cv::Scalar(255, 5, 44));
-  color_t color = GetSquareBin(cut_mat);
+
 #if !(defined(WIN32) || defined(_WIN32) || \
       defined(__WIN32) && !defined(__CYGWIN__))
   save_debug_img("BigBox.jpg", frame);

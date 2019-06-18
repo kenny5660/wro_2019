@@ -163,7 +163,7 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 {
 	const double kLidarDegOffset = -48.9; // 45;
-	
+	polar_points.clear();
 	std::vector<LidarA1::Point> points_lidar;
 	lidar_->GetScan(points_lidar);
 	points_lidar.clear();

@@ -7,6 +7,7 @@
 #include <opencv2/core.hpp>
 #include <csignal>
 #include "alg.h"
+#include "VisionAlgs.h"
 TEST_GROUP(DemoTestGroup)
 {
 }
@@ -260,13 +261,13 @@ TEST(HardwareTestGroup, Aligin_by_Dist_test)
 TEST(HardwareTestGroup, CatchCube_Left_test)
 {
 	color_t col  = robot->CatchCube(RobotGardener::CatchCubeSideEnum::LEFT);
-	std::cout << "Col: " << col  << std::endl;
+	std::cout << "Col: " << color_t2str (col)  << std::endl;
 }
 TEST(HardwareTestGroup, CatchCube_RIGHT_test)
 {
 	robot->GetMan()->CatchLeft(true);
 	color_t col  = robot->CatchCube(RobotGardener::CatchCubeSideEnum::RIGHT);
-	std::cout << "Col: " << col  << std::endl;
+	std::cout << "Col: " << color_t2str(col)  << std::endl;
 }
 TEST(HardwareTestGroup, Dist_sensors_test)
 {

@@ -8,11 +8,11 @@
 #include "alg.h"
 #include <csignal>
 
-RobotGardener robot;
 
 int start_robot()
 {
 	
+	RobotGardener robot;
 	clear_logs();
 	//cout_to_file_log_enable();
 	try

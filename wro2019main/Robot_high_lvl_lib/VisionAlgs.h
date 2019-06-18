@@ -11,3 +11,4 @@ enum class CatchCubeSideEnum { LEFT, RIGHT, NONE };
 #endif
 color_t VisionGetSmallBox(const cv::Mat& frame, Robot::CatchCubeSideEnum side);
 color_t VisionGetBigBox(const cv::Mat& frame, double dist);
+std::string color_t2str(color_t color);
