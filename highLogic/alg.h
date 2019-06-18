@@ -15,6 +15,7 @@
 const double out_way_offset = 300;
 
 void frame_connect(Robot &robot, double out_way_offset, double start_angle);
+RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, double frame_offset);
 
 void do_alg_code(Robot &robot, bool kamikaze_mode = false, std::string s = "");
 void alg(Robot &robot);

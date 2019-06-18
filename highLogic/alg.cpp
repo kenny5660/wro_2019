@@ -289,7 +289,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
         if (extra_line[i].first >= 0) {
             suspicious_points.emplace_back(i, PolarPoint(dist_line2point(lines[extra_line[i].first][extra_line[i].second],
                                                                              lines[extra_line[i].first][extra_line[i].second + 1],
-                                                                             {0, 0}),
+                                                                             Point{0, 0}),
                                                              get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
                                                                                  lines[extra_line[i].first][extra_line[i].second + 1],
                                                                                  Point{0, 0})));
