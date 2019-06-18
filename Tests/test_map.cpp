@@ -821,6 +821,7 @@ TEST(MapUpdate, RealUp7) {
     cv::Mat img = map.get_img();
     show_debug_img("Map", img);
     std::vector<PolarPoint> points;
+
     ASSERT_FALSE(read("Real//9.ld", points));
     map.update(points, show_debug_img);
 }
