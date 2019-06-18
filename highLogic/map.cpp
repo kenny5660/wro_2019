@@ -572,6 +572,11 @@ Map::Map(const Point &p_1, const Point &p_2, const std::array<BoxMap, 3> &boxes,
     position_ = p;
 }
 
+Map::Map(const RobotPoint &position, const Point &p_1, const Point &p_2) {
+    add_pz(p_1, p_2);
+    position_ = position;
+}
+
 std::vector<Point> get_corners_between_lines(const Point &a, const Point &b) {
     auto nearest_line = [](const Point &p) {
         double min = p.get_x();
@@ -914,6 +919,14 @@ std::vector<Point> Map::get_boxes_normal() const {
     return arr;
 }
 
+std::vector<BoxMap> Map::get_boxes() const {
+    std::vector<BoxMap> arr;
+    for (int i = 0; i < box_count_; i++) {
+        arr.push_back(boxes_[i]);
+    }
+    return arr;
+}
+
 std::array<std::array<bool, field_sett::number_field_unit>,
            field_sett::number_field_unit> Map::get_death_zone() const {
     return death_zone_;
@@ -1251,4 +1264,12 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
     if (debug != nullptr) {
         debug("After_update_map", get_img());
     }
+}
+
+void detect_area_zone(std::array<std::array<int, field_sett::number_field_unit>, field_sett::number_field_unit> &field) {
+    //TODO;
+}
+
+Point Map::get_max_death_zone() {
+    // TODO;
 }

@@ -59,6 +59,7 @@ class Map {
     Map(const std::vector<std::vector<std::pair<Point, line_t>>> &, show_img_debug debug = nullptr);
     Map(const std::vector<PolarPoint> &, show_img_debug debug = nullptr);
     Map(const Point &p_1, const Point &p_2, const std::array<BoxMap, 3> &boxes, const RobotPoint &p);
+    Map(const RobotPoint &position, const Point &p_1, const Point &p_2);
 
     void normal_death_zone();
     bool merge(const Map &m);
@@ -68,12 +69,15 @@ class Map {
     std::array<Point, 4> get_parking_zone() const;
     std::vector<std::vector<Point>> get_parking_zone_line() const;
     std::vector<Point> get_boxes_normal() const;
+    std::vector<BoxMap> get_boxes() const;
     std::array<std::array<bool, field_sett::number_field_unit>,
                field_sett::number_field_unit> get_death_zone() const;
     RobotPoint get_position() const { return position_; }
     cv::Mat get_img(int width = 400, int height = 400);
 
     void set_new_position(const RobotPoint &p) { position_ = p; }
+    void set_new_position(const Point &p) { position_.set_x(p.get_x()); position_.set_y(p.get_y()); }
+    void set_box_color(int id, color_t color) { boxes_[id].set_color(color); };
 
     static Point normal_point(const Point &p);
     static std::pair <int, int> get_field_unit(const Point &p);
@@ -81,6 +85,8 @@ class Map {
     void update(const std::vector<PolarPoint> &, show_img_debug debug = nullptr);
 
     std::vector<std::vector<Point>> borders;
+
+    Point get_max_death_zone();
 
  private:
     bool add_box(const Point &p);
