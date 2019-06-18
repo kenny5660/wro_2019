@@ -1123,12 +1123,17 @@ void Map::normal_death_zone() {
 void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug debug) {
     std::vector<std::vector<Point>> points = get_corners(polar_points);
     std::vector<std::vector<Point>> points_in_robot;
-    double ang_offset = - position_.get_angle();
+    if (debug != nullptr) {
+        DebugFieldMat mat1;
+        add_lines_img(mat1, points);
+        debug("Data", mat1);
+    }
+    double ang_offset = -position_.get_angle();
     for (int i = 0; i < points.size(); i++) {
         points_in_robot.emplace_back();
         for (int j = 0; j < points[i].size(); j++) {
             Point new_point = {points[i][j].get_x() * cos(ang_offset) - points[i][j].get_y() * sin(ang_offset),
-                               points[i][j].get_x() * sin(ang_offset) + points[i][j].get_y() * cos(ang_offset)};
+                               -points[i][j].get_x() * sin(ang_offset) - points[i][j].get_y() * cos(ang_offset)};
             points_in_robot.back().push_back(new_point);
         }
     }
@@ -1145,17 +1150,17 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
     corners_rot(points_in_robot, -ang_error);
     for (int i = 0; i < points.size(); i++) {
         for (int j = 0; j < points[i].size(); j++) {
-            points[i][j] = (points_in_robot[i][j] + Point(position_.get_x(), -position_.get_y())) * Point{1, -1};
+            points[i][j] = (points_in_robot[i][j] + Point(position_.get_x(), position_.get_y()));
         }
     }
 
     if (debug != nullptr) {
         DebugFieldMat mat1;
-        add_lines_img(mat1, points_in_robot);
-        add_point_img(mat1, {parking_zone_circles_.first.get_x() - position_.get_x(),
-                             -(parking_zone_circles_.first.get_y() - position_.get_y())});
-        add_point_img(mat1, Point{parking_zone_circles_.second.get_x() - position_.get_x(),
-                                  -(parking_zone_circles_.second.get_y() - position_.get_y())});
+        add_lines_img(mat1, points);
+//        add_point_img(mat1, {parking_zone_circles_.first.get_x() - position_.get_x(),
+//                             -(parking_zone_circles_.first.get_y() - position_.get_y())});
+//        add_point_img(mat1, Point{parking_zone_circles_.second.get_x() - position_.get_x(),
+//                                  -(parking_zone_circles_.second.get_y() - position_.get_y())});
         debug("Update_map_in_global", mat1);
     }
 
@@ -1176,12 +1181,11 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
                 // изменения по x меньше => из неё берём x
                 if (fabs(i[j].first.get_x() - i[j + 1].first.get_x()) < fabs(i[j].first.get_y() - i[j + 1].first.get_y())) {
                     if (i[j].first.get_x() > position_.get_x()) {
-                        buff_p.set_x(dist_line2point(i[j].first,
+                        buff_p.set_x(field_sett::max_field_width - dist_line2point(i[j].first,
                                                      i[j + 1].first,
                                                      position_));
                     } else {
-                        buff_p.set_x(field_sett::max_field_width -
-                                     dist_line2point(i[j].first,
+                        buff_p.set_x(dist_line2point(i[j].first,
                                                      i[j + 1].first,
                                                      position_));
                     }

@@ -824,3 +824,20 @@ TEST(MapUpdate, RealUp7) {
     ASSERT_FALSE(read("Real//9.ld", points));
     map.update(points, show_debug_img);
 }
+
+TEST(MapUpdate, RealUp10) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position =
+        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+    start_position.set_angle(5.7522159999999998);
+    start_position.set_x(382.08470086484556);
+    start_position.set_y(1204.1152715488881);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Real//9.ld", points));
+    map.update(points, show_debug_img);
+}
