@@ -234,9 +234,12 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 #else
 	debug = save_debug_img;
 #endif
-
-	robot.GetLidarPolarPoints(lidar_data);
 	auto lines = get_corners(lidar_data);
+	for (int i = 0; i < lines.size(); i++) {
+		for (int j = 0; j < lines[i].size(); j++) {
+            lines[i][j].set_y(-lines[i][j].get_y());
+		}
+	}
 	double min_length = 2 * field_sett::size_field_unit;
 
 	// Нужно развернуть систему координат.
@@ -251,7 +254,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 		add_lines_img(mat, lines);
 		debug("befor_rot", mat);
 	}
-	corners_rot(lines, -ang);
+	corners_rot(lines, ang);
 	{
 		DebugFieldMat mat;
 		add_lines_img(mat, lines);
@@ -305,7 +308,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 
                                                       get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
                                                                           lines[extra_line[i].first][extra_line[i].second + 1],
-                                                                          Point{ 0, 0 }) + ang));
+                                                                          Point{ 0, 0 }) - ang));
         }
     }
     {
@@ -313,7 +316,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
         add_lines_img(mat, lines);
         for (int i = 0; i < suspicious_points.size(); i++) {
             PolarPoint p = suspicious_points[i].second;
-            p.add_f(-ang);
+            p.add_f(ang);
             add_point_img(mat, p.to_cartesian());
         }
         debug("Init_robot_from_start", mat);
