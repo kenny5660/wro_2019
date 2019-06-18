@@ -61,11 +61,12 @@ TEST(HardwareTestGroup, Start_button_test)
 
 TEST(HardwareTestGroup, Qrcode_get_test)
 {
-	std::shared_ptr<cv::Mat> frame = robot->GetQrCodeFrame();
+	cv::Mat frame;
+	robot->WayFromFrame(frame);
 	
-	std::string str = qr_detect_frame(*frame);
-	cv::putText(*frame, str, cv::Point2i(100, 100), cv::FONT_ITALIC, 0.6, cv::Scalar(0, 0, 255));
-	cv::imwrite("Qrcode_test_with_text.jpg", *frame);	
+	std::string str = qr_detect_frame(frame);
+	cv::putText(frame, str, cv::Point2i(100, 100), cv::FONT_ITALIC, 0.6, cv::Scalar(0, 0, 255));
+	cv::imwrite("Qrcode_test_with_text.jpg", frame);	
 }
 
 TEST(HardwareTestGroup, Camera_test_get_frames)
@@ -324,12 +325,14 @@ TEST(HardwareTestGroup, Frame_connect_test)
 {
 	frame_connect(*robot, 300, 0);
 }
-
-TEST(HardwareTestGroup, Get_Color_Big_Box_test)
+TEST(HardwareTestGroup, ColorFromAng_test)
 {
-	robot->GetColorFromAng(90);
-	robot->GetColorFromAng(135);
+	robot->GetColorFromAng({ 
+	{0, {0,M_PI}}
+	
+	});
 }
+
 
 TEST_GROUP(BUttonTestGroup)
 {
@@ -352,8 +355,8 @@ TEST_GROUP(BUttonTestGroup)
 		int a = 0;
 		MyRio_Close();
 	}
-}
-;
+};
+
 TEST(BUttonTestGroup, button_test)
 {	
 	

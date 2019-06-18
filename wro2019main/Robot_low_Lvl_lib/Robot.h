@@ -37,13 +37,15 @@ public:
 	//@param side is side of manipulator which will be filled after catch (empty side of manipulator before catch)
 	virtual color_t CatchCube(CatchCubeSideEnum side, bool IsTakePhoto = true) = 0;
 	virtual void Delay(int msec);
+	
 	virtual void Go2(std::vector<Point>) = 0;
 	virtual CatchCubeSideEnum AlliginByDist(int dist, int offset_alg) = 0;
-	virtual color_t GetColorFromAng(PolarPoint pp) = 0;
 	//@brief in radians
 	virtual void Turn(double angle) = 0;
-	virtual void GetQRCode(cv::Mat& frame) = 0;
+	virtual void WayFromFrame(cv::Mat& frame) = 0;
+	virtual void WayFromFrame() = 0;
 	virtual std::vector<std::pair<int, color_t>> GetColorFromAng(const std::vector<std::pair<int, PolarPoint>> &ang_pps) = 0;
+	virtual void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)=0;
 	virtual  ~Robot();
 private:
 	
@@ -63,7 +65,8 @@ public:
 	void WaitStartButton();
 	color_t CatchCube(CatchCubeSideEnum side, bool IsTakePhoto = true) override;
 	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg) override;
-	void GetQRCode(cv::Mat &frame) override;
+	void WayFromFrame(cv::Mat &frame) override;
+	void WayFromFrame()override;
 	std::shared_ptr<OpticalFlow> GetOptFlow();
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();
 	void Turn(double angle) override;

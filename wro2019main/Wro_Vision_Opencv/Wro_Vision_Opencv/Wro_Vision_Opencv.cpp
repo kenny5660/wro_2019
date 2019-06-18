@@ -11,6 +11,7 @@
 #include <iostream>
 #include <opencv2/imgproc.hpp>
 const std::string path_small_cube("C:\\Users\\misha\\YandexDisk\\OneDrive\\Robots\\NImyrio\\WRO2019\\smallBox\\");
+const std::string path_big_cube("C:\\Users\\misha\\YandexDisk\\OneDrive\\Robots\\NImyrio\\WRO2019\\bigBoxes\\");
 
 
 
@@ -32,9 +33,10 @@ void OnChangeTestTrackBar(int i, void* v) {
 
 void TestPhoto(cv::Mat img) {
   // Mat img = imread(name);
-  cv::namedWindow("TestPhoto", cv::WINDOW_NORMAL);
-  cv::resizeWindow("TestPhoto", 1024, 768);
+  cv::namedWindow("TestPhoto", cv::WINDOW_GUI_EXPANDED);
+  //cv::resizeWindow("TestPhoto", 1024, 768);
   cv::cvtColor(img, imgHSVTest, cv::COLOR_BGR2HSV);
+  cv::resize(imgHSVTest, imgHSVTest, imgHSVTest.size() / 2);
   cv::createTrackbar("HMin", "TestPhoto", &hMinTest, 255,
                        OnChangeTestTrackBar);
   cv::createTrackbar("hMax", "TestPhoto", &hMaxTest, 255, OnChangeTestTrackBar);
@@ -50,13 +52,13 @@ void TestPhoto(cv::Mat img) {
 
 int main() {
   cv::Mat img;
-  for (const auto& entry :
-       std::filesystem::directory_iterator(path_small_cube)) {
+  for (const auto& entry : std::filesystem::directory_iterator(path_big_cube)) {
     std::cout << entry.path() << std::endl;
     img = cv::imread(entry.path().string());
     
-    color_t color = VisionGetSmallBox(img);
-    std::cout << color << color;
+    //color_t color = VisionGetSmallBox(img);
+    color_t colorBig = VisionGetBigBox(img,1150);
+    //std::cout << colorBig << color;
     while (true) {
 
       TestPhoto(img);

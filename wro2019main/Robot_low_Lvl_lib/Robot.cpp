@@ -386,7 +386,9 @@ void RobotGardener::AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum
 	
 }
 
-std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
+
+
+void RobotGardener::WayFromFrame()
 {
 	const int kDegServo = 286;
 	const int kmidDist  = 200;
@@ -397,22 +399,26 @@ std::shared_ptr<cv::Mat> RobotGardener::GetQrCodeFrame()
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist) ;
 	omni_->Stop();
-	Delay(200);
-	auto frame = cam_rot_->GetFrame(kDegServo);
 	omni_->MoveToPosInc(std::make_pair(0, 40), 150);
-	save_debug_img("Qrcode.jpg", *frame);
-	//	omni_->MoveWithSpeed(std::make_pair(0, 250), 0);
-	//	dist_c_sensor->GetRealDistance();
-	//	while (dist_c_sensor->GetDistance() < kmidDist) ;
-	//	omni_->Stop();
-
-		return frame;
 }
 
-
-void RobotGardener::GetQRCode(cv::Mat &frame)
+void RobotGardener::WayFromFrame(cv::Mat &frame)
 {
-	frame = *GetQrCodeFrame();
+	const int kDegServo = 286;
+	const int kmidDist  = 200;
+	AlliginByDist(48, 0);
+	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
+	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
+	omni_->MoveWithSpeed(std::make_pair(0, 150), 0);
+	dist_sensor->GetRealDistance();
+	while (dist_sensor->GetDistance() < kmidDist) ;
+	omni_->Stop();
+	
+	Delay(200);
+	auto fram = cam_rot_->GetFrame(kDegServo);
+	omni_->MoveToPosInc(std::make_pair(0, 40), 150);
+	save_debug_img("Qrcode.jpg", *fram);
+	frame = *fram;
 }
 
 
@@ -595,23 +601,29 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 
 std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng( const std::vector<std::pair<int, PolarPoint>> &ang_pps)
 {
-	const double cam_ang0 = 110;
-	const double cam_ang_offset  = 0;
+	const double cam_ang0 = 106;
+	const double cam_ang_offset  = 180;
 	std::vector<std::pair<int, PolarPoint>> ang_pps_ = ang_pps;
 	std::vector<std::pair<int, color_t>> result;
 	double cur_ang = 0;
-	sort(ang_pps_.begin(),ang_pps_.end(), [](const std::pair<int, PolarPoint> & a, const std::pair<int, PolarPoint> & b) -> bool{ return a.second.get_f() > b.second.get_f(); });
+	for (int i = 0; i < ang_pps_.size();++i)
+	{
+		ang_pps_[i].second.set_f(ang_pps_[i].second.get_f() - (cam_ang_offset / 180*M_PI));
+	}
+	sort(ang_pps_.begin(),ang_pps_.end(), [](const std::pair<int, PolarPoint> & a, const std::pair<int, PolarPoint> & b) -> bool{ return a.second.get_f() < b.second.get_f(); });
 	
 	for (auto it : ang_pps_ )
 	{
-		double ang = it.second.get_f() - cur_ang;
+		double ang = (it.second.get_f()) - cur_ang;
 		Turn(ang);	
 		cur_ang += ang;
+		Delay(200);
 		auto frame = cam_rot_->GetFrame(cam_ang0);
-		color_t color  = VisionGetBigBox(*frame);
+		color_t color  = VisionGetBigBox(*frame, it.second.get_r());
 		result.push_back(std::make_pair(it.first, color));
 	}
-	sort(result.begin(), result.end(), [](const std::pair<int, PolarPoint> & a, const std::pair<int, PolarPoint> & b) -> bool{ return a.first > b.first; });
+	Turn(0-cur_ang);	
+	sort(result.begin(), result.end(), [](const std::pair<int, PolarPoint> & a, const std::pair<int, PolarPoint> & b) -> bool{ return a.first < b.first; });
 	return result;
 }
 

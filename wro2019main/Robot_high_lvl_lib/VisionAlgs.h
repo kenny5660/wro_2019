@@ -4,4 +4,4 @@
 
 color_t VisionGetSmallBox(const cv::Mat& frame);
 
-color_t VisionGetBigBox(const cv::Mat& frame);
+color_t VisionGetBigBox(const cv::Mat& frame, double dist);

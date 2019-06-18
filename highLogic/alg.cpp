@@ -126,7 +126,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
     cv::Mat QRCodeImg;
     if (s == "") {
-        robot.GetQRCode(QRCodeImg);
+        robot.WayFromFrame(QRCodeImg);
     }
     std::array<BoxMap, 3> boxes;
     std::pair<Point, Point> pz;
@@ -246,7 +246,12 @@ RobotPoint detect_position(Robot &robot, double frame_offset) {
         {{frame_offset, field_sett::parking_zone_door_size / 2.},
          {frame_offset, -field_sett::parking_zone_door_size / 2.}},
          2 * field_sett::size_field_unit);
-    corners_rot(lines, ang);
+	{
+		DebugFieldMat mat;
+		add_lines_img(mat, lines);
+		debug("befor_rot", mat);
+	}
+	corners_rot(lines, -ang);
     {
         DebugFieldMat mat;
         add_lines_img(mat, lines);
@@ -295,9 +300,20 @@ RobotPoint detect_position(Robot &robot, double frame_offset) {
                                                                              {0, 0}),
                                                              get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
                                                                                  lines[extra_line[i].first][extra_line[i].second + 1],
-                                                                                 Point{0, 0})));
+                                                                                 Point{0, 0}) + ang));
         }
     }
+	{
+		DebugFieldMat mat;
+		add_lines_img(mat, lines);
+		for (int i = 0; i < suspicious_points.size(); i++)
+		{
+			PolarPoint p = suspicious_points[i].second;
+			p.add_f(-ang);
+			add_point_img(mat, p.to_cartesian());	
+		}
+		debug("Init_robot_from_start", mat);
+	}	
     if (suspicious_points.size() > 1) {
         std::vector<std::pair<int, color_t>> colors = robot.GetColorFromAng(suspicious_points);
         for (int i = 0; i < colors.size(); i++) {
@@ -305,12 +321,15 @@ RobotPoint detect_position(Robot &robot, double frame_offset) {
                 std::cerr << "Misha, BLIA. It might need sort!!!" << std::endl;
                 continue;
             }
-            RobotPoint p = dist2coordinates(
-                dist_line2point(lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second],
-                                lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second + 1],
-                                {0, 0}),
-                i);
-            pos.merge(p);
+	        if (colors[i].second == black_c)
+	        {
+		        RobotPoint p = dist2coordinates(
+		            dist_line2point(lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second],
+				        lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second + 1],
+				        { 0, 0 }),
+			        i);
+		        pos.merge(p);
+	        }
         }
     }
     pos.set_angle(ang);
@@ -318,6 +337,7 @@ RobotPoint detect_position(Robot &robot, double frame_offset) {
 }
 
 void alg(Robot &robot) {
+	robot.WayFromFrame();
     double frame_offset = out_way_offset;
     robot.Go2({{0, out_way_offset}});
     RobotPoint position;

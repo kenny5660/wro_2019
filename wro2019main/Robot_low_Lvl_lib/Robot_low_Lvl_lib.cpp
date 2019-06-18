@@ -18,7 +18,8 @@ int start_robot()
 	try
 	{
 		robot.Init();
-		do_alg_code(robot, false);
+		//do_alg_code(robot, false);
+		alg(robot);
 		
 	}
 	catch (std::runtime_error e)
