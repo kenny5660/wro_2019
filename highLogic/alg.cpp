@@ -178,7 +178,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
     cv::Mat QRCodeImg;
     if (s == "") {
-        robot.GetQRCode(QRCodeImg);
+        robot.WayFromFrame(QRCodeImg);
     }
     std::array<BoxMap, 3> boxes;
     std::pair<Point, Point> pz;
@@ -399,11 +399,19 @@ void alg(Robot &robot) {
     Point start_frame_point = Point{frame_offset * cos(start_position.get_angle()),
                                     frame_offset * sin(start_position.get_angle())} +
         start_position;
-    Map map(start_position, Point{-field_sett::parking_zone_door_size * sin(start_position.get_angle()),
-                                  -field_sett::parking_zone_door_size * cos(start_position.get_angle())} + start_frame_point,
-            Point{field_sett::parking_zone_door_size * sin(start_position.get_angle()),
-                  field_sett::parking_zone_door_size * cos(start_position.get_angle())} + start_frame_point);
-    map.update(lidar_data);
+	Point offset_pz_center {(field_sett::parking_zone_door_size / 2.) * sin(start_position.get_angle()),
+                            -(field_sett::parking_zone_door_size / 2.) * cos(start_position.get_angle())};
+	Map map(start_position,
+		offset_pz_center + start_frame_point,
+		start_frame_point - offset_pz_center);
+	{
+		debug("Map_after_init_pos", map.get_img());
+	}
+	robot.GetLidarPolarPoints(lidar_data);
+    map.update(lidar_data, debug);
+	{
+		debug("Map_after_update", map.get_img());
+	}
     update_box_color(robot, map);
     color_t next_color = blue_c;
     std::vector<Point> way;

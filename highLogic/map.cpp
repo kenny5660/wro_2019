@@ -876,7 +876,9 @@ cv::Mat Map::get_img(int width, int height) {
     cv::line(img, {int(position_.get_x() * zoom.get_x()), int(position_.get_y() * zoom.get_y())},
              {int((position_.get_x() * zoom.get_x()) + radius_robot_line * cos(M_PI - position_.get_angle()) ),
               int((position_.get_y() * zoom.get_y()) - radius_robot_line * sin(M_PI - position_.get_angle()))}, {0, 0, 255}, 3);
-    std::vector<std::vector<cv::Point>> contours; //{{cv::Point(0, 10000), cv::Point(10, 10), cv::Point(0, 0)}};
+	cv::circle(img, { int(parking_zone_circles_.first.get_x()* zoom.get_x()), int(parking_zone_circles_.first.get_y() * zoom.get_y()) }, 2, { 255, 0, 0 }, cv::FILLED);
+	cv::circle(img, { int(parking_zone_circles_.second.get_x()* zoom.get_x()), int(parking_zone_circles_.second.get_y() * zoom.get_y()) }, 2, { 255, 0, 0 }, cv::FILLED);
+	std::vector<std::vector<cv::Point>> contours; //{{cv::Point(0, 10000), cv::Point(10, 10), cv::Point(0, 0)}};
     ///
 //    for (auto i : death_outline) {
 //        contours.emplace_back();
