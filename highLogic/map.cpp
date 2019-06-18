@@ -1132,7 +1132,11 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
             points_in_robot.back().push_back(new_point);
         }
     }
-
+    if (debug != nullptr) {
+        DebugFieldMat mat1;
+        add_lines_img(mat1, points_in_robot);
+        debug("Data", mat1);
+    }
     double ang_error = get_angle_lines(points_in_robot, std::make_pair(Point{parking_zone_circles_.first.get_x() - position_.get_x(),
                                                                              -(parking_zone_circles_.first.get_y() - position_.get_y())},
                                                                        Point{parking_zone_circles_.second.get_x() - position_.get_x(),
