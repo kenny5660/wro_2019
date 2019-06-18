@@ -815,3 +815,12 @@ TEST(MapUpdate, RealUp6) {
 //    ASSERT_FALSE(read("Real//5.ld", points));
 //    map.update(points, show_debug_img);
 }
+
+TEST(MapUpdate, RealUp7) {
+    Map map(RobotPoint{382.08470086484556, 1204.1152715488881, 5.7522159999999998}, Point{553.43096886860883, 903.45482113815888}, Point{728.12842176093397, 1200.9540647555737});
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Real//9.ld", points));
+    map.update(points, show_debug_img);
+}
