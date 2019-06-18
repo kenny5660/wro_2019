@@ -227,91 +227,119 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 }
 
 RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, double frame_offset) {
-    //TODO: проверить, что стойки не мешают алгоритму.
-    show_img_debug debug;
-    #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-        debug = show_debug_img;
-    #else
-        debug = save_debug_img;
-    #endif
+	//TODO: проверить, что стойки не мешают алгоритму.
+  show_img_debug debug;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+	debug = show_debug_img;
+#else
+	debug = save_debug_img;
+#endif
 
-    auto lines = get_corners(lidar_data);
-    double min_length = 2 * field_sett::size_field_unit;
+	robot.GetLidarPolarPoints(lidar_data);
+	auto lines = get_corners(lidar_data);
+	double min_length = 2 * field_sett::size_field_unit;
 
-    // Нужно развернуть систему координат.
-    double ang = get_angle_lines(lines,
-        {{frame_offset, field_sett::parking_zone_door_size / 2.},
-         {frame_offset, -field_sett::parking_zone_door_size / 2.}},
-         2 * field_sett::size_field_unit);
-    corners_rot(lines, ang);
-    {
-        DebugFieldMat mat;
-        add_lines_img(mat, lines);
-        debug("Init_robot_from_start", mat);
-    }
+	// Нужно развернуть систему координат.
+	double ang = get_angle_lines(lines,
+		{
+			 { frame_offset, field_sett::parking_zone_door_size / 2. },
+			{ frame_offset, -field_sett::parking_zone_door_size / 2. } 
+		},
+		2 * field_sett::size_field_unit);
+	{
+		DebugFieldMat mat;
+		add_lines_img(mat, lines);
+		debug("befor_rot", mat);
+	}
+	corners_rot(lines, -ang);
+	{
+		DebugFieldMat mat;
+		add_lines_img(mat, lines);
+		debug("Init_robot_from_start", mat);
+	}
 
-    std::array<std::pair<int, int>, 4> extra_line = {std::make_pair(-1, 0),
-                                                     std::make_pair(-1, 0),
-                                                     std::make_pair(-1, 0),
-                                                     std::make_pair(-1, 0)};
-    for (int i = 0; i < lines.size(); i++) {
-        for (int j = 0; j < (lines[i].size() - 1); j++) {
-            if (lines[i][j].dist(lines[i][j + 1]) > (min_length)) {
-                field_margin line_type;
-                if (fabs(lines[i][j].get_x() - lines[i][j + 1].get_x()) >
-                    fabs(lines[i][j].get_y() - lines[i][j + 1].get_y())) {
-                    if (lines[i][j].get_y() > 0) {
-                        line_type = top_field_margin;
-                    } else {
-                        line_type = bottom_field_margin;
-                    }
-                } else {
-                    if (lines[i][j].get_x() > 0) {
-                        line_type = right_field_margin;
-                    } else {
-                        line_type = left_field_margin;
-                    }
-                }
-                if ((extra_line[line_type].first == -1) ||
-                    dist_line2point(
-                        lines[extra_line[line_type].first][extra_line[line_type].second],
-                        lines[extra_line[line_type].first][extra_line[line_type].second + 1],
-                        {0, 0}) < dist_line2point(lines[i][j], lines[i][j + 1], {0, 0})) {
-                    extra_line[line_type].first = i;
-                    extra_line[line_type].second = j;
-                }
-            }
-        }
-    }
-    RobotPoint pos;
-    std::vector<std::pair<int, PolarPoint>> suspicious_points;
-    for (int i = 0; i < extra_line.size(); i++) {
-        if (extra_line[i].first >= 0) {
-            suspicious_points.emplace_back(i, PolarPoint(dist_line2point(lines[extra_line[i].first][extra_line[i].second],
-                                                                             lines[extra_line[i].first][extra_line[i].second + 1],
-                                                                             Point{0, 0}),
-                                                             get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
-                                                                                 lines[extra_line[i].first][extra_line[i].second + 1],
-                                                                                 Point{0, 0})));
-        }
-    }
-    if (suspicious_points.size() > 1) {
-        std::vector<std::pair<int, color_t>> colors = robot.GetColorFromAng(suspicious_points);
-        for (int i = 0; i < colors.size(); i++) {
-            if (colors[i].first != suspicious_points[i].first) {
-                std::cerr << "Misha, BLIA. It might need sort!!!" << std::endl;
-                continue;
-            }
-            RobotPoint p = dist2coordinates(
-                dist_line2point(lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second],
-                                lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second + 1],
-                                {0, 0}),
-                i);
-            pos.merge(p);
-        }
-    }
-    pos.set_angle(ang);
-    return pos;
+	std::array<std::pair<int, int>, 4> extra_line = { 
+		std::make_pair(-1, 0),
+		std::make_pair(-1, 0),
+		std::make_pair(-1, 0),
+		std::make_pair(-1, 0) 
+	};
+	for (int i = 0; i < lines.size(); i++) {
+		for (int j = 0; j < (lines[i].size() - 1); j++) {
+			if (lines[i][j].dist(lines[i][j + 1]) > (min_length)) {
+				field_margin line_type;
+				if (fabs(lines[i][j].get_x() - lines[i][j + 1].get_x()) >
+				    fabs(lines[i][j].get_y() - lines[i][j + 1].get_y())) {
+					if (lines[i][j].get_y() > 0) {
+						line_type = top_field_margin;
+					}
+					else {
+						line_type = bottom_field_margin;
+					}
+				}
+				else {
+					if (lines[i][j].get_x() > 0) {
+						line_type = right_field_margin;
+					}
+					else {
+						line_type = left_field_margin;
+					}
+				}
+				if ((extra_line[line_type].first == -1) ||
+				    dist_line2point(
+				        lines[extra_line[line_type].first][extra_line[line_type].second],
+					lines[extra_line[line_type].first][extra_line[line_type].second + 1],
+					{ 0, 0 }) < dist_line2point(lines[i][j], lines[i][j + 1], { 0, 0 })) {
+					extra_line[line_type].first = i;
+					extra_line[line_type].second = j;
+				}
+			}
+		}
+	}
+	RobotPoint pos;
+	std::vector<std::pair<int, PolarPoint>> suspicious_points;
+	for (int i = 0; i < extra_line.size(); i++) {
+		if (extra_line[i].first >= 0) {
+			suspicious_points.emplace_back(i,
+				PolarPoint(dist_line2point(lines[extra_line[i].first][extra_line[i].second],
+						lines[extra_line[i].first][extra_line[i].second + 1],
+						{ 0, 0 }),
+					get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
+						lines[extra_line[i].first][extra_line[i].second + 1],
+						Point{ 0, 0 }) + ang));
+		}
+	}
+	{
+		DebugFieldMat mat;
+		add_lines_img(mat, lines);
+		for (int i = 0; i < suspicious_points.size(); i++)
+		{
+			PolarPoint p = suspicious_points[i].second;
+			p.add_f(-ang);
+			add_point_img(mat, p.to_cartesian());	
+		}
+		debug("Init_robot_from_start", mat);
+	}	
+	if (suspicious_points.size() > 1) {
+		std::vector<std::pair<int, color_t>> colors = robot.GetColorFromAng(suspicious_points);
+		for (int i = 0; i < colors.size(); i++) {
+			if (colors[i].first != suspicious_points[i].first) {
+				std::cerr << "Misha, BLIA. It might need sort!!!" << std::endl;
+				continue;
+			}
+			if (colors[i].second == black_c)
+			{
+				RobotPoint p = dist2coordinates(
+				    dist_line2point(lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second],
+						lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second + 1],
+						{ 0, 0 }),
+					i);
+				pos.merge(p);
+			}
+		}
+	}
+	pos.set_angle(ang);
+	return pos;
 }
 
 void update_box_color(Robot &robot, Map &map) {
