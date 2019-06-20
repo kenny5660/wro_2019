@@ -77,7 +77,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50.5,
-		132,
+		129.8,
 		motor_left,
 		motor_front,
 		motor_right,
@@ -602,7 +602,7 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng( const std::vector<std::pair<int, PolarPoint>> &ang_pps)
 {
 	const double cam_ang0 = 223;///106
-	const double cam_ang_offset  = 243;
+	const double cam_ang_offset  = 248;
 	std::vector<std::pair<int, PolarPoint>> ang_pps_ = ang_pps;
 	std::vector<std::pair<int, color_t>> result;
 	double cur_ang = 0;

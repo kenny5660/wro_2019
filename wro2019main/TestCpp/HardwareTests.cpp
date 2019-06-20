@@ -196,13 +196,13 @@ TEST(HardwareTestGroup, Omni_move_pos_inc_test)
 }
 TEST(HardwareTestGroup, Robot_turn_test)
 {
-	robot->Turn(M_PI / 2);
-	robot->Turn(M_PI);
+//	robot->Turn(M_PI / 2);
+	robot->Turn(8*M_PI);
 	//	robot->Turn(-M_PI/2);
-	robot->Turn(M_PI / 2 / 3);
-	robot->Turn(M_PI / 2 / 3);
-	robot->Turn(M_PI / 2 / 3);
-	
+//	robot->Turn(M_PI / 2 / 3);
+//	robot->Turn(M_PI / 2 / 3);
+//	robot->Turn(M_PI / 2 / 3);
+//	
 //	robot->Turn(M_PI / 2 / 10);
 //	robot->Turn(M_PI / 2 / 10);
 //	robot->Turn(M_PI / 2 / 10);
