@@ -356,7 +356,6 @@ void update_box_color(Robot &robot, Map &map) {
                                               ang});
         }
     }
-
     auto colors_box = robot.GetColorFromAng(points);
     for (int i = 0; i < colors_box.size(); i++) {
         if ((colors_box[i].second != black_c) && (colors_box[i].second != undefined_c) && (colors_box[i].second != white_c)) {
