@@ -308,7 +308,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 
                                                       get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
                                                                           lines[extra_line[i].first][extra_line[i].second + 1],
-                                                                          Point{ 0, 0 }) - ang));
+                                                                          Point{ 0, 0 })));
         }
     }
     {
@@ -316,11 +316,14 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
         add_lines_img(mat, lines);
         for (int i = 0; i < suspicious_points.size(); i++) {
             PolarPoint p = suspicious_points[i].second;
-            p.add_f(ang);
             add_point_img(mat, p.to_cartesian());
         }
         debug("Init_robot_from_start", mat);
     }
+	for (int i = 0; i < suspicious_points.size(); i++)
+	{
+		suspicious_points[i].second.set_f(-(M_PI - (suspicious_points[i].second.get_f() - ang)));
+	}
     if (suspicious_points.size() > 1) {
         std::vector<std::pair<int, color_t>> colors = robot.GetColorFromAng(suspicious_points);
         for (int i = 0; i < colors.size(); i++) {
