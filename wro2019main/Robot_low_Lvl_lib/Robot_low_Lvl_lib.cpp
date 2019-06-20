@@ -12,21 +12,22 @@
 int start_robot()
 {
 	
-	RobotGardener robot;
+	
 	clear_logs();
 	//cout_to_file_log_enable();
+	std::unique_ptr<RobotGardener>	 robot(new RobotGardener());
 	try
 	{
-		robot.Init();
-//		do_alg_code(robot, false);
-		alg(robot);
+		robot->Init();
+//		do_alg_code(*robot, false);
+		alg(*robot);
 		
 	}
 	catch (std::runtime_error e)
 	{
 		std::cout << "Runtime error " << e.what() << std::endl;
-		robot.GetIndicator()->Display(Indicator::RED);
-		robot.Delay(1000);
+		robot->GetIndicator()->Display(Indicator::RED);
+		robot->Delay(1000);
 	}
 
 //	robot.~RobotGardener();
