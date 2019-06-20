@@ -350,13 +350,12 @@ void update_box_color(Robot &robot, Map &map) {
         if(boxes[i].get_color() == undefined_c) {
 	        Point box = boxes[i].get_left_corner_point();
 	        box = box + Point{ field_sett::climate_box_width / 2., field_sett::climate_box_height / 2. };
-            double ang = atan2(box.get_y() - map.get_position().get_y(),
-                box.get_x() - map.get_position().get_x());
-            points.emplace_back(i, PolarPoint{boxes[i].get_left_corner_point().dist(map.get_position()),
-                                              -ang});
+            double ang = M_PI + atan2(box.get_y() - map.get_position().get_y(),
+                box.get_x() - map.get_position().get_x()) - map.get_position().get_angle();
+            points.emplace_back(i, PolarPoint{box.dist(map.get_position()),
+                                              ang});
         }
     }
-
     auto colors_box = robot.GetColorFromAng(points);
     for (int i = 0; i < colors_box.size(); i++) {
         if ((colors_box[i].second != black_c) && (colors_box[i].second != undefined_c) && (colors_box[i].second != white_c)) {

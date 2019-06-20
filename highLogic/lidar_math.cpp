@@ -414,13 +414,29 @@ void detected_parking_zone(std::vector<std::vector<std::pair<Point, line_t>>> &p
 bool is_convex_triangle(std::vector<std::vector<std::pair<Point, line_t>>> &points,
                         int i,
                         int j) {
-    if ((j <= 0) || (j >= (points[i].size() - 1))) {
+    if ((j <= 0) || (j >= (points[i].size() - 1)) ||
+    (points[i][j].first.dist(points[i][j - 1].first) < 0.7 * field_sett::size_field_unit) ||
+    (points[i][j].first.dist(points[i][j + 1].first) < 0.7 * field_sett::size_field_unit)) {
         return false;
     }
-    Point zero(0, 0);
-    double dist = points[i][j].first.dist(zero);
-    return (dist <= points[i][j - 1].first.dist(zero))
-            && (dist <= points[i][j + 1].first.dist(zero));
+    double dist = points[i][j].first.dist();
+    return (dist <= points[i][j - 1].first.dist())
+            && (dist <= points[i][j + 1].first.dist());
+}
+
+bool is_box_corner(std::vector<std::vector<std::pair<Point, line_t>>> &points,
+                        int i,
+                        int j) {
+    if ((j <= 0) || (j >= (points[i].size() - 1)) ||
+        (points[i][j].first.dist(points[i][j - 1].first) < 0.7 * field_sett::size_field_unit) ||
+        (points[i][j].first.dist(points[i][j + 1].first) < 0.7 * field_sett::size_field_unit)) {
+        return false;
+    }
+    double dist = points[i][j].first.dist();
+    double delta1 = {};
+    double delta2 = {};
+    return (dist <= points[i][j - 1].first.dist())
+        && (dist <= points[i][j + 1].first.dist());
 }
 
 void detected_box(std::vector<std::vector<std::pair<Point, line_t>>> &points) {
@@ -705,7 +721,7 @@ void data_filter(std::vector<PolarPoint> &p, double max_dist) {
     }
 }
 
-bool point_is_near_boarder(const Point &p, double boarder_offset = field_sett::size_field_unit * 1.5) {
+bool point_is_near_boarder(const Point &p, double boarder_offset = field_sett::size_field_unit * 1) {
     return ((fabs(p.get_x()) < boarder_offset) ||
         (fabs(p.get_y()) < boarder_offset) ||
         (fabs(p.get_x() - field_sett::max_field_width) < boarder_offset) ||
@@ -748,18 +764,37 @@ void line_detect_from_pos(std::vector<std::vector<std::pair<Point, line_t>>> &an
     // определяю границу
     for (int i = 0; i < lines.size(); i++) {
         for (int j = 0; j < (lines[i].size() - 1); j++) {
-            if ((lines[i][j].second == undefined_lt) && point_is_near_boarder(lines[i][j].first) && point_is_near_boarder(lines[i][j + 1].first) && (lines[i][j + 1].first.dist(lines[i][j].first) > field_sett::size_field_unit)) {
+            if ((lines[i][j].second == undefined_lt) &&
+            point_is_near_boarder(lines[i][j].first) &&
+            point_is_near_boarder(lines[i][j + 1].first) &&
+            (lines[i][j + 1].first.dist(lines[i][j].first) > 1.5 * field_sett::size_field_unit)) {
                 lines[i][j].second = border_lt;
             }
         }
     }
     // определяю коробки
+    {
+        DebugFieldMat mat;
+        add_lines_img(mat, lines, true);
+        show_debug_img("", mat);
+    }
+
+    auto in_death_zone_global_pos = [pos](Point x) {
+      double ang = M_PI + atan2(x.get_y() - pos.get_y(),
+                                x.get_x() - pos.get_x()) - pos.get_angle();
+      ang = PolarPoint::angle_norm(ang);
+      return is_in_ang_segment(ang, lidar_sett::ang_death);
+    };
+
     const double error = field_sett::truncation_field_error + lidar_sett::max_tr_error;
     for (int i = 0; i < lines.size(); i++) {
         for (int j = 0; j < lines[i].size() - 1; j++) {
             if (lines[i][j].second == undefined_lt) {
+                if (in_death_zone_global_pos(lines[i][j].first)) {
+                    continue;
+                }
                 // елси это угол
-                if (is_convex_triangle(lines, i, j)) {
+                if (is_box_corner(lines, i, j)) {
                     lines[i][j].second = box_lt;
                     continue;
                 }
@@ -768,19 +803,20 @@ void line_detect_from_pos(std::vector<std::vector<std::pair<Point, line_t>>> &an
                 const double zero_error = 1;
                 if ((lines[i][j].first.dist(lines[i][j + 1].first)
                     > (field_sett::climate_box_width - error))) {
+                    if (in_death_zone_global_pos(lines[i][j + 1].first)) {
+                        continue;
+                    }
                     if (j == 0) {
-                        PolarPoint polar_pos = (lines[(i - 1 + lines.size()) % lines.size()].back().first - pos).to_polar();
-                        std::cout << polar_pos.get_r() << std::endl;
-                        std::cout << polar_pos.get_r() << std::endl;
-                        if (((polar_pos.get_r() < zero_error) && !is_in_ang_segment(fmod(6 * M_PI - polar_pos.get_f(), 4 * M_PI), support_angle)) ||
-                            (polar_pos.get_r() > lines[i][j].first.dist(pos))) {
+                        Point next = lines[(i - 1 + lines.size()) % lines.size()].back().first;
+                        if (((next.dist(pos) < zero_error) && !in_death_zone_global_pos(next)) ||
+                            (next.dist(pos) > lines[i][j].first.dist(pos))) {
                             lines[i][j].second = box_lt;
                         }
                     } else if (j == lines[i].size() - 1) {
                         // смотрим j + 1
-                        PolarPoint polar_pos = (lines[(i + 1) % lines.size()].front().first - pos).to_polar();
-                        if (((polar_pos.get_r() < zero_error) && !is_in_ang_segment(fmod(6 * M_PI - polar_pos.get_f(), 4 * M_PI), support_angle)) ||
-                            (polar_pos.get_r() > lines[i][j + 1].first.dist(pos))) {
+                        Point next = lines[(i + 1 + lines.size()) % lines.size()].back().first;
+                        if (((next.dist(pos) < zero_error) && !in_death_zone_global_pos(next)) ||
+                            (next.dist(pos) > lines[i][j + 1].first.dist(pos))) {
                             lines[i][j].second = box_lt;
                         }
                     }
