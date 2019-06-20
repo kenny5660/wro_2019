@@ -601,14 +601,14 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 
 std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng( const std::vector<std::pair<int, PolarPoint>> &ang_pps)
 {
-	const double cam_ang0 = 106;
-	const double cam_ang_offset  = 180;
+	const double cam_ang0 = 223;///106
+	const double cam_ang_offset  = 243;
 	std::vector<std::pair<int, PolarPoint>> ang_pps_ = ang_pps;
 	std::vector<std::pair<int, color_t>> result;
 	double cur_ang = 0;
 	for (int i = 0; i < ang_pps_.size();++i)
 	{
-		ang_pps_[i].second.set_f(ang_pps_[i].second.get_f() - (cam_ang_offset / 180*M_PI));
+		ang_pps_[i].second.set_f(-ang_pps_[i].second.get_f() + (cam_ang_offset / 180*M_PI));
 	}
 	sort(ang_pps_.begin(),ang_pps_.end(), [](const std::pair<int, PolarPoint> & a, const std::pair<int, PolarPoint> & b) -> bool{ return a.second.get_f() < b.second.get_f(); });
 	
