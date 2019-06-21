@@ -349,9 +349,11 @@ bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>>
                  const Point &end_point, std::vector<Point> &ans, bool kamikaze_mode, const std::array<std::array<bool, field_sett::number_field_unit>, field_sett::number_field_unit> &death_zone) {
     std::pair<Point, int> nearly_cross(Point{2 * field_sett::max_field_width, 2 * field_sett::max_field_height}, -1);
     int ind_cross = -1;
+    double dist_from_start_point = 5;
     for (int i = 0; i < borders.size(); i++) {
         auto cross = get_cross_line_with_outline(borders[i], start_point, end_point);
-        if ((cross.second >= 0) && (start_point.dist(nearly_cross.first) > start_point.dist(cross.first))) {
+        if ((cross.second >= 0) && (start_point.dist(nearly_cross.first) > start_point.dist(cross.first)) &&
+            (cross.first.dist(start_point) > dist_from_start_point)) {
             nearly_cross = cross;
             ind_cross = i;
         }
@@ -396,7 +398,7 @@ bool do_line_way(const Point &start_point, const std::vector<std::vector<Point>>
             }
         }
     }
-    return do_line_way(corn_end, borders, end_point, ans, kamikaze_mode, death_zone);
+    return do_line_way(borders[ind_cross][corn_end], borders, end_point, ans, kamikaze_mode, death_zone);
 }
 
 bool go_to2(Map &map, const Point &point, std::vector<Point> &ans, Point &end_point, bool kamikaze_mode, show_img_debug debug) {
