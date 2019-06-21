@@ -137,3 +137,11 @@ void OmniWheels4Squre::Turn(double angl,int speed)
 		   !motors[(int)MotorDir::BACK]->IsReady() ||
 		   !motors[(int)MotorDir::RIGHT]->IsReady()) ;
 }
+
+
+std::pair<double, double> OmniWheels4Squre::GetPosMm()
+{
+	double degX = motors[(int)MotorDir::FRONT]->GetCurEncDeg() / 180.0 * M_PI;
+	double degY = motors[(int)MotorDir::LEFT]->GetCurEncDeg() / 180.0 * M_PI;
+	return std::make_pair(degX*r_wheel_,-degY*r_wheel_);
+}

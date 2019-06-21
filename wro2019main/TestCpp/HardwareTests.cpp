@@ -213,14 +213,15 @@ TEST(HardwareTestGroup, Robot_turn_test)
 TEST(HardwareTestGroup, Robot_go2_test)
 {
 	std::vector<Point> traj = { 
-		{ 0, 115 * 8 }
-//		{0, -115},
-//		{0, -115},
+		{ 0, 115*4}
+//		{0, -115*4},
+//		{0, 115*4}
 //		{0, -115},
 //		{0, -115}
 	};
+	
 	robot->Go2(traj);
-	std::pair<double, double> pos = robot->GetOptFlow()->GetPos();
+	std::pair<double, double> pos = robot->GetOmni()->GetPosMm();
 	std::cout << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }
 
