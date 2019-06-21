@@ -759,7 +759,7 @@ void Map::lines_detection(const std::vector<std::vector<std::pair<Point, line_t>
         add_lines_img(img2, rot_points, true);
         add_robot_img_global(img2, robot_position);
         add_point_img(img2);
-        show_debug_img("2", img2);
+        debug("2", img2);
     }
 
     position_ = robot_position;
@@ -1067,7 +1067,7 @@ bool Map::merge(const Map &a) {
             same.first = i;
             same.second = used_boxes;
         }
-        show_debug_img("", m.get_img());
+        //show_debug_img("", m.get_img());
         m.turn();
     }
     if (count_same != 1) {

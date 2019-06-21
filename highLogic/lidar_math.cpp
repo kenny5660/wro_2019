@@ -773,11 +773,11 @@ void line_detect_from_pos(std::vector<std::vector<std::pair<Point, line_t>>> &an
         }
     }
     // определяю коробки
-    {
-        DebugFieldMat mat;
-        add_lines_img(mat, lines, true);
-        show_debug_img("", mat);
-    }
+//    {
+//        DebugFieldMat mat;
+//        add_lines_img(mat, lines, true);
+//        show_debug_img("", mat);
+//    }
 
     auto in_death_zone_global_pos = [pos](Point x) {
       double ang = M_PI + atan2(x.get_y() - pos.get_y(),
