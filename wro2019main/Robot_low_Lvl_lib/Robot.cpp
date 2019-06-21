@@ -189,7 +189,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 
 color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
-	const int kDist = 61;
+	const int kDist = 65;
 	//const int kDistAfter = 110;
 	const int kOfsetAngle = 0;
 	const int kSpeed = 130;
@@ -204,7 +204,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);
 	std::shared_ptr<DistanceSensor> dist_left =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_LEFT) : GetDistSensor(DIST_C_RIGHT);
 	std::shared_ptr<DistanceSensor> dist_right =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_RIGHT) : GetDistSensor(DIST_C_LEFT);
-	man_->Middle(true);
+	man_->Middle(true,500);
 	Delay(100);
 	std::cout << "Dist aligin before = " <<  dist->GetRealDistance() << std::endl;
 	if (dist->GetRealDistance() > mid_dist)
@@ -267,10 +267,11 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	color_t colorbox;
 	if (IsTakePhoto)
 	{
-		man_->Home(true);
+		man_->Home(true,100);
 		Delay(359);
 		auto frame = cam_rot_->GetFrame(kCamAng);
 		colorbox = VisionGetSmallBox(*frame,side);
+		man_->Middle(true, 500);
 	}
 	
 	
@@ -280,13 +281,13 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		man_->CatchRight();
 		MoveByOptFlow(std::make_pair(0, 30/* + offset_after_hor*/), kSpeedAfter);
 //		AlliginByDist(kDist, kOfsetAngle);
-		man_->Out(true);
+		man_->Out(true,500);
 		MoveByOptFlow(std::make_pair(0, 100), kSpeedAfter);
 		MoveByOptFlow(std::make_pair(5, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchLeft(true, 300);
 		MoveByOptFlow(std::make_pair(0, 45), kSpeedAfter+50);
-		man_->Home(true);
+		man_->Home(true,500);
 		MoveByOptFlow(std::make_pair(0, -84), kSpeedAfter + 50);
 		AlliginByDist(kDist, 0);
 		MoveByOptFlow(std::make_pair(-41, 0), kSpeedAfter + 50);
@@ -294,13 +295,13 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	case CatchCubeSideEnum::RIGHT: 
 		man_->CatchLeft();
 		MoveByOptFlow(std::make_pair(0, 115), kSpeedAfter);
-		man_->Out(true);
+		man_->Out(true,500);
 		MoveByOptFlow(std::make_pair(0, -102), kSpeedAfter);
 		MoveByOptFlow(std::make_pair(2, 0), kSpeedAfter);
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 300);
 		MoveByOptFlow(std::make_pair(0, -40), kSpeedAfter + 50);
-		man_->Home(true);
+		man_->Home(true,500);
 		MoveByOptFlow(std::make_pair(0, 55), kSpeedAfter + 50);
 		AlliginByDist(kDist, 0);
 		MoveByOptFlow(std::make_pair(-45,0), kSpeedAfter + 50);
