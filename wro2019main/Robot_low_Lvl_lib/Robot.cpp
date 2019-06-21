@@ -93,7 +93,7 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
-	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", std::make_pair(0.133126945, 0.133126945), 90);      //0.018,-90);
+	//opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", std::make_pair(0.133126945, 0.133126945), 90);      //0.018,-90);
 	
 		std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
 	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar, LidarA1::LidarMod::k8k));
@@ -504,7 +504,8 @@ void RobotGardener::Go2(std::vector<Point> points)
 	const int kRobot_mooving_speed = 250; //250;
 	for (auto it : points)
 	{
-		MoveByOptFlow(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
+		MoveByEncoder(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
+		//MoveByOptFlow(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
 		//GetOmni()->MoveToPosInc(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
 		GetOmni()->Stop();
 	}
@@ -512,11 +513,12 @@ void RobotGardener::Go2(std::vector<Point> points)
 	
 }
 
-void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
+
+void RobotGardener::MoveByEncoder(std::pair<int, int> toPos, double speed)
 {
 	using namespace std::chrono;
-	const double P = 2.3;
-	const double D = 0;
+	 double P = 1.3;
+	 double D = 0;
 	
 	const milliseconds kSlippageTime = milliseconds(200);
 	const int kSlippageSpeedInc = 200;  
@@ -550,14 +552,97 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 			max_speed_end.first = speed*std::abs(((double)toPos.first / toPos.second));
 		}
 	}
-
-	opt_flow_->Reset();
+	std::pair<double, double> toPosAng(toPos.first / omni_->GetR_wheel()*180/M_PI, toPos.second / omni_->GetR_wheel() * 180 / M_PI);
+	//opt_flow_->Reset();
 	omni_->Reset();
 	std::pair<steady_clock::time_point, steady_clock::time_point> slippage_startTime = std::make_pair(steady_clock::now(), steady_clock::now()); 
 	std::pair<double, double> slippage_err_old;
 	std::pair<steady_clock::time_point, steady_clock::time_point>  smooth_start_startTime = std::make_pair(steady_clock::now(), steady_clock::now()); 
 	
-	std::pair<double, double> cur_pos = omni_->GetPosMm();//opt_flow_->GetPos();
+	std::pair<double, double> cur_pos = omni_->GetPosMm(); //opt_flow_->GetPos();
+	err.first = toPos.first - cur_pos.first;
+	err.second = toPos.second - cur_pos.second;
+	slippage_err_old = err;
+	std::pair<double, double> sp;
+	do
+	{
+		if (steady_clock::now() - smooth_start_startTime.first  > milliseconds((int)(kSmoothStartTime / (max_speed_end.first / kSmoothStartStep))) && max_speed.first <= max_speed_end.first)
+		{
+			smooth_start_startTime.first  = steady_clock::now();
+			max_speed.first += kSmoothStartStep; 
+			max_speed.first = max_speed.first  > max_speed_end.first ? max_speed_end.first : max_speed.first; 
+		}
+		if (steady_clock::now() - smooth_start_startTime.second  > milliseconds((int)(kSmoothStartTime / (max_speed_end.second / kSmoothStartStep))) && max_speed.second <= max_speed_end.second)
+		{
+			smooth_start_startTime.second  = steady_clock::now();
+			max_speed.second += kSmoothStartStep; 
+			max_speed.second = max_speed.second  > max_speed_end.second ? max_speed_end.second : max_speed.second;
+		}
+		
+		std::pair<double, double> cur_pos = omni_->GetAng(); //opt_flow_->GetPos();
+		err.first = toPosAng.first - cur_pos.first;
+		err.second = toPosAng.second - cur_pos.second;
+		
+		 sp  = std::make_pair(err.first * P + D*(err.first - err_old.first), err.second * P + D*(err.second - err_old.second));
+		sp.first = std::abs(sp.first) > max_speed.first ? Sign(sp.first)*max_speed.first : sp.first;
+		sp.second = std::abs(sp.second) > max_speed.second ? Sign(sp.second)*max_speed.second : sp.second;
+		
+		
+		err_old = err;
+		omni_->MoveWithSpeed(sp, 0);
+		std::cout  << "err1 "<< err.first  << "err2" << err.second << std::endl;
+	} while (std::abs(err.first) > 40 || std::abs(err.second) > 40);
+	omni_->SetAng(toPosAng, 60);
+//	std::pair<double, double> pos = GetOptFlow()->GetPos();
+//	std::cout  << "Encoder" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
+}
+
+
+void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
+{
+	using namespace std::chrono;
+	const double P = 5.3;
+	const double D = 0;
+	
+	const milliseconds kSlippageTime = milliseconds(200);
+	const int kSlippageSpeedInc = 200;  
+	const double kSmoothStartTime = 600;
+	const double kSmoothStartStep = 5;
+
+	if (speed < 0)
+	{
+		toPos.first *= -1;
+		toPos.second *= -1;
+		speed *= -1;
+	}
+	
+	std::pair<double, double> max_speed = std::make_pair(0, 0);
+	std::pair<double, double> max_speed_end = std::make_pair(speed, speed);
+	std::pair<double, double> err;
+	std::pair<double, double> err_old;
+	
+	if (std::abs(toPos.first) > abs(toPos.second))
+	{
+		if (abs(toPos.second)  > 21)
+		{
+			max_speed_end.second = speed*std::abs(((double)toPos.second / toPos.first));
+		}
+	
+	}
+	else
+	{
+		if (abs(toPos.first)  > 21)
+		{
+			max_speed_end.first = speed*std::abs(((double)toPos.first / toPos.second));
+		}
+	}
+
+
+	std::pair<steady_clock::time_point, steady_clock::time_point> slippage_startTime = std::make_pair(steady_clock::now(), steady_clock::now()); 
+	std::pair<double, double> slippage_err_old;
+	std::pair<steady_clock::time_point, steady_clock::time_point>  smooth_start_startTime = std::make_pair(steady_clock::now(), steady_clock::now()); 
+	
+	std::pair<double, double> cur_pos = opt_flow_->GetPos();
 	err.first = toPos.first - cur_pos.first;
 	err.second = toPos.second - cur_pos.second;
 	slippage_err_old = err;
@@ -576,7 +661,7 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 			max_speed.second = max_speed.second  > max_speed_end.second ? max_speed_end.second : max_speed.second;
 		}
 		
-		std::pair<double, double> cur_pos = omni_->GetPosMm();//opt_flow_->GetPos();
+		std::pair<double, double> cur_pos = opt_flow_->GetPos();
 		err.first = toPos.first - cur_pos.first;
 		err.second = toPos.second - cur_pos.second;
 		
@@ -594,10 +679,12 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 		sp.second = std::abs(sp.second) > max_speed.second ? Sign(sp.second)*max_speed.second : sp.second;
 		err_old = err;
 		omni_->MoveWithSpeed(sp, 0);
-	} while (std::abs(err.first) > 3 || std::abs(err.second) > 3);
+		Delay(1);
+	} while (std::abs(err.first) > 1 || std::abs(err.second) > 1);
 	std::pair<double, double> pos = GetOptFlow()->GetPos();
 	std::cout  << "Mouse" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }
+
 
 
 std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng(const std::vector<std::pair<int, PolarPoint>> &ang_pps)

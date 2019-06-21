@@ -145,7 +145,12 @@ std::pair<double, double> OmniWheels4Squre::GetPosMm()
 	double degY = motors[(int)MotorDir::LEFT]->GetCurEncDeg() / 180.0 * M_PI;
 	return std::make_pair(-degX*r_wheel_,-degY*r_wheel_);
 }
-
+std::pair<double, double> OmniWheels4Squre::GetAng()
+{
+	double degX = motors[(int)MotorDir::FRONT]->GetCurEncDeg();
+	double degY = motors[(int)MotorDir::LEFT]->GetCurEncDeg();
+	return std::make_pair(-degX, -degY);
+}
 
 void OmniWheels4Squre::Reset()
 {
@@ -153,4 +158,25 @@ void OmniWheels4Squre::Reset()
 	motors[(int)MotorDir::LEFT]->ResetEnc();
 	motors[(int)MotorDir::BACK]->ResetEnc();
 	motors[(int)MotorDir::RIGHT]->ResetEnc();
+}
+
+
+double OmniWheels4Squre::GetR_wheel()
+{
+	return r_wheel_;
+}
+
+
+void OmniWheels4Squre::SetAng(std::pair<double, double> angs, double speeed)
+{
+	
+	motors[(int)MotorDir::FRONT]->MoveToDeg(speeed, -angs.first);
+	motors[(int)MotorDir::LEFT]->MoveToDeg(speeed, -angs.second);
+	motors[(int)MotorDir::BACK]->MoveToDeg(speeed, angs.first);
+	motors[(int)MotorDir::RIGHT]->MoveToDeg(speeed, angs.second);
+	while (!motors[(int)MotorDir::FRONT]->IsReady() ||
+		   !motors[(int)MotorDir::LEFT]->IsReady() ||
+		   !motors[(int)MotorDir::BACK]->IsReady() ||
+		   !motors[(int)MotorDir::RIGHT]->IsReady()) ;
+	
 }

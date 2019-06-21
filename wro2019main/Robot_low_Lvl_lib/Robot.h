@@ -81,6 +81,8 @@ public:
 private:
 	void MouseTurn(double angle, int speed);
 	void MoveByOptFlow(std::pair<int, int> toPos, double speed);
+	void MoveByEncoder(std::pair<int, int> toPos, double speed);
+	
 	void CatchLeft_();
 	void CatchRight_();
 	void AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum side_relative_cube);
