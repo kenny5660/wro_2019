@@ -208,7 +208,8 @@ void save_ld_data(const std::vector<PolarPoint> &p, const std::string &s) {
 }
 
 void write_log(const std::string &s) {
-    log_text_out << get_log_name(": ") << s << std::endl;
+	// log_text_out << get_log_name(": ") << s << std::endl;
+	std::cout << s << std::endl;
 }
 void cout_to_file_log_enable()
 {
