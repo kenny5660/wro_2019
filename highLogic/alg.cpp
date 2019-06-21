@@ -413,6 +413,7 @@ void alg(Robot &robot) {
 		offset_pz_center + start_frame_point,
 		start_frame_point - offset_pz_center);
 	{
+
 		debug("Map_after_init_pos", map.get_img());
 	}
 	robot.GetLidarPolarPoints(lidar_data);
