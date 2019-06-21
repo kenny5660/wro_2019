@@ -77,7 +77,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50.5,
-		129.8,
+		131,
 		motor_left,
 		motor_front,
 		motor_right,
@@ -479,7 +479,7 @@ void RobotGardener::Turn(double angle)
 {
 	const double pi2 = 2 * M_PI;
 	const int kRobot_rot_speed = 130;
-	
+//	
 	angle = (fmod(fmod(angle, pi2) + pi2, pi2));
 	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
 	//MouseTurn(angle, kRobot_rot_speed);
