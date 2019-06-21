@@ -329,9 +329,7 @@ TEST(HardwareTestGroup, Frame_connect_test)
 TEST(HardwareTestGroup, ColorFromAng_test)
 {
 	robot->GetColorFromAng({ 
-	{0, {927.16,1.05165}},
-	{0, {989.267, 5.66294}},
-    {0, {345, 3.14159}}
+	{0, {115*4,0}}
 	
 	});
 }

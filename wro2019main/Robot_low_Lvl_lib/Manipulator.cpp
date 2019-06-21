@@ -30,13 +30,13 @@ Manipulator::~Manipulator()
 
 void Manipulator::Home(bool wait, int time)
 {
-	servo_low_->SetDegrees(61, wait,time);
+	servo_low_->SetDegrees(62, wait,time);
 }
 
 
 void Manipulator::Out(bool wait, int time)
 {
-	servo_low_->SetDegrees(170, wait, time);
+	servo_low_->SetDegrees(172, wait, time);
 }
 
 
@@ -49,11 +49,11 @@ void Manipulator::CatchRight(bool wait,int time)
 
 void Manipulator::CatchLeft(bool wait, int time)
 {
-	servo_up_->SetDegrees(241, wait, time);
+	servo_up_->SetDegrees(240, wait, time);
 }
 
 
 void Manipulator::Middle(bool wait /* = false */, int time /* = 0 */)
 {
-	servo_low_->SetDegrees(100, wait, time);
+	servo_low_->SetDegrees(105, wait, time);
 }

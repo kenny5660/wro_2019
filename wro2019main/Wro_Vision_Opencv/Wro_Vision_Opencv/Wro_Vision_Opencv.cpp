@@ -52,12 +52,13 @@ void TestPhoto(cv::Mat img) {
 
 int main() {
   cv::Mat img;
-  for (const auto& entry : std::filesystem::directory_iterator(path_big_cube)) {
+  for (const auto& entry :
+       std::filesystem::directory_iterator(path_small_cube)) {
     std::cout << entry.path() << std::endl;
     img = cv::imread(entry.path().string());
     
-    //color_t color = VisionGetSmallBox(img, Robot::CatchCubeSideEnum::RIGHT);
-    color_t colorBig = VisionGetBigBox(img,1150);
+    color_t color = VisionGetSmallBox(img, Robot::CatchCubeSideEnum::RIGHT);
+    //color_t colorBig = VisionGetBigBox(img,1150);
     //std::cout << colorBig << color;
     while (true) {
 
