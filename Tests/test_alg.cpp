@@ -13,6 +13,13 @@ TEST(TestDetectPosition, 1) {
     detect_position(robot, points, 300);
 }
 
+TEST(TestDetectPosition, 2) {
+    Robot robot;
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Real//10.ld", points));
+    detect_position(robot, points, 300);
+}
+
 TEST(UpDateBox, 1) {
     cv::Mat QRCodeImg;
     std::array<BoxMap, 3> boxes;
@@ -27,3 +34,5 @@ TEST(UpDateBox, 1) {
     Robot r;
     update_box_color(r, map);
 }
+
+

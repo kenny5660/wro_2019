@@ -842,3 +842,18 @@ TEST(MapUpdate, RealUp10) {
     ASSERT_FALSE(read("Real//9.ld", points));
     map.update(points, show_debug_img);
 }
+
+TEST(MapCreate, 1) {
+    RobotPoint start_position = {949.45814896952606, 1190.9932059020134, 5.8304879999999999};
+    double frame_offset = 300;
+    double ang = 2 * M_PI -start_position.get_angle();
+    Point start_frame_point = Point{frame_offset * cos(ang),
+                                    -frame_offset * sin(ang)} +
+        start_position;
+    Point offset_pz_center {(field_sett::parking_zone_door_size / 2.) * sin(ang),
+                            -(field_sett::parking_zone_door_size / 2.) * cos(ang)};
+    std::cout << (start_frame_point + offset_pz_center).get_x() << " " <<
+        (start_frame_point + offset_pz_center).get_y() << std::endl;
+    //Map map(start_position, start_frame_point + offset_pz_center, start_frame_point + offset_pz_center)
+    //show_debug_img("", map.get_img());
+}
