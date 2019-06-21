@@ -274,10 +274,10 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
                 if (fabs(lines[i][j].get_x() - lines[i][j + 1].get_x()) >
                     fabs(lines[i][j].get_y() - lines[i][j + 1].get_y())) {
                     if (lines[i][j].get_y() > 0) {
-                        line_type = top_field_margin;
+                        line_type = bottom_field_margin;
                     }
                     else {
-                        line_type = bottom_field_margin;
+                        line_type = top_field_margin;
                     }
                 }
                 else {
