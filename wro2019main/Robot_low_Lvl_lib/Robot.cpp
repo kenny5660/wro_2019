@@ -515,14 +515,14 @@ void RobotGardener::Go2(std::vector<Point> points)
 void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 {
 	using namespace std::chrono;
-	const double P = 4.3;
+	const double P = 2.3;
 	const double D = 0;
 	
 	const milliseconds kSlippageTime = milliseconds(200);
 	const int kSlippageSpeedInc = 200;  
 	const double kSmoothStartTime = 600;
 	const double kSmoothStartStep = 5;
-
+	
 	if (speed < 0)
 	{
 		toPos.first *= -1;
@@ -552,6 +552,7 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 	}
 
 	opt_flow_->Reset();
+	omni_->Reset();
 	std::pair<steady_clock::time_point, steady_clock::time_point> slippage_startTime = std::make_pair(steady_clock::now(), steady_clock::now()); 
 	std::pair<double, double> slippage_err_old;
 	std::pair<steady_clock::time_point, steady_clock::time_point>  smooth_start_startTime = std::make_pair(steady_clock::now(), steady_clock::now()); 
@@ -593,8 +594,7 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 		sp.second = std::abs(sp.second) > max_speed.second ? Sign(sp.second)*max_speed.second : sp.second;
 		err_old = err;
 		omni_->MoveWithSpeed(sp, 0);
-		Delay(1);
-	} while (std::abs(err.first) > 1 || std::abs(err.second) > 1);
+	} while (std::abs(err.first) > 3 || std::abs(err.second) > 3);
 	std::pair<double, double> pos = GetOptFlow()->GetPos();
 	std::cout  << "Mouse" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }
