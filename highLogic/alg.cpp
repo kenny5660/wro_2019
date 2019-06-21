@@ -403,11 +403,12 @@ void alg(Robot &robot) {
     write_log("Position:/n x: " + std::to_string(start_position.get_x()) +
               " y: " + std::to_string(start_position.get_y()) +
               " ang: " + std::to_string(start_position.get_angle()));
-    Point start_frame_point = Point{frame_offset * cos(start_position.get_angle()),
-                                    frame_offset * sin(start_position.get_angle())} +
+	double ang_offset = 2 * M_PI - start_position.get_angle();
+    Point start_frame_point = Point{frame_offset * cos(ang_offset),
+                                    -frame_offset * sin(ang_offset)} +
         start_position;
-	Point offset_pz_center {(field_sett::parking_zone_door_size / 2.) * sin(start_position.get_angle()),
-                            -(field_sett::parking_zone_door_size / 2.) * cos(start_position.get_angle())};
+	Point offset_pz_center {(field_sett::parking_zone_door_size / 2.) * sin(ang_offset),
+                            -(field_sett::parking_zone_door_size / 2.) * cos(ang_offset)};
 	Map map(start_position,
 		offset_pz_center + start_frame_point,
 		start_frame_point - offset_pz_center);
