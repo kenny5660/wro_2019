@@ -213,7 +213,7 @@ TEST(HardwareTestGroup, Robot_turn_test)
 TEST(HardwareTestGroup, Robot_go2_test)
 {
 	std::vector<Point> traj = { 
-		{ 115*8, 0 }
+		{ 0, 115 * 8 }
 //		{0, -115},
 //		{0, -115},
 //		{0, -115},

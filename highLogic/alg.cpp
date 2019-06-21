@@ -422,6 +422,9 @@ void alg(Robot &robot) {
 		debug("Map_after_update", map.get_img());
 	}
     update_box_color(robot, map);
+	{
+		show_debug_img("_Color_update_map", map.get_img());
+	}
     color_t next_color = blue_c;
     std::vector<Point> way;
     Point end_move_point;
