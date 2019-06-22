@@ -836,7 +836,11 @@ Point point_box_center_side(Point a, Point b, int length, int cube) {
     return ans;
 }
 
-Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, int cube, const Point &to, show_img_debug debug) {
+Point position_box_left_corners(const std::vector<PolarPoint> &polar_point,
+                                int length,
+                                int cube,
+                                const Point &to,
+                                show_img_debug debug) {
     std::pair<Point, Point> min_side;
     double min_dist = field_sett::max_field_width;
     std::vector<std::vector<Point>> points = get_corners(polar_point);
@@ -853,9 +857,8 @@ Point position_box_side(const std::vector<PolarPoint> &polar_point, int length, 
             if ((points[i][j].get_y() > 0) && (points[i][j + 1].get_y() > 0) &&
                 (fabs(points[i][j].get_x() - points[i][j + 1].get_x())
                     > fabs(points[i][j].get_y() - points[i][j + 1].get_y()))) {
-                Point center_point = point_box_center_side(points[i][j], points[i][j + 1], length, cube);
-                if (center_point.dist(to) < min_dist) {
-                    min_dist = center_point.dist(to);
+                if (points[i][j].dist(to) < min_dist) {
+                    min_dist = points[i][j].dist(to);
                     min_side = std::make_pair(points[i][j], points[i][j + 1]);
                 }
             }

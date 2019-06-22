@@ -17,7 +17,7 @@ TEST(PositionBoxSide, l) {
         add_points_img(mat, dp);
         show_debug_img("", mat);
     }
-    //Point p = position_box_side(points, 1, 1, show_debug_img);
+    //Point p = position_box_left_corners(points, 1, 1, show_debug_img);
     //EXPECT_NEAR(p.get_x(), 9, 10);
     //EXPECT_NEAR(p.get_y(), 140, 10);
 }

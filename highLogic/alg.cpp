@@ -51,21 +51,20 @@ int turn2box(Robot &robot, BoxMap &box, Map &map) {
     return need_rot;
 }
 
-void box_connect(Robot &robot) {
-    std::vector<PolarPoint> lidar_data;
-    robot.GetLidarPolarPoints(lidar_data);
-
-    // TODO: !!! Если коробок больше одной передать первым параметром
-    // длину, вторым какой нам нужен, а так же взять данные с камеры.
-
-    Point center = position_box_side(lidar_data, 1, 1, {0, 0}, save_debug_img);
-    robot.Go2({{-(field_sett::climate_box_offset / 2 - center.get_y()), 0}});
-    robot.Go2({{0, -center.get_x()}});
-}
+//void box_connect(Robot &robot) {
+//    std::vector<PolarPoint> lidar_data;
+//    robot.GetLidarPolarPoints(lidar_data);
+//
+//    // TODO: !!! Если коробок больше одной передать первым параметром
+//    // длину, вторым какой нам нужен, а так же взять данные с камеры.
+//
+//    Point center = position_box_side(lidar_data, 1, 1, {0, 0}, save_debug_img);
+//    robot.Go2({{-(field_sett::climate_box_offset / 2 - center.get_y()), 0}});
+//    robot.Go2({{0, -center.get_x()}});
+//}
 
 void go2box(Robot &robot, std::vector<Point> way, Robot::CatchCubeSideEnum side_catch) {
     const double care_way_dist = field_sett::size_field_unit * 2;
-    Point end_p = way.back();
     double dist = way.back().dist() - care_way_dist;
     double ang = atan2(way.back().get_y(), way.back().get_x());
     way.back() = {cos(ang) * dist, sin(ang) * dist};
@@ -73,8 +72,8 @@ void go2box(Robot &robot, std::vector<Point> way, Robot::CatchCubeSideEnum side_
 
     std::vector<PolarPoint> lidar_data;
     robot.GetLidarPolarPoints(lidar_data);
-    Point center = position_box_side(lidar_data, 1, 1, {-sin(ang) * care_way_dist - (field_sett::climate_box_width / 2.0), cos(ang) * care_way_dist + care_way_dist}, save_debug_img);
-    center = {center.get_y() - care_way_dist, -center.get_x() - ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (field_sett::size_field_unit / 3) : (-10))};
+    Point center = position_box_left_corners(lidar_data, 1, 1, {-sin(ang) * care_way_dist - (field_sett::climate_box_width / 2.0), cos(ang) * care_way_dist + care_way_dist}, save_debug_img);
+    center = {center.get_y() - field_sett::size_field_unit * 2, -center.get_x() - ((side_catch == Robot::CatchCubeSideEnum::LEFT) ? (field_sett::size_field_unit / 3) : (-10))};
     robot.Go2({{center}});
 }
 
