@@ -189,7 +189,7 @@ void RobotGardener::GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)
 
 color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
-	const int kDist = 68;
+	const int kDist = 65;
 	//const int kDistAfter = 110;
 	const int kOfsetAngle = 0;
 	const int kSpeed = 130;
@@ -282,7 +282,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		//		AlliginByDist(kDist, kOfsetAngle);
 				man_->Out(true);
 		Go2({ Point(0, 100) });
-		Go2({ Point(5, 0) });
+		//Go2({ Point(5, 0) });
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchLeft(true, 300);
 		Go2({ Point(0, 45) });
@@ -296,7 +296,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		Go2({ Point(0, 115) });
 		man_->Out(true);
 		Go2({ Point(0, -102) });
-		Go2({ Point(2, 0) });
+		//Go2({ Point(2, 0) });
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 300);
 		Go2({ Point(0, -40) });
