@@ -422,10 +422,11 @@ void alg(Robot &robot) {
 	}
     update_box_color(robot, map);
     color_t next_color = blue_c;
+    bool was_catch = false;
     std::vector<Point> way;
     Point end_move_point;
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
-    for (int u = 0; u < 3; u++) {
+    while ((next_color != black_c) || (!was_catch)) {
         BoxMap box;
         while (!get_box(next_color, map, box)) {
             Point death_point;
@@ -447,6 +448,7 @@ void alg(Robot &robot) {
             update_box_color(robot, map);
         }
         next_color = do_box(robot, map, box, side_catch, true, false, debug);
+        was_catch = true;
     }
     if(!go_to2(map, start_position, way, end_move_point, false, debug))
         return;
