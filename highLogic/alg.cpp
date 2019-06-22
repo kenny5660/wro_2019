@@ -130,10 +130,10 @@ color_t do_box(Robot &robot, Map &map, BoxMap &box, Robot::CatchCubeSideEnum &si
         }
         robot.Go2(way);
         map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
-        double ang = atan2(
+        double ang = -atan2(
             way[way.size() - 1].get_y() - way[way.size() - 2].get_y(),
             way[way.size() - 1].get_x() - way[way.size() - 2].get_x());
-        ang = -(PolarPoint::angle_norm(ang) - map.get_position().get_angle());
+        ang = PolarPoint::angle_norm(ang - map.get_position().get_angle());
         robot.Turn(ang);
         RobotPoint pos = map.get_position();
         pos.add_angle(-ang);
@@ -182,9 +182,6 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     }
     std::array<BoxMap, 3> boxes;
     std::pair<Point, Point> pz;
-	
-	//robot.QrGetFrame(QRCodeImg);
-	
     RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, s);
     double start_angle = start_position.get_angle();
     {
@@ -425,9 +422,6 @@ void alg(Robot &robot) {
 		debug("Map_after_update", map.get_img());
 	}
     update_box_color(robot, map);
-	{
-		show_debug_img("_Color_update_map", map.get_img());
-	}
     color_t next_color = blue_c;
     std::vector<Point> way;
     Point end_move_point;
