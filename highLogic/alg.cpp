@@ -182,6 +182,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     }
     std::array<BoxMap, 3> boxes;
     std::pair<Point, Point> pz;
+	
+	//robot.QrGetFrame(QRCodeImg);
+	
     RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, s);
     double start_angle = start_position.get_angle();
     {

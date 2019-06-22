@@ -90,15 +90,16 @@ Point (*rot2point[4])(Point &p) = {
 };
 std::string qr_detect_frame(cv::Mat qr)
 {
+	
 	std::string s;
 	if (kQrDetectorType == QrDetectorTypeEnum::CV)
 	{
 		cv::QRCodeDetector qd;
 		s = qd.detectAndDecode(qr);
-		if (s.length() < 35)
-		{
-			throw std::runtime_error("Can't detect qr code using openCV, not enough symbols!");
-		}
+//		if (s.length() < 35)
+//		{
+//			throw std::runtime_error("Can't detect qr code using openCV, not enough symbols!");
+//		}
 	}
 	if (kQrDetectorType == QrDetectorTypeEnum::ZBAR)
 	{
@@ -108,18 +109,21 @@ std::string qr_detect_frame(cv::Mat qr)
 		{
 			s = dec_obj[0].data;
 		}
-		else
-		{
-			throw std::runtime_error("Can't detect qr code using Zbar!");
-		}
+//		else
+//		{
+//			throw std::runtime_error("Can't detect qr code using Zbar!");
+//		}
 	}
+	
 	return s;
 }
 
 RobotPoint qr_detect(cv::Mat qr, std::array<BoxMap, 3> &boxes_pos, std::pair<Point, Point> &pz, std::string start_s) {
     std::string s = start_s;
     if (s == "") {
+	    
         s= qr_detect_frame(qr);
+	    
     }
     Point pz_p1 = letter2coordinat(s[1], s[3]);
     Point pz_p2 = letter2coordinat(s[5], s[7]);

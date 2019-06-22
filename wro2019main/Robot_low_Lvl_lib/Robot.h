@@ -39,7 +39,8 @@ public:
 	virtual void Delay(int msec);
 	
 	virtual void Go2(std::vector<Point>) = 0;
-	virtual CatchCubeSideEnum AlliginByDist(int dist, int offset_alg) = 0;
+	virtual CatchCubeSideEnum AlliginByDist(int dist, int offset_alg) = 0; 
+	virtual	void QrGetFrame(cv::Mat &frame) = 0;
 	//@brief in radians
 	virtual void Turn(double angle) = 0;
 	virtual void WayFromFrame(cv::Mat& frame) = 0;
@@ -67,6 +68,7 @@ public:
 	color_t CatchCube(CatchCubeSideEnum side, bool IsTakePhoto = true) override;
 	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg) override;
 	void WayFromFrame(cv::Mat &frame) override;
+	void QrGetFrame(cv::Mat &frame) override;
 	void WayFromFrame()override;
 	std::shared_ptr<OpticalFlow> GetOptFlow();
 	std::shared_ptr<cv::Mat> GetQrCodeFrame();

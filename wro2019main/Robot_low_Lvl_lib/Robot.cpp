@@ -76,7 +76,7 @@ void RobotGardener::Init()
 	std::shared_ptr<KangarooMotor> motor_left(new KangarooMotor(kangarooDriver2, '2', false));
 	std::shared_ptr<KangarooMotor> motor_back(new KangarooMotor(kangarooDriver1, '1', true));
 	std::shared_ptr<KangarooMotor> motor_right(new KangarooMotor(kangarooDriver1, '2', false));
-	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(47.8,
+	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50,
 		131,
 		motor_left,
 		motor_front,
@@ -93,7 +93,7 @@ void RobotGardener::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
-	//opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", std::make_pair(0.133126945, 0.133126945), 90);      //0.018,-90);
+	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", std::make_pair(0.133126945, 0.133126945), 90);      //0.018,-90);
 	
 		std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
 	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar, LidarA1::LidarMod::k8k));
@@ -404,7 +404,7 @@ void RobotGardener::WayFromFrame()
 
 void RobotGardener::WayFromFrame(cv::Mat &frame)
 {
-	const int kDegServo = 286;
+
 	const int kmidDist  = 200;
 	AlliginByDist(48, 0);
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
@@ -413,12 +413,8 @@ void RobotGardener::WayFromFrame(cv::Mat &frame)
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist) ;
 	omni_->Stop();
-	
-	Delay(200);
-	auto fram = cam_rot_->GetFrame(kDegServo);
+	QrGetFrame(frame);
 	omni_->MoveToPosInc(std::make_pair(0, 40), 150);
-	save_debug_img("Qrcode.jpg", *fram);
-	frame = *fram;
 }
 
 
@@ -593,6 +589,7 @@ void RobotGardener::MoveByEncoder(std::pair<int, int> toPos, double speed)
 		std::cout  << "err1 "<< err.first  << "err2" << err.second << std::endl;
 	} while (std::abs(err.first) > 40 || std::abs(err.second) > 40);
 	omni_->SetAng(toPosAng, 60);
+	
 //	std::pair<double, double> pos = GetOptFlow()->GetPos();
 //	std::cout  << "Encoder" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
 }
@@ -745,3 +742,12 @@ std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng(const std::v
 //	color_t colorbox = VisionGetSmallBox(*frame);
 //	return colorbox;
 //}
+
+void RobotGardener::QrGetFrame(cv::Mat &frame)
+{
+	const int kDegServo = 286;
+	Delay(200);
+	auto fram = cam_rot_->GetFrame(kDegServo);
+	save_debug_img("Qrcode.jpg", *fram);
+	frame = *fram;	
+}
