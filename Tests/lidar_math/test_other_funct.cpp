@@ -68,3 +68,10 @@ TEST(MathFunc, GetLinesCorne) {
         show_debug_img("", mat);
     }
 }
+
+TEST(PositiLeftCorne, 1) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Real//12.ld", points));
+    auto c = position_box_left_corners(points, 1, 1, Point{-50, 115 * 3}, show_debug_img);
+    std::cout << "x:" << c.get_x() << " y: " << c.get_y() << std::endl;
+}
