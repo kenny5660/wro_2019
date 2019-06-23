@@ -408,8 +408,8 @@ bool go_to2(Map &map, const Point &point, std::vector<Point> &ans, Point &end_po
     bool way_founded = do_line_way(map.get_position(), map.borders, point, way, kamikaze_mode, map.get_death_zone());
     if (!way_founded) {
         double ang = atan2(way.back().get_x() - way[way.size() - 2].get_x(), way.back().get_y() - way[way.size() - 2].get_y());
-        way.back().set_y(way.back().get_y() - field_sett::size_field_unit * cos(ang));
-        way.back().set_x(way.back().get_x() - field_sett::size_field_unit * sin(ang));
+        way.back().set_y(way.back().get_y() - field_sett::size_field_unit * 3 * cos(ang));
+        way.back().set_x(way.back().get_x() - field_sett::size_field_unit * 3 * sin(ang));
     }
     end_point = way.back();
     if (debug != nullptr) {

@@ -336,7 +336,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
                     dist_line2point(lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second],
                                     lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second + 1],
                                     { 0, 0 }),
-                    i);
+                    colors[i].first);
                 pos.merge(p);
             }
         }
@@ -422,24 +422,41 @@ void alg(Robot &robot) {
 	}
     update_box_color(robot, map);
     color_t next_color = blue_c;
-    bool was_catch = false;
     std::vector<Point> way;
     Point end_move_point;
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
-    while ((next_color != black_c) || (!was_catch)) {
+	{
+		debug("Map_after_update", map.get_img());
+	}
+	for (int u = 0; u < 3; u++) {
         BoxMap box;
         while (!get_box(next_color, map, box)) {
             Point death_point;
             auto death_zone = map.get_death_zone();
-            for (int i = 0; i < death_zone.size(); i++) {
-                for (int j = 0; j < death_zone[i].size(); j++) {
-                    death_point = {i * field_sett::size_field_unit, j * field_sett::size_field_unit};
-                    break;
+	        for (int i = 3; i < (death_zone.size() - 3); i++) {
+		        for (int j = 3; j < (death_zone[i].size() - 3); j++) {
+	                if ((death_zone[i][j])) {
+		                bool found_cross = false;
+		                for (int k = 0; k < map.borders.size(); k++)
+		                {
+			                if (in_outline(map.borders[k], { i * field_sett::size_field_unit + field_sett::size_field_unit / 2, j * field_sett::size_field_unit + field_sett::size_field_unit / 2 }))
+			                {
+				                found_cross = true;
+				                break;
+			                }    
+			            }
+		                if (found_cross)
+		                {
+			                continue;
+		                }
+		                death_point = { i * field_sett::size_field_unit +  field_sett::size_field_unit / 2, j * field_sett::size_field_unit +  field_sett::size_field_unit / 2 };
+		                break;    
+	                }
                 }
                 if (!std::isnan(death_point.get_x())) {
                     break;
                 }
-            }
+            }	        
             go_to2(map, death_point, way, end_move_point, false, debug);
             robot.Go2(way);
             map.set_new_position(end_move_point);
@@ -448,8 +465,12 @@ void alg(Robot &robot) {
             update_box_color(robot, map);
         }
         next_color = do_box(robot, map, box, side_catch, true, false, debug);
-        was_catch = true;
     }
+	Point b;
+	robot.Turn(map.get_position().get_angle() - M_PI_2);
+	auto buff = map.get_position();
+	buff.add_angle(-map.get_position().get_angle() + M_PI_2);
+	map.set_new_position(buff);
     if(!go_to2(map, start_position, way, end_move_point, false, debug))
         return;
     robot.Go2(way);
