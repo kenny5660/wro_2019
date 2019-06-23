@@ -133,7 +133,7 @@ color_t do_box(Robot &robot, Map &map, BoxMap &box, Robot::CatchCubeSideEnum &si
         double ang = -atan2(
             way[way.size() - 1].get_y() - way[way.size() - 2].get_y(),
             way[way.size() - 1].get_x() - way[way.size() - 2].get_x());
-        ang = PolarPoint::angle_norm(ang - map.get_position().get_angle());
+        ang = -(PolarPoint::angle_norm(ang - map.get_position().get_angle()));
         robot.Turn(ang);
         RobotPoint pos = map.get_position();
         pos.add_angle(-ang);
