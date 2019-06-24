@@ -428,7 +428,7 @@ void alg(Robot &robot) {
 	{
 		debug("Map_after_update", map.get_img());
 	}
-	for (int u = 0; u < 3; u++) {
+	for (int u = 0; u < 1; u++) {
         BoxMap box;
         while (!get_box(next_color, map, box)) {
             Point death_point;
