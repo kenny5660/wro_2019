@@ -5,6 +5,8 @@
 #include "test.h"
 #include "..\highLogic\map.h"
 #include "../highLogic/CV.h"
+#include "../wro2019main/Robot_low_Lvl_lib/Robot_facing.h"
+#include "../highLogic/alg.h"
 #include <string>
 
 TEST(BoxMap, Create) {
@@ -858,4 +860,26 @@ TEST(MapCreateAndUp, 1) {
     ASSERT_FALSE(read("Real//11.ld", points));
     map.update(points);
     show_debug_img("", map.get_img());
+}
+
+
+TEST(MapUpdate, RealUp11) {
+    RobotPoint start_position;
+    start_position.set_angle(5.814);
+    start_position.set_x(930);
+    start_position.set_y(980);
+    Map map(start_position, Point{850, 930}, Point{940, 930});
+    cv::Mat img = map.get_img();
+    show_debug_img("Map", img);
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("Real//13.ld", points));
+    map.update(points, show_debug_img);
+}
+
+TEST(MapUpdate, RealUp12) {
+    Robot robot;
+    std::vector<PolarPoint> lidar_data;
+    ASSERT_FALSE(read("Real//14.ld", lidar_data));
+    robot.GetLidarPolarPoints(lidar_data);
+    RobotPoint start_position = detect_position(robot, lidar_data, 300);
 }

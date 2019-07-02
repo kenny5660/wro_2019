@@ -132,7 +132,7 @@ color_t do_box(Robot &robot, Map &map, BoxMap &box, Robot::CatchCubeSideEnum &si
         double ang = -atan2(
             way[way.size() - 1].get_y() - way[way.size() - 2].get_y(),
             way[way.size() - 1].get_x() - way[way.size() - 2].get_x());
-        ang = -(PolarPoint::angle_norm(ang - map.get_position().get_angle()));
+        ang = PolarPoint::angle_norm(ang - map.get_position().get_angle());
         robot.Turn(ang);
         RobotPoint pos = map.get_position();
         pos.add_angle(-ang);
@@ -303,11 +303,24 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
     for (int i = 0; i < extra_line.size(); i++) {
         if (extra_line[i].first >= 0) {
             suspicious_points.emplace_back(i,
-                                           PolarPoint(Point{(lines[extra_line[i].first][extra_line[i].second].get_x() + lines[extra_line[i].first][extra_line[i].second  + 1].get_x()) / 2.0, (lines[extra_line[i].first][extra_line[i].second].get_y() + lines[extra_line[i].first][extra_line[i].second  + 1].get_y()) / 2.0}.dist(),
+                                           PolarPoint(Point{
+                                                          (lines[extra_line[i].first][extra_line[i].second].get_x()
+                                                              + lines[extra_line[i].first][
+                                                                  extra_line[i].second
+                                                                      + 1].get_x()) / 2.0,
+                                                          (lines[extra_line[i].first][extra_line[i].second].get_y()
+                                                              + lines[extra_line[i].first][
+                                                                  extra_line[i].second
+                                                                      + 1].get_y())
+                                                              / 2.0}.dist(),
 
                                                       get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
-                                                                          lines[extra_line[i].first][extra_line[i].second + 1],
-                                                                          Point{ 0, 0 })));
+                                                                          lines[extra_line[i].first][
+                                                                              extra_line[i].second
+                                                                                  + 1],
+                                                                          Point{
+                                                                              0,
+                                                                              0})));
         }
     }
     {
@@ -337,6 +350,9 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
                                     lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second + 1],
                                     { 0, 0 }),
                     colors[i].first);
+//                if (colors[i].first == 0) {
+//                    //p.set_x(field_sett::max_field_width - p.get_x());
+//                }
                 pos.merge(p);
             }
         }
@@ -422,41 +438,24 @@ void alg(Robot &robot) {
 	}
     update_box_color(robot, map);
     color_t next_color = blue_c;
+    bool was_catch = false;
     std::vector<Point> way;
     Point end_move_point;
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
-	{
-		debug("Map_after_update", map.get_img());
-	}
-	for (int u = 0; u < 3; u++) {
+    while ((next_color != black_c) || (!was_catch)) {
         BoxMap box;
         while (!get_box(next_color, map, box)) {
             Point death_point;
             auto death_zone = map.get_death_zone();
-	        for (int i = 3; i < (death_zone.size() - 3); i++) {
-		        for (int j = 3; j < (death_zone[i].size() - 3); j++) {
-	                if ((death_zone[i][j])) {
-		                bool found_cross = false;
-		                for (int k = 0; k < map.borders.size(); k++)
-		                {
-			                if (in_outline(map.borders[k], { i * field_sett::size_field_unit + field_sett::size_field_unit / 2, j * field_sett::size_field_unit + field_sett::size_field_unit / 2 }))
-			                {
-				                found_cross = true;
-				                break;
-			                }    
-			            }
-		                if (found_cross)
-		                {
-			                continue;
-		                }
-		                death_point = { i * field_sett::size_field_unit +  field_sett::size_field_unit / 2, j * field_sett::size_field_unit +  field_sett::size_field_unit / 2 };
-		                break;    
-	                }
+            for (int i = 0; i < death_zone.size(); i++) {
+                for (int j = 0; j < death_zone[i].size(); j++) {
+                    death_point = {i * field_sett::size_field_unit, j * field_sett::size_field_unit};
+                    break;
                 }
                 if (!std::isnan(death_point.get_x())) {
                     break;
                 }
-            }	        
+            }
             go_to2(map, death_point, way, end_move_point, false, debug);
             robot.Go2(way);
             map.set_new_position(end_move_point);
@@ -465,14 +464,74 @@ void alg(Robot &robot) {
             update_box_color(robot, map);
         }
         next_color = do_box(robot, map, box, side_catch, true, false, debug);
+        was_catch = true;
     }
-	Point b;
-	robot.Turn(map.get_position().get_angle() - M_PI_2);
-	auto buff = map.get_position();
-	buff.add_angle(-map.get_position().get_angle() + M_PI_2);
-	map.set_new_position(buff);
+    robot.Turn(map.get_position().get_angle() - M_PI_2);
+    auto buff = map.get_position();
+    buff.add_angle(-map.get_position().get_angle() + M_PI_2);
+    map.set_new_position(buff);
     if(!go_to2(map, start_position, way, end_move_point, false, debug))
         return;
     robot.Go2(way);
     frame_connect(robot, frame_offset, start_position.get_angle());
+}
+
+void n_alg(Robot &robot, show_img_debug debug) {
+    robot.WayFromFrame();
+    double frame_offset = out_way_offset;
+    robot.Go2({{0, out_way_offset}});
+    RobotPoint start_position;
+    std::vector<PolarPoint> lidar_data;
+    robot.GetLidarPolarPoints(lidar_data);
+    start_position = detect_position(robot, lidar_data, frame_offset);
+    while(!start_position.is_defined()) {
+        robot.Go2({{0, 2 * field_sett::size_field_unit}});
+        frame_offset += 2 * field_sett::size_field_unit;
+        lidar_data.clear();
+        start_position = detect_position(robot, lidar_data, frame_offset);
+    }
+    write_log("Position:/n x: " + std::to_string(start_position.get_x()) +
+        " y: " + std::to_string(start_position.get_y()) +
+        " ang: " + std::to_string(start_position.get_angle()));
+    double ang_offset_frame = 2 * M_PI -start_position.get_angle();
+    Point start_frame_point = Point{frame_offset * cos(ang_offset_frame),
+                                    -frame_offset * sin(ang_offset_frame)} +
+        start_position;
+    Point offset_pz_center {-(field_sett::parking_zone_door_size / 2.) * sin(ang_offset_frame),
+                            -(field_sett::parking_zone_door_size / 2.) * cos(ang_offset_frame)};
+    Map map(start_position,
+            offset_pz_center + start_frame_point,
+            start_frame_point - offset_pz_center);
+    {
+
+        debug("Map_after_init_pos", map.get_img());
+    }
+    robot.GetLidarPolarPoints(lidar_data);
+    map.update(lidar_data, debug);
+    {
+        debug("Map_after_update", map.get_img());
+    }
+    update_box_color(robot, map);
+    auto all_boxes = map.get_boxes();
+    int ind_blue_box = -1;
+    for(int i = 0;i < all_boxes.size(); i++) {
+        if (all_boxes[i].get_color() == blue_c) {
+            ind_blue_box = i;
+        }
+    }
+    if (ind_blue_box >= 0) {
+         BoxMap buff = all_boxes.front();
+         all_boxes[0] = all_boxes[ind_blue_box];
+        all_boxes[ind_blue_box] = buff;
+    }
+    std::vector<Point> way;
+    Point end_point;
+    for (int i = 0; i < all_boxes.size(); i++) {
+        if (go_to2(map, all_boxes[i].get_box_indent(), way, end_point, true, debug)) {
+            turn2box(robot, all_boxes[i], map);
+            go2box(robot, way,  Robot::CatchCubeSideEnum::LEFT);
+            break;
+        }
+    }
+    //TODO: парковка
 }
