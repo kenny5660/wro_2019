@@ -1,4 +1,5 @@
-﻿*
+﻿
+!v-rep/**
 !highLogic
 !.gitignore
 !wro2019main
@@ -20,6 +21,13 @@ Tests/lidar_math/*.ld
 /wro2019main/VisualGDB/Debug/CodeDB
 *.vcxproj
 *.sln
+*.db*
+*.lib
+*.tlog*
+*.exe
+*.dll
+**/Debug/**
+**/.vs/**
 /wro2019main/Robot_exe/VisualGDB/Debug
 /wro2019main/Robot_high_lvl_lib/VisualGDB/Debug
 /wro2019main/Robot_low_Lvl_lib/VisualGDB/Debug

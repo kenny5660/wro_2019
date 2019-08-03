@@ -3,7 +3,7 @@
 #include <cmath>
 #include <thread>
 #include <iostream>
-void Servo_ocs251::SetDegrees(double deg, bool wait, uint16_t time)
+void ServoOcs251::SetDegrees(double deg, bool wait, uint16_t time)
 {
 	uint8_t data[4];
 	int servo_deg = (deg + offset_deg_) / SERVO_D_251_DEGREE_COEF;
@@ -21,31 +21,10 @@ void Servo_ocs251::SetDegrees(double deg, bool wait, uint16_t time)
 	data[3] = time & 0xFF;
 	data[2] = (time >> 8) & 0xFF;
 	WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
-	if (wait)
-	{
-		while (1)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(100 + time));
-			int cur_deg = GetDegrees();
-			if (cur_deg < 0)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(100 + time));
-				break;
-			}
-			int a = abs(deg - cur_deg);
-			if (a < 10)
-			{
-				break;
-			}
-			WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
-		}
-//		std::this_thread::sleep_for(std::chrono::milliseconds(200 + time));
-//		WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
-	}
-	//Delay_servo(100);	
+	WaitSet(wait, deg, time,data);
 }
 
-int Servo_ocs251::GetDegrees()
+int ServoOcs251::GetDegrees()
 {
 	uint8_t data[2];
 	int err = ReadData(SERVO_D_ADDR_CURRENT_POSITION, data, 2);
@@ -55,7 +34,7 @@ int Servo_ocs251::GetDegrees()
 	return err < 0 ?err:deg;
 }
 
-int Servo_ocs251::GetLead()
+int ServoOcsBase::GetLead()
 {
 	uint8_t data[2];
 	ReadData(SERVO_D_ADDR_CURRENT_LEAD, data, 2);
@@ -66,21 +45,21 @@ int Servo_ocs251::GetLead()
 }
 
 
-bool Servo_ocs251::IsLead()
+bool ServoOcsBase::IsLead()
 {
 	int lead = GetLead(); 
 	//std::cout << "Servo current lead: " << lead << std::endl;                  
 	return lead > SERVO_D_LEAD_MID;
 }
 
-void Servo_ocs251::Disable()
+void ServoOcsBase::Disable()
 {
 	uint8_t data = 0;
 	WriteData(SERVO_D_ADDR_TORQUE_SWITCH, &data, 1);
 }
 
 
-void Servo_ocs251::Enable()
+void ServoOcsBase::Enable()
 {
 	uint8_t data = 1;
 	WriteData(SERVO_D_ADDR_TORQUE_SWITCH, &data, 1);
@@ -88,7 +67,7 @@ void Servo_ocs251::Enable()
 
 
 
-int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
+int ServoOcsBase::ReadData(uint8_t addr, uint8_t *data, size_t size)
 {
 	for (int i = 0;i < 10;i++)
 	{
@@ -140,7 +119,7 @@ int Servo_ocs251::ReadData(uint8_t addr, uint8_t *data, size_t size)
 	//		throw std::runtime_error((std::string("Read error, time out, Servo! id  = ") + std::to_string(id_)));
 		return - 1;
 }
-void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
+void ServoOcsBase::WriteData(uint8_t addr, uint8_t* data, size_t size)
 {
 	uint8_t check_sum = id_ + 3 + size + SERVO_D_INSTRUCTION_WRITE + addr;
 	uint8_t* data_packet = (uint8_t*)malloc(7 + size);
@@ -184,21 +163,19 @@ void Servo_ocs251::WriteData(uint8_t addr, uint8_t* data, size_t size)
 
 
 
-Servo_ocs251::Servo_ocs251(uint8_t id, 
+ServoOcs251::ServoOcs251(uint8_t id, 
 	std::shared_ptr<Uart> uart,
-	double offset_deg_)
-	: uart_(uart)
-	, id_(id)
-	, offset_deg_(offset_deg_)
+	double offset_deg)
+	: ServoOcsBase(id, uart, offset_deg)
 {
 	if (Ping() != id_)
 	{
-		throw std::runtime_error(std::string("Ping error, Servo! id  = ") + std::to_string(id_));
+		throw std::runtime_error(std::string("Ping error Ocs251, Servo! id  = ") + std::to_string(id_));
 	}
 }
 
 
-int Servo_ocs251::Ping()
+int ServoOcsBase::Ping()
 {
 	uint8_t size = 0x2;
 	uint8_t check_sum = id_ + SERVO_D_INSTRUCTION_PING + size;
@@ -220,9 +197,92 @@ int Servo_ocs251::Ping()
 	int status = uart_->Get(data_packet_return, 6);
 	if (data_packet_return[2] != id_ || data_packet_return[0] != 0xFF || data_packet_return[1] != 0xFF ||  uart_->isError()) 
 	{
-		throw std::runtime_error(std::string("Ping error, Servo! id  = ") + std::to_string(id_));
+		std::cout << std::string("Ping error, Servo! id  = ") + std::to_string(id_);
+		return 0xFF;
 	}
 	return data_packet_return[2];
 }
 
+
+
+
+ServoOcsBase::ServoOcsBase(uint8_t id, 
+	std::shared_ptr<Uart> uart, 
+	double offset_deg /* = 0 */)
+	: uart_(uart)
+	, id_(id)
+	, offset_deg_(offset_deg)
+{
+}
+
+
+ServoOcs301::ServoOcs301(uint8_t id, 
+	std::shared_ptr<Uart> uart, 
+	double offset_deg /* = 0 */):
+	ServoOcsBase(id, uart, offset_deg)
+{
+	if (Ping() != id_)
+	{
+		throw std::runtime_error(std::string("Ping error Ocs301, Servo! id  = ") + std::to_string(id_));
+	}
+}
+
+void ServoOcs301::SetDegrees(double deg, bool wait /* = false */, uint16_t time /* = 0 */)
+{
+	uint8_t data[4];
+	int servo_deg = (deg + offset_deg_) / SERVO_D_301_DEGREE_COEF;
+	if (servo_deg > kMaxServoDeg)
+	{
+		throw std::runtime_error("Error, servo angle more than it can!");
+	}
+	if (servo_deg < kMinServoDeg)
+	{
+		throw std::runtime_error("Error, servo angle less than it can!");
+	}
+	data[1] = (servo_deg >> 8) & 0xFF;
+	data[0] = servo_deg & 0xFF;
+
+	data[3] = time & 0xFF;
+	data[2] = (time >> 8) & 0xFF;
+	WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
+	
+	WaitSet(wait,deg,time,data);
+}
+
+
+void ServoOcsBase::WaitSet(bool isWhait, double deg, uint16_t time, uint8_t data[4])	
+{
+	if (isWhait)
+	{
+		while (1)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100 + time));
+			int cur_deg = GetDegrees();
+			if (cur_deg < 0)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(100 + time));
+				break;
+			}
+			int a = abs(deg - cur_deg);
+			if (a < 10)
+			{
+				break;
+			}
+			WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
+		}
+		//		std::this_thread::sleep_for(std::chrono::milliseconds(200 + time));
+		//		WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
+	}
+}
+
+
+int ServoOcs301::GetDegrees()
+{
+uint8_t data[2];
+int err = ReadData(SERVO_D_ADDR_CURRENT_POSITION, data, 2);
+int deg = (int)data[1] << 8;
+deg |= (int)data[0];
+deg *= SERVO_D_301_DEGREE_COEF;
+return err < 0 ? err : deg;
+}
 

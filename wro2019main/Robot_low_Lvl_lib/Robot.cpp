@@ -58,9 +58,9 @@ void RobotGardener::Init()
 	uart_A->Clear();
 	uart_B->Clear();
 	uart_Bridge->Clear();
-	std::shared_ptr<Servo> servo_cam(new Servo_ocs251(8, uart_Bridge));
-	std::shared_ptr<Servo> servo_up(new Servo_ocs251(5, uart_Bridge));
-	std::shared_ptr<Servo> servo_low(new Servo_ocs251(9, uart_Bridge));
+	std::shared_ptr<Servo> servo_cam(new ServoOcs251(8, uart_Bridge));
+	std::shared_ptr<Servo> servo_up(new ServoOcs251(5, uart_Bridge));
+	std::shared_ptr<Servo> servo_low(new ServoOcs301(3, uart_Bridge));
 	
 
 	
@@ -99,8 +99,8 @@ void RobotGardener::Init()
 	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar, LidarA1::LidarMod::k8k));
 	lidar_->StartScan(0.2);
 	
-	man_->CatchRight();
-	man_->Home();
+//	man_->CatchRight();
+//	man_->Home();
 	indicator_->Display(Indicator::WHITE);
 	Delay(400);
 	indicator_->Display(Indicator::OFF);
