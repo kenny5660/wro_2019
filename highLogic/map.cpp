@@ -708,8 +708,8 @@ void Map::lines_detection(const std::vector<std::vector<std::pair<Point, line_t>
 
     if (debug != nullptr) {
         DebugFieldMat img;
-        add_lines_img(img, points);
-        add_point_img(img, min_point);
+        img.add_lines(points);
+        img.add_point(min_point);
         debug("", img);
     }
 
@@ -756,9 +756,9 @@ void Map::lines_detection(const std::vector<std::vector<std::pair<Point, line_t>
     robot_position.set_angle((start_angel)); //TODO: тут не уверен
     if (debug != nullptr) {
         DebugFieldMat img2;
-        add_lines_img(img2, rot_points, true);
-        add_robot_img_global(img2, robot_position);
-        add_point_img(img2);
+        img2.add_lines(rot_points, true);
+        img2.add_robot_global(robot_position);
+        img2.add_point();
         debug("2", img2);
     }
 
@@ -1125,7 +1125,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
     std::vector<std::vector<Point>> points_in_robot;
     if (debug != nullptr) {
         DebugFieldMat mat1;
-        add_lines_img(mat1, points);
+        mat1.add_lines(points);
         debug("Data", mat1);
     }
     double ang_offset = -position_.get_angle();
@@ -1139,7 +1139,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
     }
     if (debug != nullptr) {
         DebugFieldMat mat1;
-        add_lines_img(mat1, points_in_robot);
+        mat1.add_lines(points_in_robot);
         debug("Data", mat1);
     }
     double ang_error = get_angle_lines(points_in_robot, std::make_pair(Point{parking_zone_circles_.first.get_x() - position_.get_x(),
@@ -1156,7 +1156,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
 
     if (debug != nullptr) {
         DebugFieldMat mat1;
-        add_lines_img(mat1, points);
+        mat1.add_lines(points);
 //        add_point_img(mat1, {parking_zone_circles_.first.get_x() - position_.get_x(),
 //                             -(parking_zone_circles_.first.get_y() - position_.get_y())});
 //        add_point_img(mat1, Point{parking_zone_circles_.second.get_x() - position_.get_x(),
@@ -1169,8 +1169,8 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
                          points, lidar_sett::ang_death, position_);
     if (debug != nullptr) {
         DebugFieldMat mat1;
-        add_lines_img(mat1, lines, true);
-        add_point_img(mat1, position_);
+        mat1.add_lines(lines, true);
+        mat1.add_point(position_);
         debug("Update_map_in_global", mat1);
     }
     MassPoint new_pos;
@@ -1260,7 +1260,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug deb
     normal_death_zone();
     if (debug != nullptr) {
         DebugFieldMat mat1;
-        add_lines_img(mat1, lines, true);
+        mat1.add_lines(lines, true);
         debug("Update_map_in_robot", mat1);
         debug("Death_zone", get_img());
     }

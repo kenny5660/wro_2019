@@ -55,7 +55,7 @@ TEST(MathFunc, GetLinesCorne) {
     auto corners = get_corners(points);
     {
         DebugFieldMat mat;
-        add_lines_img(mat, corners);
+        mat.add_lines(corners);
         show_debug_img("", mat);
     }
     double ang = get_angle_lines(corners, {Point{-1000},
@@ -64,7 +64,7 @@ TEST(MathFunc, GetLinesCorne) {
     corners_rot(corners, ang);
     {
         DebugFieldMat mat;
-        add_lines_img(mat, corners);
+        mat.add_lines(corners);
         show_debug_img("", mat);
     }
 }

@@ -238,8 +238,8 @@ std::vector<std::vector<Point>> get_corners(const std::vector<PolarPoint> &polar
     }
     if (debug != nullptr) {
         DebugFieldMat mat;
-        add_points_img(mat, cartesian_points);
-        add_lines_img(mat, ans);
+        mat.add_points(cartesian_points);
+        mat.add_lines(ans);
         debug("get_corners_lidar_math", mat);
     }
     return ans;
@@ -846,9 +846,9 @@ Point position_box_left_corners(const std::vector<PolarPoint> &polar_point,
     std::vector<std::vector<Point>> points = get_corners(polar_point);
     if (debug != nullptr) {
         DebugFieldMat mat;
-        add_lines_img(mat, points);
-        add_point_img(mat);
-        add_point_img(mat, to);
+        mat.add_lines(points);
+        mat.add_point();
+        mat.add_point(to);
 	    save_ld_data(polar_point);
         debug("Box_side_detect", mat);
     }

@@ -38,6 +38,23 @@ public:
 		: Mat(cv::Size(debug_width_img, debug_height_img), CV_8UC3) {
 	}
 
+    void add_points(const std::vector<Point> &points,
+                    const cv::Scalar &color = {7, 178, 55});
+    void add_lines(const std::vector<std::vector<Point>> &points,
+                   const cv::Scalar &color = { 128, 123, 190 },
+                   const cv::Scalar &color_corn = { 255, 255, 255 });
+    void add_lines(const std::vector<std::vector<std::pair<Point,
+                                                           line_t>>> &points,
+                   bool writing = false,
+                   const cv::Scalar &color_corn = { 128, 123, 190 });
+    void add_point(const Point &p = {0, 0},
+                   const cv::Scalar &circle_color = {0, 0, 255});
+    void add_robot_global(const RobotPoint r_p,
+                          const cv::Scalar &circle_color = {106, 103, 107});
+
+    void show(const std::string s = "");
+
+ public:
 	Point get_zoom_point(const Point &p) const {
 		return {
 			 (p.get_x() - offset.get_x()) * zoom + indent,
@@ -59,27 +76,6 @@ public:
 
 	const size_t indent = 10;
 };
-
-void add_points_img(DebugFieldMat &mat,
-	const std::vector<Point> &points,
-	const cv::Scalar &color = { 7, 178, 55 });
-
-void add_lines_img(DebugFieldMat &mat,
-	const std::vector<std::vector<Point>> &points,
-	const cv::Scalar &color = { 128, 123, 190 },
-	const cv::Scalar &color_corn = { 255, 255, 255 });
-
-void add_lines_img(DebugFieldMat &mat,
-	const std::vector<std::vector<std::pair<Point,
-	line_t>>> &points,
-	bool writing = false,
-	const cv::Scalar &color_corn = { 128, 123, 190 });
-
-void add_robot_img_global(DebugFieldMat &mat,
-	const RobotPoint r_p,
-	const cv::Scalar &circle_color = { 106, 103, 107 });
-
-void add_point_img(DebugFieldMat &mat, const Point &p = { 0, 0 }, const cv::Scalar &circle_color = { 0, 0, 255 });
 
 void save_ld_data(const std::vector<PolarPoint> &p, const std::string &s = "");
 

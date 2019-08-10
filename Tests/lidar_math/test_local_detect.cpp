@@ -14,7 +14,7 @@ TEST(PositionBoxSide, l) {
             dp.push_back(points[i].to_cartesian(-M_PI, true));
         }
         DebugFieldMat mat;
-        add_points_img(mat, dp);
+        mat.add_points(dp);
         show_debug_img("", mat);
     }
     //Point p = position_box_left_corners(points, 1, 1, show_debug_img);

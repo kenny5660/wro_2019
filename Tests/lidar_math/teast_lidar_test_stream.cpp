@@ -22,7 +22,7 @@ TEST(StreamTest, DrawPoint) {
             for (auto i : p) {
                 buff.push_back(i.to_cartesian(-M_PI, true));
             }
-            add_points_img(mat, buff);
+            mat.add_points(buff);
             imshow(name, mat);
             cv::waitKey(33);
         }
@@ -42,7 +42,7 @@ TEST(StreamTest, getCorners) {
             std::vector<std::vector<Point>> corners = get_corners(p);
             cv::rectangle(mat, cv::Point(0, 0), cv::Point(debug_width_img, debug_height_img), cv::Scalar(0, 0,0 ), CV_FILLED);
             mat.zoom = 0;
-            add_lines_img(mat, corners);
+            mat.add_lines(corners);
             imshow(name, mat);
             cv::waitKey(33);
         }
@@ -75,7 +75,7 @@ TEST(StreamTest, detectTypeLine) {
                           cv::Scalar(0, 0, 0),
                           CV_FILLED);
             mat.zoom = 0;
-            add_lines_img(mat, corners);
+            mat.add_lines(corners);
             imshow(name, mat);
             cv::waitKey(33);
         }

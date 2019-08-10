@@ -95,9 +95,9 @@ void frame_connect(Robot &robot, double out_way_offset, double start_angle) {
 	{
 		DebugFieldMat mat;
 		auto ln = line2line_type(points);
-		add_lines_img(mat, ln);
-		add_point_img(mat);
-		add_point_img(mat, point_offset);
+        mat.add_lines(ln);
+        mat.add_point();
+        mat.add_point(point_offset);
 		save_debug_img("frame_conect", mat);
 	}
 	Point p = { points[ind_nearly_point.first][ind_nearly_point.second].get_y(), -points[ind_nearly_point.first][ind_nearly_point.second].get_x() - field_sett::parking_zone_door_size / 2.0 };
@@ -170,13 +170,90 @@ color_t do_box(Robot &robot, Map &map, BoxMap &box, Robot::CatchCubeSideEnum &si
     return color_next;
 }
 
+PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, const RobotPoint &position, BoxMap &box) {
+    Point box_center = (box.get_left_corner_point()
+        + Point{field_sett::climate_box_width / 2.,
+                field_sett::climate_box_height / 2.}
+        - position);
+
+    auto point_is_box = [&box_center](const Point &p) { return in_outline({{box_center.get_x() - (field_sett::climate_box_width + lidar_sett::max_tr_error),
+                                                                            box_center.get_y() - (field_sett::climate_box_height + lidar_sett::max_tr_error)},
+                                                                           {box_center.get_x() + (field_sett::climate_box_width + lidar_sett::max_tr_error),
+                                                                            box_center.get_y() - (field_sett::climate_box_height + lidar_sett::max_tr_error)},
+                                                                           {box_center.get_x() + (field_sett::climate_box_width + lidar_sett::max_tr_error),
+                                                                            box_center.get_y() + (field_sett::climate_box_height + lidar_sett::max_tr_error)},
+                                                                           {box_center.get_x() - (field_sett::climate_box_width + lidar_sett::max_tr_error),
+                                                                            box_center.get_y() + (field_sett::climate_box_height + lidar_sett::max_tr_error)}}, p); };
+
+    unsigned int count_in = 0;
+    unsigned int i = 0;
+    const unsigned int number_points = 3;
+    std::pair<unsigned int, unsigned int> box_points;
+    for (; i < points.size(); i++) {
+        if (point_is_box(points[i].to_cartesian())) {
+            count_in++;
+            if (count_in == 1) {
+                box_points.first = i;
+            }
+        }
+        if (count_in >= number_points) {
+            break;
+        }
+        count_in = 0;
+    }
+
+    for (; (i < points.size()) && (point_is_box(points[i].to_cartesian())); i++) {
+        if (!point_is_box(points[i].to_cartesian())) {
+            count_in--;
+            if (count_in == 0) {
+                break;
+            }
+        }
+        count_in = number_points;
+        box_points.second = i;
+    }
+    return points[(box_points.first + box_points.second) / 2];
+}
+
+void get_box_color(Robot &robot, const RobotPoint &position,
+                   std::array<BoxMap, 3> &boxes) {
+    std::vector<PolarPoint> points;
+    robot.GetLidarPolarPoints(points);
+    std::vector<std::pair<int, PolarPoint>> boxes_point(boxes.size());
+    for (int i = 0; i < boxes.size(); ++i) {
+        boxes_point[i] = {i, get_box_color_point(points, position, boxes[i])};
+    }
+    auto colors = robot.GetColorFromAng(boxes_point);
+    for (const auto &i : colors) {
+        boxes[i.first].set_color(i.second);
+    }
+}
+
+int get_box_by_color(const std::array<BoxMap, 3> &boxes, color_t color) {
+  size_t undefine_color = 0;
+  size_t undefined_ind;
+  for (int i = 0; i < boxes.size(); i++) {
+      color_t color_buff = boxes[i].get_color();
+      if (color_buff == undefined_c) {
+        undefine_color++;
+        undefined_ind = i;
+      } else if (color_buff == color) {
+        return i;
+      }
+  }
+  if (undefine_color == 1) {
+    return undefined_ind;
+  }
+  return -1;
+}
+
 void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 	clear_logs();
 #endif
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
     cv::Mat QRCodeImg;
-    if (s == "") {
+    if (s.empty()) {
         robot.WayFromFrame(QRCodeImg);
     }
     std::array<BoxMap, 3> boxes;
@@ -204,14 +281,27 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
     start_position.set_angle(start_angle);
     save_debug_img("QRCodeDetection", map.get_img());
     std::vector<Point> way;
-	show_img_debug db;	
+	show_img_debug db;
 	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 		db = show_debug_img;
 	#else
 		db = save_debug_img;
-	#endif
-	for (auto i : boxes) {
-        do_box(robot, map, i, side_catch, false, kamikaze_mode, db);
+        #endif
+
+    get_box_color(robot, start_position, boxes);
+    color_t current_color = blue_c;
+
+    for (int i = 0; i < boxes.size(); i++) {
+      int ind = get_box_by_color(boxes, current_color);
+      if (ind >= 0) {
+        current_color = do_box(robot, map, boxes[i], side_catch, true, kamikaze_mode, db);
+      } else {
+        way.clear();
+        Point end_point;
+        while (!go_to2(map, boxes[rand() % 3].get_box_indent(), way, end_point, kamikaze_mode, db)) { way.clear(); }
+        robot.Go2(way);
+        map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
+      }
     }
     way.clear();
     Point b;
@@ -250,13 +340,13 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 		2 * field_sett::size_field_unit);
 	{
 		DebugFieldMat mat;
-		add_lines_img(mat, lines);
+        mat.add_lines(lines);
 		debug("befor_rot", mat);
 	}
 	corners_rot(lines, ang);
 	{
 		DebugFieldMat mat;
-		add_lines_img(mat, lines);
+        mat.add_lines(lines);
 		debug("Init_robot_from_start", mat);
 	}
 
@@ -325,10 +415,10 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
     }
     {
         DebugFieldMat mat;
-        add_lines_img(mat, lines);
+        mat.add_lines(lines);
         for (int i = 0; i < suspicious_points.size(); i++) {
             PolarPoint p = suspicious_points[i].second;
-            add_point_img(mat, p.to_cartesian());
+            mat.add_point(p.to_cartesian());
         }
         debug("Init_robot_from_start", mat);
     }
