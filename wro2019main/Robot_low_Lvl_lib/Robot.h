@@ -1,12 +1,13 @@
 #pragma once
 
+
+
 #include "OmniWheels.h"
 #include "Indicator.h"
 #include "DistanceSensor.h"
 #include  "Manipulator.h"
 #include "logic_structures.h"
 #include "lidar.h"
-#include "GPIO.h"
 #include "Button.h"
 #include "Camera.h"
 #include  "OpticalFlow.h"
@@ -56,38 +57,34 @@ private:
 class RobotGardener : public Robot
 {
 public:
-	RobotGardener();
-	void Init() override;
+	std::shared_ptr<CameraRotate> GetCamRot();
 	std::shared_ptr<OmniWheels> GetOmni();
 	std::shared_ptr<Indicator> GetIndicator();
 	std::shared_ptr<Manipulator> GetMan();
 	std::shared_ptr<Lidar> GetLidar();
-	std::shared_ptr<CameraRotate> GetCamRot() override;
-
-	void WaitStartButton();
+	std::shared_ptr<OpticalFlow> GetOptFlow();
+	std::shared_ptr<cv::Mat> GetQrCodeFrame();
+	virtual void WaitStartButton();
 	color_t CatchCube(CatchCubeSideEnum side, bool IsTakePhoto = true) override;
 	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg) override;
 	void WayFromFrame(cv::Mat &frame) override;
 	void QrGetFrame(cv::Mat &frame) override;
 	void WayFromFrame()override;
-	std::shared_ptr<OpticalFlow> GetOptFlow();
-	std::shared_ptr<cv::Mat> GetQrCodeFrame();
+	
 	void Turn(double angle) override;
 	void Go2(std::vector<Point>) override;
-	void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) override;
+	virtual void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points) = 0;
 	std::shared_ptr<DistanceSensor> GetDistSensor(DistSensorEnum dist_sensor) override;
 	std::vector<std::pair<int, color_t>> GetColorFromAng(const std::vector<std::pair<int, PolarPoint>> &ang_pps) override;
-	~RobotGardener();
-
-
-private:
-	void MouseTurn(double angle, int speed);
-	void MoveByOptFlow(std::pair<int, int> toPos, double speed);
-	void MoveByEncoder(std::pair<int, int> toPos, double speed);
+	virtual  ~RobotGardener(){}
 	
-	void CatchLeft_();
-	void CatchRight_();
-	void AlliginHorizontal_(CatchCubeSideEnum side, CatchCubeSideEnum side_relative_cube);
+
+
+protected:
+	virtual void MouseTurn(double angle, int speed);
+	virtual void MoveByOptFlow(std::pair<int, int> toPos, double speed);
+	virtual void MoveByEncoder(std::pair<int, int> toPos, double speed);
+
 	std::shared_ptr<CameraRotate> cam_rot_;
 	std::shared_ptr<Manipulator> man_;
 	std::shared_ptr<OmniWheels> omni_;
@@ -97,3 +94,8 @@ private:
 	std::shared_ptr<Button> start_but_;
 	std::shared_ptr<OpticalFlow> opt_flow_;
 };
+#ifdef HARDWERE_MODE
+#include "RobotHardwere.h"
+#else
+#include "RobotModel.h"
+#endif

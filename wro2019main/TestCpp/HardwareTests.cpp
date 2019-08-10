@@ -39,7 +39,7 @@ TEST_GROUP(HardwareTestGroup)
 	{
 		
 		IGNORE_ALL_LEAKS_IN_TEST();
-		robot = std::shared_ptr<RobotGardener> (new RobotGardener());
+		robot = std::shared_ptr<RobotGardener> (new RobotGardenerHardwere());
 		robot->Init();
 	
 	}

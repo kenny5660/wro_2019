@@ -1,5 +1,5 @@
 #include "Motor.h"
-KangarooMotor::KangarooMotor(std::shared_ptr<KangarooDriver> kangarooDrv, 
+MotorKangaroo::MotorKangaroo(std::shared_ptr<KangarooDriver> kangarooDrv, 
 	uint8_t chnl,
 	bool inverted,
 	int counts_per_deg)
@@ -10,43 +10,43 @@ KangarooMotor::KangarooMotor(std::shared_ptr<KangarooDriver> kangarooDrv,
 		kangaroo_drv_->CmdStart(chnl_);
 		ResetEnc();
 	}
-void KangarooMotor::MoveTime(int speed, int msec)
+void MotorKangaroo::MoveTime(int speed, int msec)
 {
 	throw std::runtime_error("Not implemented");
 }
-int KangarooMotor::GetCurEnc() const
+int MotorKangaroo::GetCurEnc() const
 {
 	auto params =	kangaroo_drv_->CmdGet(chnl_, KangarooDriver::kGetPos);
 	return params.first*inverted_coef_;
 }
 
-int  KangarooMotor::GetCurEncDeg() const
+int  MotorKangaroo::GetCurEncDeg() const
 {
 	return GetCurEnc() / counts_per_deg_;
 }
 
-int  KangarooMotor::GetCurEncRot() const
+int  MotorKangaroo::GetCurEncRot() const
 {
 	return GetCurEnc() / counts_per_deg_ / 360;
 }
 
-bool  KangarooMotor::IsReady()
+bool  MotorKangaroo::IsReady()
 {
 	auto params = kangaroo_drv_->CmdGet(chnl_, KangarooDriver::kGetPos);
 	return (params.second & 2) == 0;
 }
 
-void KangarooMotor::ResetEnc()
+void MotorKangaroo::ResetEnc()
 {
 	kangaroo_drv_->CmdHome(chnl_);
 }
 
-void KangarooMotor::Stop()
+void MotorKangaroo::Stop()
 {
 	kangaroo_drv_->CmdMoveToSpeed(chnl_, 0);
 }
 
-void  KangarooMotor::MoveContinue(int speed)
+void  MotorKangaroo::MoveContinue(int speed)
 {
 	speed *= inverted_coef_*counts_per_deg_;
 	speed = speed > 1500 ? 1500 : speed;
@@ -54,7 +54,7 @@ void  KangarooMotor::MoveContinue(int speed)
 	kangaroo_drv_->CmdMoveToSpeed(chnl_, speed);
 }
 
-void KangarooMotor::MoveIncEncCounts(int speed, int counts, bool wait)
+void MotorKangaroo::MoveIncEncCounts(int speed, int counts, bool wait)
 {
 	speed *= inverted_coef_*counts_per_deg_;
 	if (speed != 0) {
@@ -63,17 +63,17 @@ void KangarooMotor::MoveIncEncCounts(int speed, int counts, bool wait)
 	while (!IsReady() && wait) ;
 }
 
-void KangarooMotor::MoveIncDeg(int speed, int deg, bool wait)
+void MotorKangaroo::MoveIncDeg(int speed, int deg, bool wait)
 {
 	MoveIncEncCounts(speed, deg*counts_per_deg_, wait);
 }
 
-void KangarooMotor::MoveIncRot(int speed, int rot, bool wait)
+void MotorKangaroo::MoveIncRot(int speed, int rot, bool wait)
 {
 	MoveIncDeg(speed, rot * 360, wait);
 }
 
-void KangarooMotor::MoveToEncCounts(int speed, int counts, bool wait)
+void MotorKangaroo::MoveToEncCounts(int speed, int counts, bool wait)
 {
 	speed *= inverted_coef_*counts_per_deg_;
 	if (speed != 0) {
@@ -82,12 +82,12 @@ void KangarooMotor::MoveToEncCounts(int speed, int counts, bool wait)
 	while (!IsReady() && wait) ;
 }
 
-void KangarooMotor::MoveToDeg(int speed, int deg, bool wait)
+void MotorKangaroo::MoveToDeg(int speed, int deg, bool wait)
 {
 	MoveToEncCounts(speed, deg*counts_per_deg_, wait);
 }
 
-void KangarooMotor::MoveToRot(int speed, int rot, bool wait)
+void MotorKangaroo::MoveToRot(int speed, int rot, bool wait)
 {
 	MoveToDeg(speed, rot * 360, wait);
 }
