@@ -23,5 +23,5 @@ public:
 #ifdef HARDWERE_MODE
 #include "LidarA1.h"
 #else
-#include "RobotModel.h"
+//#include "RobotModel.h"
 #endif

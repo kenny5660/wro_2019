@@ -526,7 +526,7 @@ void Map::add_pz(const Point &p_1, const Point &p_2) {
         [](double s1, double s2){ return Point{sin(atan(1)) * s1, cos(atan(1)) * s2}; },
         [](double s1, double s2){ return Point{sin(atan(2)) * s1, cos(atan(2)) * s2}; },
         [](double s1, double s2){ return Point{sin(atan(3)) * s1, cos(atan(3)) * s2}; },
-        [](double s1, double s2){ return Point{field_sett::max_field_width, field_sett::max_field_height}; }
+        [](double s1, double s2){ return Point(field_sett::max_field_width, field_sett::max_field_height); }
     };
     double last_dist = field_sett::max_field_width;
     for (int i = 0; i < kPoint_offset; i++) {
@@ -594,10 +594,10 @@ std::vector<Point> get_corners_between_lines(const Point &a, const Point &b) {
         }
         return mr;
     };
-    const Point corner[4] = {{0, field_sett::max_field_height},
-                             {0, 0},
-                             {field_sett::max_field_width, 0},
-                             {field_sett::max_field_width, field_sett::max_field_height}};
+    const Point corner[4] = {(0, field_sett::max_field_height),
+                             (0, 0),
+                             (field_sett::max_field_width, 0),
+                             (field_sett::max_field_width, field_sett::max_field_height)};
     field_margin end = nearest_line(a);
     std::vector<Point> ans;
     for (field_margin i = nearest_line(b); i != end; i = (field_margin)(((int)i - 1 + 4) % 4)) {
@@ -606,10 +606,10 @@ std::vector<Point> get_corners_between_lines(const Point &a, const Point &b) {
     return ans;
 }
 
-const Point type_box_corner2offset[4] = {{0, 0},
-                                         {-field_sett::climate_box_width, 0},
-                                         {-field_sett::climate_box_width, field_sett::climate_box_height},
-                                         {0, field_sett::climate_box_height}};
+const Point type_box_corner2offset[4] = {{0.0, 0.0},
+                                         (-field_sett::climate_box_width, 0),
+                                         (-field_sett::climate_box_width, field_sett::climate_box_height),
+                                         (0.0, field_sett::climate_box_height)};
 
 bool Map::add_box_from_line(std::vector<std::vector<std::pair<Point, line_t>>> &points, int i, int j) {
     box_corner_type type = get_box_corner_type(points[i], j);
@@ -1282,4 +1282,5 @@ void detect_area_zone(std::array<std::array<int, field_sett::number_field_unit>,
 
 Point Map::get_max_death_zone() {
     // TODO;
+  return Point(0, 0);
 }

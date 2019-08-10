@@ -2,9 +2,6 @@
 #include <utility>
 #include <memory>
 #include <atomic>
-#include <thread>
-#include "Spi.h"
-#include "GPIO.h"
 class OpticalFlow
 {
 public:
@@ -18,5 +15,5 @@ public:
 #include "HidMice.h"
 #include "ADNS3080.h"
 #else
-#include "RobotModel.h"
+//#include "RobotModel.h"
 #endif

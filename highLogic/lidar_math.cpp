@@ -607,8 +607,8 @@ std::pair<RobotPoint, std::pair<Point, Point>> init_pos(const std::vector<PolarP
 //        add_lines_img(mat, corners);
 //        show_debug_img("", mat);
 //    }
-    auto pz_lines = std::make_pair(get_cross_from_lines(corners, {0, 0}, {0, field_sett::max_field_width}).second,
-                                   get_cross_from_lines(corners, {0, 0}, {0, -field_sett::max_field_width}).second);
+    auto pz_lines = std::make_pair(get_cross_from_lines(corners, (0, 0), (0, field_sett::max_field_width)).second,
+                                   get_cross_from_lines(corners, (0, 0), (0, -field_sett::max_field_width)).second);
     auto first_boarder = get_cross_from_lines(corners,
                                               (corners[pz_lines.first.first][pz_lines.first.second] - corners[pz_lines.first.first][pz_lines.first.second + 1]) * field_sett::max_field_width,
                                               corners[pz_lines.first.first][

@@ -11,5 +11,5 @@ public:
 #ifdef HARDWERE_MODE
 #include "ButtonOnMyrio.h"
 #else
-#include "RobotModel.h"
+//#include "RobotModel.h"
 #endif

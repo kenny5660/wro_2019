@@ -1,8 +1,8 @@
 #pragma once
 #include <opencv2/core.hpp>
 #include "logic_structures.h"
-#if !(defined(WIN32) || defined(_WIN32) || \
-      defined(__WIN32) && !defined(__CYGWIN__))
+#if( !(defined(WIN32) || defined(_WIN32) || \
+      defined(__WIN32) && !defined(__CYGWIN__))) || defined(SIMULATION_MODE)
 #include <Robot.h>
 #else
 namespace Robot {

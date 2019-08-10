@@ -10,7 +10,7 @@
 #include "lidar.h"
 #include "Button.h"
 #include "Camera.h"
-#include  "OpticalFlow.h"
+#include "OpticalFlow.h"
 #include "map.h"
 class Robot
 {
@@ -97,5 +97,5 @@ protected:
 #ifdef HARDWERE_MODE
 #include "RobotHardwere.h"
 #else
-#include "RobotModel.h"
+//#include "RobotModel.h"
 #endif

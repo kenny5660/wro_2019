@@ -13,5 +13,5 @@ virtual	int GetDistance() = 0;
 #ifdef HARDWERE_MODE
 #include "Sharp2_15.h"
 #else
-#include "RobotModel.h"
+//#include "RobotModel.h"
 #endif

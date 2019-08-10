@@ -27,10 +27,10 @@ class BoxMap {
     BoxMap(const Point &p, color_t color = undefined_c);
 
     void add_point(const Point&);
-    MassPoint set_left_corner_point(const MassPoint &p) { left_up_corner_ = p; }
+    void set_left_corner_point(const MassPoint &p) { left_up_corner_ = p; }
     MassPoint get_left_corner_point() const { return left_up_corner_; }
-    MassPoint add_left_corner_point(const MassPoint &p) { left_up_corner_.merge(p); }
-    MassPoint add_left_corner_point(const Point &p) { left_up_corner_.merge(MassPoint(p)); }
+    void add_left_corner_point(const MassPoint &p) { left_up_corner_.merge(p); }
+    void add_left_corner_point(const Point &p) { left_up_corner_.merge(MassPoint(p)); }
 
     void merge(const BoxMap &);
 
