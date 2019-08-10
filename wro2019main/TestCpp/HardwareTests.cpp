@@ -113,17 +113,17 @@ TEST(HardwareTestGroup, Servo_getDeg_test)
 	robot->GetCamRot()->GetServo()->Disable();
 	while (1)
 	{
-		int degLow  = robot->GetMan()->GetServoLow()->GetDegrees();
-		int degUp = robot->GetMan()->GetServoUp()->GetDegrees();
-		int deg_up = robot->GetCamRot()->GetServo()->GetDegrees();   //268
+		double degLow  = robot->GetMan()->GetServoLow()->GetDegrees();
+		double degUp = robot->GetMan()->GetServoUp()->GetDegrees();
+		double deg_up = robot->GetCamRot()->GetServo()->GetDegrees();    //268
 		
-		int deg2Low  = robot->GetMan()->GetServoLow()->GetDegrees();
-		int deg2Up  = robot->GetMan()->GetServoUp()->GetDegrees();
-		int deg2_cam = robot->GetCamRot()->GetServo()->GetDegrees();
+		double deg2Low  = robot->GetMan()->GetServoLow()->GetDegrees();
+		double deg2Up  = robot->GetMan()->GetServoUp()->GetDegrees();
+		double deg2_cam = robot->GetCamRot()->GetServo()->GetDegrees();
 	
-		int deg3Low  = robot->GetMan()->GetServoLow()->GetDegrees();
-		int deg3Up  = robot->GetMan()->GetServoUp()->GetDegrees();
-		int deg3_up = robot->GetCamRot()->GetServo()->GetDegrees();
+		double deg3Low  = robot->GetMan()->GetServoLow()->GetDegrees();
+		double deg3Up  = robot->GetMan()->GetServoUp()->GetDegrees();
+		double deg3_up = robot->GetCamRot()->GetServo()->GetDegrees();
 		std::cout  << "degLow = " << degLow << " deg2Up = " << deg2Up << " deg2_cam = " << deg2_cam << std::endl;
 	}
 
@@ -213,8 +213,8 @@ TEST(HardwareTestGroup, Robot_turn_test)
 TEST(HardwareTestGroup, Robot_go2_test)
 {
 	std::vector<Point> traj = { 
-		{ 0, 115 * 4,},
-		{0,-115*4 }
+		{ 0, 115 * 4}
+//		{0,-115*4 }
 //		{0, 115*4}
 //		{0, -115},
 //		{0, -115}

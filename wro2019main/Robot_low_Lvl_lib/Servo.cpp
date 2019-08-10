@@ -21,17 +21,17 @@ void ServoOcs251::SetDegrees(double deg, bool wait, uint16_t time)
 	data[3] = time & 0xFF;
 	data[2] = (time >> 8) & 0xFF;
 	WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
-	WaitSet(wait, deg, time,data);
+	WaitSet(wait, deg, time, data);
 }
 
-int ServoOcs251::GetDegrees()
+double ServoOcs251::GetDegrees()
 {
 	uint8_t data[2];
 	int err = ReadData(SERVO_D_ADDR_CURRENT_POSITION, data, 2);
 	int deg = (int)data[0] << 8;
 	deg |= (int)data[1];
-	deg *= SERVO_D_251_DEGREE_COEF;
-	return err < 0 ?err:deg;
+	double realDeg =  deg*SERVO_D_251_DEGREE_COEF;
+	return err < 0 ? err : realDeg;
 }
 
 int ServoOcsBase::GetLead()
@@ -69,7 +69,7 @@ void ServoOcsBase::Enable()
 
 int ServoOcsBase::ReadData(uint8_t addr, uint8_t *data, size_t size)
 {
-	for (int i = 0;i < 10;i++)
+	for (int i = 0; i < 10; i++)
 	{
 		uint8_t check_sum = id_ + SERVO_D_INSTRUCTION_READ + addr + size + 4;
 		check_sum = ~check_sum;
@@ -218,8 +218,8 @@ ServoOcsBase::ServoOcsBase(uint8_t id,
 
 ServoOcs301::ServoOcs301(uint8_t id, 
 	std::shared_ptr<Uart> uart, 
-	double offset_deg /* = 0 */):
-	ServoOcsBase(id, uart, offset_deg)
+	double offset_deg /* = 0 */)
+	: ServoOcsBase(id, uart, offset_deg)
 {
 	if (Ping() != id_)
 	{
@@ -242,11 +242,11 @@ void ServoOcs301::SetDegrees(double deg, bool wait /* = false */, uint16_t time 
 	data[1] = (servo_deg >> 8) & 0xFF;
 	data[0] = servo_deg & 0xFF;
 
-	data[3] = time & 0xFF;
-	data[2] = (time >> 8) & 0xFF;
+	data[2] = time & 0xFF;
+	data[3] = (time >> 8) & 0xFF;
 	WriteData(SERVO_D_ADDR_GOAL_POSITION, data, 4);
 	
-	WaitSet(wait,deg,time,data);
+	WaitSet(wait, deg, time, data);
 }
 
 
@@ -276,13 +276,13 @@ void ServoOcsBase::WaitSet(bool isWhait, double deg, uint16_t time, uint8_t data
 }
 
 
-int ServoOcs301::GetDegrees()
+double ServoOcs301::GetDegrees()
 {
-uint8_t data[2];
-int err = ReadData(SERVO_D_ADDR_CURRENT_POSITION, data, 2);
-int deg = (int)data[1] << 8;
-deg |= (int)data[0];
-deg *= SERVO_D_301_DEGREE_COEF;
-return err < 0 ? err : deg;
+	uint8_t data[2];
+	int err = ReadData(SERVO_D_ADDR_CURRENT_POSITION, data, 2);
+	int deg = (int)data[1] << 8;
+	deg |= (int)data[0];
+	double realDeg =  deg*SERVO_D_301_DEGREE_COEF;
+	return err < 0 ? err : realDeg;
 }
 

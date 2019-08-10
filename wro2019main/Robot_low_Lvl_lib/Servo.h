@@ -8,7 +8,7 @@ public:
 	virtual void Enable() = 0;
 	virtual void Disable() = 0;
 	virtual void SetDegrees(double deg,bool wait = false, uint16_t time = 0) = 0;
-	virtual int GetDegrees() = 0;
+	virtual double GetDegrees() = 0;
 	virtual int GetLead()  = 0;
 	virtual bool IsLead() = 0;
 
@@ -62,7 +62,7 @@ class ServoOcs251 : public ServoOcsBase
 public:
 	ServoOcs251(uint8_t id, std::shared_ptr<Uart> uart, double offset_deg  = 0);
 	void SetDegrees(double deg, bool wait = false, uint16_t time = 0) override;
-	int GetDegrees()override;
+	double GetDegrees()override;
 private:
 	const double SERVO_D_251_DEGREE_COEF = 0.3519061583577712609970674486803;
 	const int kMaxServoDeg = 1023;  
@@ -74,7 +74,7 @@ class ServoOcs301 : public ServoOcsBase
 public:
 	ServoOcs301(uint8_t id, std::shared_ptr<Uart> uart, double offset_deg  = 0);
 	void SetDegrees(double deg, bool wait = false, uint16_t time = 0) override;
-	int GetDegrees()override;
+	double GetDegrees()override;
 
 private:
 	const double SERVO_D_301_DEGREE_COEF = 0.0879120879120879;
