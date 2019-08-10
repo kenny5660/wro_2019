@@ -5,7 +5,7 @@
 #include "debug.h"
 #include "VisionAlgs.h"
 #include <algorithm>
-extern NiFpga_Session myrio_session;
+
 
 int Sign(double a)
 {

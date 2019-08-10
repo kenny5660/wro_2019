@@ -3,7 +3,7 @@
 
 
 #include "OmniWheels.h"
-#include "Indicator.h"
+
 #include "DistanceSensor.h"
 #include  "Manipulator.h"
 #include "logic_structures.h"
@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "OpticalFlow.h"
 #include "map.h"
+#include "Indicator.h"
 class Robot
 {
 public:
@@ -97,5 +98,5 @@ protected:
 #ifdef HARDWERE_MODE
 #include "RobotHardwere.h"
 #else
-//#include "RobotModel.h"
+#include "RobotVrep.h"
 #endif

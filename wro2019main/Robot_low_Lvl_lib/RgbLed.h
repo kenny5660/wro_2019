@@ -1,5 +1,8 @@
 #pragma once
-
+#include <memory>
+#include <vector>
+#include <utility>
+#include "MyRio_lib/AIO.h"
 class RgbLed : public Indicator
 {
 
@@ -20,7 +23,7 @@ private:
 	std::shared_ptr<MyRio_Aio>  ao_B_;
 	const std::vector<RgbLedVal> rgb_led_vals_ = 
 	{
-		/*ERROR*/{ 255, 0, 0 },
+		/*ERRORR*/{ 255, 0, 0 },
 		/*GREEN*/{ 0, 255, 0 },
 		/*RED*/{ 255, 0, 0 },
 		/*D_BLUE*/{ 0, 0, 255 },
