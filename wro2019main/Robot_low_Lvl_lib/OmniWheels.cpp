@@ -27,6 +27,7 @@ void OmniWheels4Squre::MoveWithSpeed(std::pair<double, double> vSpeed, double an
 	motors[(int)MotorDir::LEFT]->MoveContinue(w_left);
 	motors[(int)MotorDir::BACK]->MoveContinue(w_back);
 	motors[(int)MotorDir::RIGHT]->MoveContinue(w_right);
+
 }
 
 

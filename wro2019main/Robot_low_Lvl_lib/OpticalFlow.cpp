@@ -1,10 +1,13 @@
-#include "OpticalFlow.h"
+﻿#include "OpticalFlow.h"
 #include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <cmath>
+
+#include <iostream>
+#include "logic_structures.h"
 
 ADNS3080::ADNS3080(std::shared_ptr<Spi> spi, 
 	std::shared_ptr<GPIO> ss_pin)
@@ -44,13 +47,17 @@ int ADNS3080::ReadReg(uint8_t reg, uint8_t* data, size_t size)
 
 std::pair<double, double> HidMice::GetPos()
 {
-	double x = pos_x_.load();
-	double y = pos_y_.load();//mice_to_mm_coef_;
-	double ang = coord_angle_ / 180*M_PI;
-	double x_new  = x*std::cos(ang) - y*std::sin(ang);
-	double y_new  = x*std::sin(ang) + y*std::cos(ang);
-//	return std::make_pair(x*std::cos(coord_angle_) - y*std::sin(coord_angle_), x*std::sin(coord_angle_) + y*std::cos(coord_angle_));
-	return std::make_pair(x_new*mice_to_mm_coef_.first, y_new*mice_to_mm_coef_.second);
+	double x = pos_x_.load()*mice_to_mm_coef_.first;
+	double y = pos_y_.load()*mice_to_mm_coef_.second;
+	//	std::cout << "X  " << x << " Y  " << y << std::endl;
+		Point p(x, y);
+//	auto polar = p.to_polar();
+//	polar.set_f(0.978* polar.get_f());
+//	p = polar.to_cartesian();
+	double ang = coord_angle_ * M_PI / 180;
+	double x_ = p.get_x() * cos(ang) - p.get_y() * sin(ang);
+	double y_ = p.get_x() * sin(ang) + p.get_y() * cos(ang);
+	return std::make_pair(x_, y_);
 }
 
 
@@ -85,8 +92,8 @@ void HidMice::ThreadReadMice_Pos_(int fd)
 
 			dx = data[1];
 			dy = data[2];
-		    pos_x_ += dx;
-			pos_y_ += dy;
+		    pos_x_ -= dx;
+			pos_y_ -= dy;
 			//printf("x=%d, y=%d, mmx=%f, mmy=%f, left=%d, middle=%d, right=%d\n", x, y, x * 0.017643026, y * 0.017643026, left, middle, right);
 		}
 	}

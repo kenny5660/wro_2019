@@ -2,41 +2,41 @@
 #include "Kangaroo.h"
 class MotorKangaroo : public Motor {
 public:
-	MotorKangaroo(std::shared_ptr<KangarooDriver> kangarooDrv, uint8_t chnl, bool inverted = false, int counts_per_deg = 1);
+	MotorKangaroo(std::shared_ptr<KangarooDriver> kangarooDrv, uint8_t chnl, bool inverted = false, double counts_per_deg = 1);
 	//Getting Current Encoder value
-	 int GetCurEnc() const override;
+	 double GetCurEnc() const override;
 	
 	//Getting Current Encoder value in degrees
-	 int GetCurEncDeg() const override;
+	 double GetCurEncDeg() const override;
 	
 	//Getting Current Encoder value in rotations
-	 int GetCurEncRot() const override;
+	 double GetCurEncRot() const override;
 	
 	//Stop motor
 	 void Stop() override;
 	
 	// Move motor without stop
-     void MoveContinue(int speed) override;
+     void MoveContinue(double speed) override;
 	
 	// Move motor and wait 'msec' milliseconds
-	 void MoveTime(int speed, int msec) override;
+	 void MoveTime(double speed, int msec) override;
 	
-	void MoveIncEncCounts(int speed, int counts, bool wait = false) override;
+	void MoveIncEncCounts(double speed, double counts, bool wait = false) override;
 	
 	// Move motor  from GetCurEncDeg to GetCurEncDeg+'deg' (increment), when 'wait' is true, function wait flag 'IsReady'
-	 void MoveIncDeg(int speed, int deg, bool wait = false) override;
+	 void MoveIncDeg(double speed, double deg, bool wait = false) override;
 	
 	// Move motor from GetCurEncRot to GetCurEncRot+'rots' (increment), when 'wait' is true, function wait flag 'IsReady'
-	 void MoveIncRot(int speed, int rots, bool wait = false) override;
+	 void MoveIncRot(double speed, double rots, bool wait = false) override;
 	
 	// Move motor from 'CurEnc' to 'counts' (set), when 'wait' is true, function wait flag 'IsReady'
-	 void MoveToEncCounts(int speed, int counts, bool wait = false) override;
+	 void MoveToEncCounts(double speed, double counts, bool wait = false) override;
 	
 	// Move motor from 'CurEnc' to 'deg' (set), when 'wait' is true, function wait flag 'IsReady'
-	 void MoveToDeg(int speed, int deg, bool wait = false) override;
+	 void MoveToDeg(double speed, double deg, bool wait = false) override;
 	
 	// Move motor from 'CurEnc' to 'rots' (set), when 'wait' is true, function wait flag 'IsReady'
-	 void MoveToRot(int speed, int rots, bool wait = false) override;
+	 void MoveToRot(double speed, double rots, bool wait = false) override;
 	
 	//Return true if motor is ready for new command, false if motor is moving
 	 bool IsReady() override;
@@ -46,6 +46,6 @@ public:
 private:
 	std::shared_ptr<KangarooDriver> kangaroo_drv_;
 	uint8_t chnl_;
-	int counts_per_deg_;
+	double counts_per_deg_;
 	int inverted_coef_ = 1;
 };
