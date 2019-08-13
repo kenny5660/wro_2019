@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 
   client.simxAddStatusbarMessage("Hello world!", client.simxDefaultPublisher());
   std::vector<msgpack::object>* reply =
-      client.simxGetObjectHandle("VisionSensor", client.simxServiceCall());
+      client.simxGetObjectHandle("VisionSensor1", client.simxServiceCall());
   sens1 = b0RemoteApi::readInt(reply, 1);
   reply = client.simxGetObjectHandle("PassiveVisionSensor",
                                      client.simxServiceCall());
