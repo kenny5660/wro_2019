@@ -300,7 +300,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 	for (int i = 0; i < boxes.size(); i++) {
 		int ind = get_box_by_color(boxes, current_color);
 		if (ind >= 0) {
-			current_color = do_box(robot, map, boxes[i], side_catch, true, kamikaze_mode, db);
+			current_color = do_box(robot, map, boxes[ind], side_catch, true, kamikaze_mode, db);
 		}
 		else {
 			way.clear();

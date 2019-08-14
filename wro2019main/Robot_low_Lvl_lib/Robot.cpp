@@ -86,7 +86,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	const int kCamAng = 21;
 		
 	CatchCubeSideEnum side_relative_cube  = AlliginByDist(kDist, kOfsetAngle);
-	const int mid_dist = 205;
+	const int mid_dist = 170;
 	int speed = side == CatchCubeSideEnum::LEFT ? kSpeed : -kSpeed;
 	int speedLow = side == CatchCubeSideEnum::LEFT ? kSpeedLow : -kSpeedLow;
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);
@@ -173,9 +173,10 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		//Go2({ Point(5, 0) });
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchLeft(true, 300);
-		Go2({ Point(0, 45) });
+		man_->Out2(true);
+		Go2({ Point(0, 50) });
 		man_->Home(true);
-		Go2({ Point(0, -84) });
+		Go2({ Point(0, -89) });
 		AlliginByDist(kDist, kOfsetAngle);
 		Go2({ Point(-41, 0) });
 		break;
@@ -187,6 +188,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		//Go2({ Point(2, 0) });
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 300);
+		man_->Out2(true);
 		Go2({ Point(0, -45) });
 		man_->Home(true);
 		Go2({ Point(0, 55) });
