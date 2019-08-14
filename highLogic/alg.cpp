@@ -185,6 +185,7 @@ PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, const Robo
 
 	unsigned int count_in = 0;
 	unsigned int i = 0;
+
 	const unsigned int number_points = 3;
 	std::pair<unsigned int, unsigned int> box_points;
 	for (; i < points.size(); i++) {
