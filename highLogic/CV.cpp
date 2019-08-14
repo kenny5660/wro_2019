@@ -92,6 +92,7 @@ std::string qr_detect_frame(cv::Mat qr)
 {
 	
 	std::string s;
+	save_debug_img("qrdetect", qr);
 	if (kQrDetectorType == QrDetectorTypeEnum::CV)
 	{
 		cv::QRCodeDetector qd;
@@ -109,10 +110,10 @@ std::string qr_detect_frame(cv::Mat qr)
 		{
 			s = dec_obj[0].data;
 		}
-//		else
-//		{
-//			throw std::runtime_error("Can't detect qr code using Zbar!");
-//		}
+		else
+		{
+			throw std::runtime_error("Can't detect qr code using Zbar!");
+		}
 	}
 	
 	return s;

@@ -75,7 +75,7 @@ void RobotGardenerHardwere::Init()
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_1VAL, AIA_1WGHT, AIA_1OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
 	dist_sensors_[DIST_C_RIGHT]  = std::make_shared<Sharp2_15>(
 		std::shared_ptr<MyRio_Aio>(new MyRio_Aio { AIA_2VAL, AIA_2WGHT, AIA_2OFST, AOSYSGO, NiFpga_False, 1, 0 }), dist_sensor_filter_win_size);
-	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", std::make_pair(0.043326945, 0.043326945), -89);               //0.018,-90);
+	opt_flow_ = std::make_shared<HidMice>("/dev/input/mouse0", std::make_pair(0.053326945, 0.053326945), -90);               //0.018,-90);
 	
 		std::shared_ptr<Pwm> pwm_lidar(new PwmMyRio(PwmMyRio::PWMB2));	
 	lidar_ = std::shared_ptr<Lidar>(new LidarA1(uart_B, pwm_lidar, LidarA1::LidarMod::k8k));

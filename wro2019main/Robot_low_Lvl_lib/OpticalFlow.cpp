@@ -47,13 +47,13 @@ int ADNS3080::ReadReg(uint8_t reg, uint8_t* data, size_t size)
 
 std::pair<double, double> HidMice::GetPos()
 {
-	double x = pos_x_.load()*mice_to_mm_coef_.first;
-	double y = pos_y_.load()*mice_to_mm_coef_.second;
+	double x = pos_x_.load();//*mice_to_mm_coef_.first;
+	double y = pos_y_.load();//*mice_to_mm_coef_.second;
 	//	std::cout << "X  " << x << " Y  " << y << std::endl;
 		Point p(x, y);
-//	auto polar = p.to_polar();
-//	polar.set_f(0.978* polar.get_f());
-//	p = polar.to_cartesian();
+	auto polar = p.to_polar();
+	polar.set_f(0.99* polar.get_f());
+	p = polar.to_cartesian();
 	double ang = coord_angle_ * M_PI / 180;
 	double x_ = p.get_x() * cos(ang) - p.get_y() * sin(ang);
 	double y_ = p.get_x() * sin(ang) + p.get_y() * cos(ang);

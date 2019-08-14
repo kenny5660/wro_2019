@@ -77,9 +77,9 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 
 color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
-	const int kDist = 61;
+	const int kDist = 65;
 	//const int kDistAfter = 110;
-	const int kOfsetAngle = 0;
+	const int kOfsetAngle = -2;
 	const int kSpeed = 130;
 	const int kSpeedAfter = 150;
 	const int kSpeedLow = 31;
@@ -169,28 +169,28 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		Go2({ Point(0, 30) });
 		//		AlliginByDist(kDist, kOfsetAngle);
 				man_->Out(true);
-		Go2({ Point(0, 100) });
+		Go2({ Point(0, 110) });
 		//Go2({ Point(5, 0) });
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchLeft(true, 300);
 		Go2({ Point(0, 45) });
 		man_->Home(true);
 		Go2({ Point(0, -84) });
-		AlliginByDist(kDist, 0);
+		AlliginByDist(kDist, kOfsetAngle);
 		Go2({ Point(-41, 0) });
 		break;
 	case CatchCubeSideEnum::RIGHT: 
 		man_->CatchLeft();
 		Go2({ Point(0, 115) });
 		man_->Out(true);
-		Go2({ Point(0, -102) });
+		Go2({ Point(0, -112) });
 		//Go2({ Point(2, 0) });
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 300);
-		Go2({ Point(0, -40) });
+		Go2({ Point(0, -45) });
 		man_->Home(true);
 		Go2({ Point(0, 55) });
-		AlliginByDist(kDist, 0);
+		AlliginByDist(kDist, kOfsetAngle);
 		Go2({Point(-45, 0)});
 		
 		break;
@@ -288,14 +288,16 @@ void RobotGardener::WayFromFrame(cv::Mat &frame)
 {
 
 	const int kmidDist  = 200;
-	AlliginByDist(48, 0);
+	AlliginByDist(48, -2);
+	omni_->MoveToPosInc(std::make_pair(0, 100), 200);
+	QrGetFrame(frame);
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
 	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
 	omni_->MoveWithSpeed(std::make_pair(0, 150), 0);
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist) ;
 	omni_->Stop();
-	QrGetFrame(frame);
+
 	omni_->MoveToPosInc(std::make_pair(0, 40), 150);
 }
 
@@ -382,8 +384,8 @@ void RobotGardener::Go2(std::vector<Point> points)
 	const int kRobot_mooving_speed = 250; //250;
 	for (auto it : points)
 	{
-		//MoveByEncoder(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
-		MoveByOptFlow(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
+		MoveByEncoder(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
+		//MoveByOptFlow(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
 		//GetOmni()->MoveToPosInc(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
 		GetOmni()->Stop();
 	}
@@ -468,9 +470,9 @@ void RobotGardener::MoveByEncoder(std::pair<int, int> toPos, double speed)
 		
 		err_old = err;
 		omni_->MoveWithSpeed(sp, 0);
-		std::cout  << "err1 "<< err.first  << "err2" << err.second << std::endl;
-	} while (std::abs(err.first) > 40 || std::abs(err.second) > 40);
-	omni_->SetAng(toPosAng, 60);
+		//std::cout  << "err1 "<< err.first  << "err2" << err.second << std::endl;
+	} while (std::abs(err.first) > 150 || std::abs(err.second) > 150);
+	omni_->SetAng(toPosAng, 150);
 	
 //	std::pair<double, double> pos = GetOptFlow()->GetPos();
 //	std::cout  << "Encoder" << "x = " << pos.first  << " y = "  << pos.second << std::endl;
@@ -627,9 +629,13 @@ std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng(const std::v
 
 void RobotGardener::QrGetFrame(cv::Mat &frame)
 {
-	const int kDegServo = 286;
+	const int kDegServo = 319;
 	Delay(200);
 	auto fram = cam_rot_->GetFrame(kDegServo);
-	save_debug_img("Qrcode.jpg", *fram);
+	
+//	cv::Rect cut_rect;
+//	cut_rect = cv::Rect(cv::Point(266, 320), cv::Size(350, 350));
+//	cv::Mat cut_mat(*fram, cut_rect);
 	frame = *fram;	
+	save_debug_img("Qrcode.jpg", frame);
 }
