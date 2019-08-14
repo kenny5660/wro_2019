@@ -250,6 +250,7 @@ int get_box_by_color(const std::array<BoxMap, 3> &boxes, color_t color) {
 void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 	clear_logs();
+
 #endif
     Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
     cv::Mat QRCodeImg;
