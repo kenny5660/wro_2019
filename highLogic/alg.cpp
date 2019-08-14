@@ -171,33 +171,16 @@ color_t do_box(Robot &robot, Map &map, BoxMap &box, Robot::CatchCubeSideEnum &si
 }
 
 PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, const RobotPoint &position, BoxMap &box) {
-	Point box_center = (box.get_left_corner_point()
+	Point box_center = position - (box.get_left_corner_point()
 	    + Point {
 		 field_sett::climate_box_width / 2.,
 		field_sett::climate_box_height / 2. 
-	}
-- position);
+	});
+//  box_center.set_x(box_center.get_x() - position.get_x());
+//  box_center.set_y(-box_center.get_y() + position.get_y());
 
 	auto point_is_box = [&box_center](const Point &p) {
-		return in_outline( {
-				  {
-				 box_center.get_x() - (field_sett::climate_box_width + lidar_sett::max_tr_error),
-				box_center.get_y() - (field_sett::climate_box_height + lidar_sett::max_tr_error)
-			 },
-			{
-				 box_center.get_x() + (field_sett::climate_box_width + lidar_sett::max_tr_error),
-				box_center.get_y() - (field_sett::climate_box_height + lidar_sett::max_tr_error) 
-			},
-			{ 
-				box_center.get_x() + (field_sett::climate_box_width + lidar_sett::max_tr_error),
-				box_center.get_y() + (field_sett::climate_box_height + lidar_sett::max_tr_error) 
-			},
-			{ 
-				box_center.get_x() - (field_sett::climate_box_width + lidar_sett::max_tr_error),
-				box_center.get_y() + (field_sett::climate_box_height + lidar_sett::max_tr_error) 
-			}
-			 },
-			p);
+	  return p.dist(box_center) < (lidar_sett::max_tr_error + (field_sett::climate_box_max / 2.0) * 1.414);
 	};
 
 	unsigned int count_in = 0;
@@ -210,19 +193,22 @@ PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, const Robo
 			if (count_in == 1) {
 				box_points.first = i;
 			}
-		}
-		if (count_in >= number_points) {
-			break;
+                        if (count_in >= number_points) {
+                          break;
+                        }
+                        continue;
 		}
 		count_in = 0;
 	}
 
-	for (; (i < points.size()) && (point_is_box(points[i].to_cartesian())); i++) {
+        box_points.second = i;
+	for (; (i < points.size()); i++) {
 		if (!point_is_box(points[i].to_cartesian())) {
 			count_in--;
 			if (count_in == 0) {
 				break;
 			}
+                        continue;
 		}
 		count_in = number_points;
 		box_points.second = i;
