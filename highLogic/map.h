@@ -39,7 +39,7 @@ class BoxMap {
     std::array<Point, 4> get_corners() const;
 
     void set_color(const color_t);
-    color_t get_color() { return color_; }
+    color_t get_color() const { return color_; }
 
     Point get_box_corner(unsigned int i, const Point &offset = {0, 0}) const;
                         // 0 - верхний левый угол

@@ -630,9 +630,10 @@ std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng(const std::v
 void RobotGardener::QrGetFrame(cv::Mat &frame)
 {
 	const int kDegServo = 319;
+	const int kDegServoAfter = 240;
 	Delay(200);
 	auto fram = cam_rot_->GetFrame(kDegServo);
-	
+	cam_rot_->GetServo()->SetDegrees(kDegServoAfter);
 //	cv::Rect cut_rect;
 //	cut_rect = cv::Rect(cv::Point(266, 320), cv::Size(350, 350));
 //	cv::Mat cut_mat(*fram, cut_rect);

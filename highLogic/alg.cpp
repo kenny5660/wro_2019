@@ -170,59 +170,171 @@ color_t do_box(Robot &robot, Map &map, BoxMap &box, Robot::CatchCubeSideEnum &si
     return color_next;
 }
 
+PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, const RobotPoint &position, BoxMap &box) {
+	Point box_center = (box.get_left_corner_point()
+	    + Point {
+		 field_sett::climate_box_width / 2.,
+		field_sett::climate_box_height / 2. 
+	}
+- position);
+
+	auto point_is_box = [&box_center](const Point &p) {
+		return in_outline( {
+				  {
+				 box_center.get_x() - (field_sett::climate_box_width + lidar_sett::max_tr_error),
+				box_center.get_y() - (field_sett::climate_box_height + lidar_sett::max_tr_error)
+			 },
+			{
+				 box_center.get_x() + (field_sett::climate_box_width + lidar_sett::max_tr_error),
+				box_center.get_y() - (field_sett::climate_box_height + lidar_sett::max_tr_error) 
+			},
+			{ 
+				box_center.get_x() + (field_sett::climate_box_width + lidar_sett::max_tr_error),
+				box_center.get_y() + (field_sett::climate_box_height + lidar_sett::max_tr_error) 
+			},
+			{ 
+				box_center.get_x() - (field_sett::climate_box_width + lidar_sett::max_tr_error),
+				box_center.get_y() + (field_sett::climate_box_height + lidar_sett::max_tr_error) 
+			}
+			 },
+			p);
+	};
+
+	unsigned int count_in = 0;
+	unsigned int i = 0;
+	const unsigned int number_points = 3;
+	std::pair<unsigned int, unsigned int> box_points;
+	for (; i < points.size(); i++) {
+		if (point_is_box(points[i].to_cartesian())) {
+			count_in++;
+			if (count_in == 1) {
+				box_points.first = i;
+			}
+		}
+		if (count_in >= number_points) {
+			break;
+		}
+		count_in = 0;
+	}
+
+	for (; (i < points.size()) && (point_is_box(points[i].to_cartesian())); i++) {
+		if (!point_is_box(points[i].to_cartesian())) {
+			count_in--;
+			if (count_in == 0) {
+				break;
+			}
+		}
+		count_in = number_points;
+		box_points.second = i;
+	}
+	return points[(box_points.first + box_points.second) / 2];
+}
+
+void get_box_color(Robot &robot,
+	const RobotPoint &position,
+	std::array<BoxMap,3> &boxes) {
+	std::vector<PolarPoint> points;
+	robot.GetLidarPolarPoints(points);
+		save_ld_data(points, "peppa.ld");
+	std::vector<std::pair<int, PolarPoint>> boxes_point(boxes.size());
+	for (int i = 0; i < boxes.size(); ++i) {
+		boxes_point[i] = { i, get_box_color_point(points, position, boxes[i]) };
+	}
+	auto colors = robot.GetColorFromAng(boxes_point);
+	for (const auto &i : colors) {
+		boxes[i.first].set_color(i.second);
+	}
+}
+
+int get_box_by_color(const std::array<BoxMap, 3> &boxes, color_t color) {
+	size_t undefine_color = 0;
+	size_t undefined_ind;
+	for (int i = 0; i < boxes.size(); i++) {
+		color_t color_buff = boxes[i].get_color();
+		if (color_buff == undefined_c) {
+			undefine_color++;
+			undefined_ind = i;
+		}
+		else if (color_buff == color) {
+			return i;
+		}
+	}
+	if (undefine_color == 1) {
+		return undefined_ind;
+	}
+	return -1;
+}
+
 void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 	clear_logs();
+
 #endif
-    Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
-    cv::Mat QRCodeImg;
-    if (s == "") {
-        robot.WayFromFrame(QRCodeImg);
-    }
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, s);
-    double start_angle = start_position.get_angle();
-    {
-        write_log("Start angle: " + std::to_string(start_angle));
-        std::cout << start_angle << std::endl;
-    }
-    {
-        Point st_bf_off = go_from_frame(robot, out_way_offset, start_angle);
-        start_position.set_x(start_position.get_x() - st_bf_off.get_x());
-        start_position.set_y(start_position.get_y() - st_bf_off.get_y());
-    }
-    start_position.set_angle(0);
-    Map map(pz.first, pz.second, boxes, start_position);
-    {
-        write_log(
-            "Start position:\n x = " + std::to_string(start_position.get_x()) +
-                "\n y = " + std::to_string(start_position.get_y()) +
-                "\n ang = " + std::to_string(start_position.get_angle()));
-        save_debug_img("Start_map", map.get_img());
-    }
-    start_position.set_angle(start_angle);
-    save_debug_img("QRCodeDetection", map.get_img());
-    std::vector<Point> way;
-	show_img_debug db;	
-	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-		db = show_debug_img;
-	#else
-		db = save_debug_img;
-	#endif
-	for (auto i : boxes) {
-        do_box(robot, map, i, side_catch, false, kamikaze_mode, db);
-    }
-    way.clear();
-    Point b;
+	Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
+	cv::Mat QRCodeImg;
+	if (s.empty()) {
+		robot.WayFromFrame(QRCodeImg);
+	}
+	std::array<BoxMap, 3> boxes;
+	std::pair<Point, Point> pz;
+	RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, s);
+	double start_angle = start_position.get_angle();
+	{
+		write_log("Start angle: " + std::to_string(start_angle));
+		std::cout << start_angle << std::endl;
+	}
+	{
+		Point st_bf_off = go_from_frame(robot, out_way_offset, start_angle);
+		start_position.set_x(start_position.get_x() - st_bf_off.get_x());
+		start_position.set_y(start_position.get_y() - st_bf_off.get_y());
+	}
+	start_position.set_angle(0);
+	Map map(pz.first, pz.second, boxes, start_position);
+	{
+		write_log(
+		    "Start position:\n x = " + std::to_string(start_position.get_x()) +
+		        "\n y = " + std::to_string(start_position.get_y()) +
+		        "\n ang = " + std::to_string(start_position.get_angle()));
+		save_debug_img("Start_map", map.get_img());
+	}
+	start_position.set_angle(start_angle);
+	save_debug_img("QRCodeDetection", map.get_img());
+	std::vector<Point> way;
+	show_img_debug db;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+	db = show_debug_img;
+#else
+	db = save_debug_img;
+#endif
+
+	get_box_color(robot, start_position, boxes);
+	color_t current_color = blue_c;
+
+	for (int i = 0; i < boxes.size(); i++) {
+		int ind = get_box_by_color(boxes, current_color);
+		if (ind >= 0) {
+			current_color = do_box(robot, map, boxes[i], side_catch, true, kamikaze_mode, db);
+		}
+		else {
+			way.clear();
+			Point end_point;
+			while (!go_to2(map, boxes[rand() % 3].get_box_indent(), way, end_point, kamikaze_mode, db)) { way.clear(); }
+			robot.Go2(way);
+			map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
+			get_box_color(robot, start_position, boxes);
+			i--;
+		}
+	}
+	way.clear();
+	Point b;
 	robot.Turn(map.get_position().get_angle() - M_PI_2);
 	auto buff = map.get_position();
 	buff.add_angle(-map.get_position().get_angle() + M_PI_2);
 	map.set_new_position(buff);
-    if(!go_to2(map, start_position, way, b, kamikaze_mode, db))
-        return;
-    robot.Go2(way);
-    frame_connect(robot, out_way_offset, start_angle);
+	if (!go_to2(map, start_position, way, b, kamikaze_mode, db))
+		return;
+	robot.Go2(way);
+	frame_connect(robot, out_way_offset, start_angle);
 }
 
 RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, double frame_offset) {
