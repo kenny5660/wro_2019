@@ -570,7 +570,7 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 
 std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng(const std::vector<std::pair<int, PolarPoint>> &ang_pps)
 {
-	const double cam_ang0 = 223; ///106
+	const double cam_ang0 = 246; ///106
 	const double cam_ang_offset  = 248;
 	std::vector<std::pair<int, PolarPoint>> ang_pps_ = ang_pps;
 	std::vector<std::pair<int, color_t>> result;

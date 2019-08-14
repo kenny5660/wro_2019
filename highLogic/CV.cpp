@@ -96,15 +96,15 @@ std::string qr_detect_frame(cv::Mat qr)
 	
 	std::string s;
 
-	cv::resize(qr, qr, cv::Size(640, 480));
+//	cv::resize(qr, qr, cv::Size(640, 480));
 	if (kQrDetectorType == QrDetectorTypeEnum::CV)
 	{
 		cv::QRCodeDetector qd;
 		s = qd.detectAndDecode(qr);
-//		if (s.length() < 35)
-//		{
-//			throw std::runtime_error("Can't detect qr code using openCV, not enough symbols!");
-//		}
+		if (s.length() < 35)
+		{
+			throw std::runtime_error("Can't detect qr code using openCV, not enough symbols!");
+		}
 	}
 	if (kQrDetectorType == QrDetectorTypeEnum::ZBAR)
 	{
