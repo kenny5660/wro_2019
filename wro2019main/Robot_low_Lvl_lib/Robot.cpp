@@ -361,7 +361,6 @@ void RobotGardener::Turn(double angle)
 {
 	const double pi2 = 2 * M_PI;
 	const int kRobot_rot_speed = 130;
-	//	
 		angle = (fmod(fmod(angle, pi2) + pi2, pi2));
 	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
 	//MouseTurn(angle, kRobot_rot_speed);
