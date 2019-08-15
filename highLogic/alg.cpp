@@ -183,6 +183,7 @@ PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, const Robo
 	  return p.dist(box_center) < (lidar_sett::max_tr_error + (field_sett::climate_box_max / 2.0) * 1.414);
 	};
 
+	bool is_found = false;
 	unsigned int count_in = 0;
 	unsigned int i = 0;
 
@@ -195,11 +196,16 @@ PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, const Robo
 				box_points.first = i;
 			}
                         if (count_in >= number_points) {
+                          is_found = true;
                           break;
                         }
                         continue;
 		}
 		count_in = 0;
+	}
+
+	if (!is_found) {
+          return {};
 	}
 
         box_points.second = i;
@@ -223,13 +229,19 @@ void get_box_color(Robot &robot,
 	std::vector<PolarPoint> points;
 	robot.GetLidarPolarPoints(points);
 		save_ld_data(points, "peppa.ld");
-	std::vector<std::pair<int, PolarPoint>> boxes_point(boxes.size());
+	std::vector<std::pair<int, PolarPoint>> boxes_point;
 	for (int i = 0; i < boxes.size(); ++i) {
-		boxes_point[i] = { i, get_box_color_point(points, position, boxes[i]) };
+	    auto point = get_box_color_point(points, position, boxes[i]);
+	    if (std::isnan(point.get_r())) {
+                continue;
+	    }
+	    boxes_point.emplace_back(i, point);
 	}
 	auto colors = robot.GetColorFromAng(boxes_point);
 	for (const auto &i : colors) {
-		boxes[i.first].set_color(i.second);
+	    if (i.second != black_c && i.second != white_c) {
+                boxes[i.first].set_color(i.second);
+            }
 	}
 }
 
