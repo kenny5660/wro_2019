@@ -77,7 +77,7 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 
 color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
-	const int kDist = 65;
+	const int kDist = 64;
 	//const int kDistAfter = 110;
 	const int kOfsetAngle = -2;
 	const int kSpeed = 130;
@@ -183,12 +183,12 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	case CatchCubeSideEnum::RIGHT: 
 		man_->CatchLeft();
 		Go2({ Point(0, 115) });
-		man_->Out(true);
+		man_->Out2(true);
 		Go2({ Point(0, -112) });
 		//Go2({ Point(2, 0) });
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchRight(true, 300);
-		man_->Out2(true);
+//		man_->Out2(true);
 		Go2({ Point(0, -45) });
 		man_->Home(true);
 		Go2({ Point(0, 55) });
@@ -635,9 +635,11 @@ void RobotGardener::QrGetFrame(cv::Mat &frame)
 	Delay(200);
 	auto fram = cam_rot_->GetFrame(kDegServo);
 	cam_rot_->GetServo()->SetDegrees(kDegServoAfter);
-//	cv::Rect cut_rect;
-//	cut_rect = cv::Rect(cv::Point(266, 320), cv::Size(350, 350));
-//	cv::Mat cut_mat(*fram, cut_rect);
-	frame = *fram;	
+	cv::Rect cut_rect;
+	cut_rect = cv::Rect(cv::Point(225, 361), cv::Point(617, 710));
+
+	cv::Mat cut_mat(*fram, cut_rect);
+	frame = cut_mat;	
+	frame.convertTo(frame, -1, 0.9, -2);
 	save_debug_img("Qrcode.jpg", frame);
 }
