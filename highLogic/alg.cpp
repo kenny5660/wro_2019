@@ -242,6 +242,7 @@ void get_box_color(Robot &robot,
 	    if (i.second != black_c && i.second != white_c) {
                 boxes[i.first].set_color(i.second);
             }
+
 	}
 }
 
