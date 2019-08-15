@@ -89,7 +89,7 @@ class Map {
     Point get_max_death_zone();
 
  private:
-    bool add_box(const Point &p);
+    bool add_box(const Point &p, color_t color = undefined_c);
     void add_boxes_in_robot_pos(const Point &corn, const Point &next);
     void delete_from_death_zone_circle(const Point &p, double r = field_sett::parking_zone_free_radius);
     void delete_from_death_zone_circle_seg(const Point &p, double r, double start_ang, double end_eng);

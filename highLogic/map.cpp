@@ -12,6 +12,7 @@
 #include "map.h"
 #include "settings.h"
 #include "lidar_math.h"
+#include "../wro2019main/Robot_low_Lvl_lib/Robot_facing.h"
 
 // Черновики:
 // 1) Добавления мёртвых зон в лист: https://pastebin.com/yX17ZEa2
@@ -294,7 +295,7 @@ void convex_merge(std::vector<Point> &border, std::vector<Point> &border_from, c
     border = ans;
 }
 
-bool Map::add_box(const Point &p) {
+bool Map::add_box(const Point &p, color_t color) {
     for (int i = 0; i < box_count_; i++) {
         if (boxes_[i].get_left_corner_point().dist(p)
             < (field_sett::climate_box_max - field_sett::truncation_field_error
@@ -309,6 +310,7 @@ bool Map::add_box(const Point &p) {
     }
 
     boxes_[box_count_].set_left_corner_point(MassPoint(p));
+    boxes_[box_count_].set_color(color);
 
     // Проверка пересечения контуров
     const Point move_offset = {-robot_sett::move_offset, -robot_sett::move_offset};
@@ -1120,159 +1122,71 @@ void Map::normal_death_zone() {
     }
 }
 
-void Map::update(const std::vector<PolarPoint> &polar_points, show_img_debug debug) {
-    std::vector<std::vector<Point>> points = get_corners(polar_points);
-    std::vector<std::vector<Point>> points_in_robot;
-    if (debug != nullptr) {
-        DebugFieldMat mat1;
-        add_lines_img(mat1, points);
-        debug("Data", mat1);
+void Map::update(const std::vector<PolarPoint> &polar_points, Robot robot, show_img_debug debug) {
+    std::vector<std::vector<Point>> lines = get_corners(polar_points);
+    corners_rot(lines, -position_.get_angle());
+    {
+        DebugFieldMat mat;
+        add_lines_img(mat, lines);
+        debug("--Box_update", mat);
     }
-    double ang_offset = -position_.get_angle();
-    for (int i = 0; i < points.size(); i++) {
-        points_in_robot.emplace_back();
-        for (int j = 0; j < points[i].size(); j++) {
-            Point new_point = {points[i][j].get_x() * cos(ang_offset) - points[i][j].get_y() * sin(ang_offset),
-                               -points[i][j].get_x() * sin(ang_offset) - points[i][j].get_y() * cos(ang_offset)};
-            points_in_robot.back().push_back(new_point);
-        }
+    double ang = get_angle_lines(
+        lines,
+        parking_zone_circles_,
+        2 * field_sett::size_field_unit);
+
+    corners_rot(lines, -ang);
+    position_.add_angle(ang);
+    {
+        DebugFieldMat mat;
+        add_lines_img(mat, lines);
+        debug("==Box_update", mat);
     }
-    if (debug != nullptr) {
-        DebugFieldMat mat1;
-        add_lines_img(mat1, points_in_robot);
-        debug("Data", mat1);
-    }
-    double ang_error = get_angle_lines(points_in_robot, std::make_pair(Point{parking_zone_circles_.first.get_x() - position_.get_x(),
-                                                                             -(parking_zone_circles_.first.get_y() - position_.get_y())},
-                                                                       Point{parking_zone_circles_.second.get_x() - position_.get_x(),
-                                                                             -(parking_zone_circles_.second.get_y() - position_.get_y())}),
-                                        2 * field_sett::size_field_unit);
-    corners_rot(points_in_robot, -ang_error);
-    for (int i = 0; i < points.size(); i++) {
-        for (int j = 0; j < points[i].size(); j++) {
-            points[i][j] = (points_in_robot[i][j] + Point(position_.get_x(), position_.get_y()));
+
+    std::vector<std::pair<Point, Point>> maybe_box;
+    for (auto &i : lines) {
+        for (int j = 1; j = i.size(); j++) {
+            double dist = i[j - 1].dist(i[j]);
+            if ((dist > (field_sett::climate_box_max - lidar_sett::max_tr_error))
+                && (dist < (field_sett::climate_box_max + lidar_sett::max_tr_error))) {
+                maybe_box.emplace_back(i[j], i[j - 1]);
+            }
         }
     }
 
-    if (debug != nullptr) {
-        DebugFieldMat mat1;
-        add_lines_img(mat1, points);
-//        add_point_img(mat1, {parking_zone_circles_.first.get_x() - position_.get_x(),
-//                             -(parking_zone_circles_.first.get_y() - position_.get_y())});
-//        add_point_img(mat1, Point{parking_zone_circles_.second.get_x() - position_.get_x(),
-//                                  -(parking_zone_circles_.second.get_y() - position_.get_y())});
-        debug("Update_map_in_global", mat1);
+    std::vector<std::pair<int, PolarPoint>> boxes_points;
+    for (int i = 0; i < maybe_box.size(); i++) {
+        boxes_points.emplace_back(i, maybe_box[i]);
     }
+    auto colors = robot.GetColorFromAng(boxes_points);
 
-    std::vector<std::vector<std::pair<Point, line_t>>> lines;
-    line_detect_from_pos(lines, parking_zone_circles_,
-                         points, lidar_sett::ang_death, position_);
-    if (debug != nullptr) {
-        DebugFieldMat mat1;
-        add_lines_img(mat1, lines, true);
-        add_point_img(mat1, position_);
-        debug("Update_map_in_global", mat1);
-    }
-    MassPoint new_pos;
-    for (auto i : lines) {
-        for (int j = 0; j < i.size() - 1; j++) {
-            if (i[j].second == border_lt) {
-                MassPoint buff_p;
-                // изменения по x меньше => из неё берём x
-                if (fabs(i[j].first.get_x() - i[j + 1].first.get_x()) < fabs(i[j].first.get_y() - i[j + 1].first.get_y())) {
-                    if (i[j].first.get_x() > position_.get_x()) {
-                        buff_p.set_x(field_sett::max_field_width - dist_line2point(i[j].first,
-                                                     i[j + 1].first,
-                                                     position_));
-                    } else {
-                        buff_p.set_x(dist_line2point(i[j].first,
-                                                     i[j + 1].first,
-                                                     position_));
-                    }
+    for (auto &i : colors) {
+        if (i.second != white_c
+            && i.second != black_c
+            && i.second != undefined_c) {
+            if (fabs(maybe_box[i.first].first.get_x() - maybe_box[i.first].second.get_x())
+                < fabs(maybe_box[i.first].first.get_y() - maybe_box[i.first].second.get_y())) {
+                Point top = (maybe_box[i.first].first.get_y() > maybe_box[i.first].second.get_y())
+                            ? (maybe_box[i.first].first) : (maybe_box[i.first].second);
+                if (top.get_x() < 0) {
+                    add_box({top.get_x() - field_sett::climate_box_width + position_.get_x(),
+                             position_.get_y() - top.get_y()}, i.second);
                 } else {
-                    if (i[j].first.get_y() < position_.get_y()) {
-                        buff_p.set_y(
-                            dist_line2point(i[j].first,
-                                                     i[j + 1].first ,
-                                                     position_));
-                    } else {
-                        buff_p.set_y(field_sett::max_field_height -
-                            dist_line2point(i[j].first,
-                                            i[j + 1].first,
-                                            position_));
-                    }
+                    add_box({top.get_x() + position_.get_x(),
+                             position_.get_y() - top.get_y()}, i.second);
                 }
-                new_pos.merge(buff_p);
+            } else {
+                Point left = (maybe_box[i.first].first.get_x() < maybe_box[i.first].second.get_x())
+                    ? (maybe_box[i.first].first.get_x()) : (maybe_box[i.first].second.get_x());
+                if (left.get_y() < 0) {
+                    add_box({left.get_x() + position_.get_x(),
+                             position_.get_y() - left.get_y()}, i.second);
+                } else {
+                    add_box({left.get_x() + position_.get_x(),
+                             position_.get_y() - left.get_y() - field_sett::climate_box_height}, i.second);
+                }
             }
         }
-    }
-    Point offset2new_position = new_pos - position_;
-    position_.set_x(new_pos.get_x());
-    position_.set_y(new_pos.get_y());
-    for (auto i : lines) {
-        for (auto j : i) {
-            j.first += offset2new_position;
-        }
-    }
-    //delete_from_death_zone_circle(position_, lidar_sett::max_visible_black);
-
-    for (int i = 0; i < lines.size(); i++) {
-        double start_ang = atan2(lines[i].back().first.get_y() - position_.get_y(),
-                                        lines[i].back().first.get_x() - position_.get_x());
-        start_ang = PolarPoint::angle_norm(start_ang);
-        double end_ang = atan2(lines[(i + 1) % lines.size()].front().first.get_y() - position_.get_y(),
-                                      lines[(i + 1) % lines.size()].front().first.get_x() - position_.get_x());
-        end_ang = PolarPoint::angle_norm(end_ang);
-        for (int i = 0; i < lidar_sett::ang_death.size(); i++) {
-            if (is_in_ang_segment(lidar_sett::ang_death[i].first, std::make_pair(start_ang, end_ang)) &&
-                is_in_ang_segment(lidar_sett::ang_death[i].second, std::make_pair(start_ang, end_ang))) {
-                delete_from_death_zone_circle_seg(position_, lidar_sett::max_visible_black, start_ang, lidar_sett::ang_death[i].first);
-                delete_from_death_zone_circle_seg(position_, lidar_sett::max_visible_black, lidar_sett::ang_death[i].second, end_ang);
-                break;
-            }
-            if (is_in_ang_segment(end_ang, lidar_sett::ang_death[i])) {
-                end_ang = lidar_sett::ang_death[i].first;
-            }
-            if (is_in_ang_segment(start_ang, lidar_sett::ang_death[i])) {
-                start_ang = lidar_sett::ang_death[i].second;
-            }
-        }
-        if(start_ang > end_ang) {
-            continue;
-        }
-        delete_from_death_zone_circle_seg(position_, lidar_sett::max_visible_black, start_ang, end_ang);
-    }
-    for (int i = 0; i < lines.size(); i++) {
-        std::vector<Point> outline;
-        for (int j = 0; j < lines[i].size(); j++) {
-            outline.push_back(lines[i][j].first);
-        }
-        outline.push_back(position_);
-        set_death_outline(outline, false);
-    }
-    // Переводим в систему координат робота
-    for (int i = 0; i < lines.size(); i++) {
-        for (int j = 0; j < lines[i].size(); j++) {
-            Point buff = Point{1, -1} * (lines[i][j].first - position_);
-            lines[i][j].first = buff;
-        }
-    }
-    normal_death_zone();
-    if (debug != nullptr) {
-        DebugFieldMat mat1;
-        add_lines_img(mat1, lines, true);
-        debug("Update_map_in_robot", mat1);
-        debug("Death_zone", get_img());
-    }
-    for (int i = 0; i < lines.size(); i++) {
-        for (int j = 0; j < lines[i].size(); j++) {
-            if (lines[i][j].second == box_lt) {
-                add_box_from_line(lines, i, j);
-            }
-        }
-    }
-    if (debug != nullptr) {
-        debug("After_update_map", get_img());
     }
 }
 
