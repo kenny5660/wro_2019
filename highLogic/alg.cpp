@@ -296,7 +296,7 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 			while (!go_to2(map, boxes[rand() % 3].get_box_indent(), way, end_point, kamikaze_mode, db)) { way.clear(); }
 			robot.Go2(way);
 			map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
-			get_box_color(robot, start_position, boxes);
+			get_box_color(robot, map.get_position(), boxes);
 			i--;
 		}
 	}
