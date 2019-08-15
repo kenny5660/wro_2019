@@ -15,9 +15,21 @@ TEST(Alg, 1) {
 }
 
 TEST(Alg, 2) {
-    RobotPoint robot(850, 1552.5, 0);
+    RobotPoint robot(9 * 115, 5 * 115, 0);
     std::vector<PolarPoint> points;
-    read("14_08_19.ld", points);
-    BoxMap box(Point{115, 690});
-    get_box_color_point(points, robot, box);
+    read("15_08_19_1.ld", points);
+    BoxMap box(Point{8 * 115, 115});
+    auto p = get_box_color_point(points, robot, box);
+    std::cout << p.get_r() << " " << p.get_f() << std::endl;
+  DebugFieldMat mat;
+  std::vector<Point> buff;
+    for (auto i : points) {
+          buff.push_back(i.to_cartesian(-M_PI, true));
+    }
+    add_points_img(mat, buff);
+  add_points_img(mat, {p.to_cartesian(-M_PI, true)}, {255, 255, 255});
+  add_points_img(mat, {{0, 3 * 115}}, {255, 0, 0});
+
+  imshow("", mat);
+    cv::waitKey();
 }
