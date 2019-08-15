@@ -29,12 +29,12 @@ void decode_zbar(cv::Mat &im, std::vector<decodedObject> &decodedObjects) {
 	// Configure scanner
 	scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 0);
 	scanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
-	cv::Mat res;
-	cv::resize(im, res, cv::Size(640, 480));
-	cv::rotate(res, res, cv::ROTATE_180);
+//	cv::Mat res;
+//	cv::resize(im, res, cv::Size(640, 480));
+//	cv::rotate(res, res, cv::ROTATE_180);
 	// Convert image to grayscale
 	cv::Mat imGray;
-	cvtColor(res, imGray, cv::COLOR_BGR2GRAY);
+	cvtColor(im, imGray, cv::COLOR_BGR2GRAY);
 	save_debug_img("greyQR", imGray);
 	// Wrap image data in a zbar image
 	Image image(im.cols,
