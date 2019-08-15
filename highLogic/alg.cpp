@@ -320,132 +320,79 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 #else
 	debug = save_debug_img;
 #endif
-	auto lines = get_corners(lidar_data);
-	for (int i = 0; i < lines.size(); i++) {
-		for (int j = 0; j < lines[i].size(); j++) {
-            lines[i][j].set_y(-lines[i][j].get_y());
-		}
-	}
-	double min_length = 2 * field_sett::size_field_unit;
+  auto lines = get_corners(lidar_data);
+  double min_length = 2 * field_sett::size_field_unit;
 
-	// Нужно развернуть систему координат.
-	double ang = get_angle_lines(lines,
-		{
-			 { frame_offset, field_sett::parking_zone_door_size / 2. },
-			{ frame_offset, -field_sett::parking_zone_door_size / 2. }
-		},
-		2 * field_sett::size_field_unit);
-	{
-		DebugFieldMat mat;
-		add_lines_img(mat, lines);
-		debug("befor_rot", mat);
-	}
-	corners_rot(lines, ang);
-	{
-		DebugFieldMat mat;
-		add_lines_img(mat, lines);
-		debug("Init_robot_from_start", mat);
-	}
+  double ang = get_angle_lines(
+      lines,
+      {{frame_offset, field_sett::parking_zone_door_size / 2.},
+       {frame_offset, -field_sett::parking_zone_door_size / 2.}},
+      min_length);
 
-    std::array<std::pair<int, int>, 4> extra_line = {
-        std::make_pair(-1, 0),
-        std::make_pair(-1, 0),
-        std::make_pair(-1, 0),
-        std::make_pair(-1, 0)
-    };
-    for (int i = 0; i < lines.size(); i++) {
-        for (int j = 0; j < (lines[i].size() - 1); j++) {
-            if (lines[i][j].dist(lines[i][j + 1]) > (min_length)) {
-                field_margin line_type;
-                if (fabs(lines[i][j].get_x() - lines[i][j + 1].get_x()) >
-                    fabs(lines[i][j].get_y() - lines[i][j + 1].get_y())) {
-                    if (lines[i][j].get_y() > 0) {
-                        line_type = bottom_field_margin;
-                    }
-                    else {
-                        line_type = top_field_margin;
-                    }
-                }
-                else {
-                    if (lines[i][j].get_x() > 0) {
-                        line_type = right_field_margin;
-                    }
-                    else {
-                        line_type = left_field_margin;
-                    }
-                }
-                if ((extra_line[line_type].first == -1) ||
-                    dist_line2point(
-                        lines[extra_line[line_type].first][extra_line[line_type].second],
-                        lines[extra_line[line_type].first][extra_line[line_type].second + 1],
-                        { 0, 0 }) < dist_line2point(lines[i][j], lines[i][j + 1], { 0, 0 })) {
-                    extra_line[line_type].first = i;
-                    extra_line[line_type].second = j;
-                }
-            }
-        }
-    }
-    RobotPoint pos;
-    std::vector<std::pair<int, PolarPoint>> suspicious_points;
-    for (int i = 0; i < extra_line.size(); i++) {
-        if (extra_line[i].first >= 0) {
-            suspicious_points.emplace_back(i,
-                                           PolarPoint(Point{
-                                                          (lines[extra_line[i].first][extra_line[i].second].get_x()
-                                                              + lines[extra_line[i].first][
-                                                                  extra_line[i].second
-                                                                      + 1].get_x()) / 2.0,
-                                                          (lines[extra_line[i].first][extra_line[i].second].get_y()
-                                                              + lines[extra_line[i].first][
-                                                                  extra_line[i].second
-                                                                      + 1].get_y())
-                                                              / 2.0}.dist(),
+  corners_rot(lines, ang);
+  {
+    DebugFieldMat mat;
+    add_lines_img(mat, lines);
+    debug("Init_robot_from_start", mat);
+  }
 
-                                                      get_middle_line_ang(lines[extra_line[i].first][extra_line[i].second],
-                                                                          lines[extra_line[i].first][
-                                                                              extra_line[i].second
-                                                                                  + 1],
-                                                                          Point{
-                                                                              0,
-                                                                              0})));
+  std::pair<double, PolarPoint> max_dist[4] = {{0, {}}, {0, {}}, {0, {}}, {0, {}}};
+  for (auto &i : lines) {
+    for (int j = 1; j < lines.size(); j++) {
+      double dist;
+      field_margin type_side;
+      if (i[j].dist(i[j - 1]) > min_length) {
+        if (fabs(i[j].get_x() - i[j - 1].get_x()) < fabs(i[j].get_y() - i[j - 1].get_y())) { // по y идёт
+          dist = fabs(i[j].get_x() + i[j - 1].get_x()) / 2;
+          if (i[j].get_x() > 0) { // левый борт
+            type_side = right_field_margin;
+          } else {
+            type_side = left_field_margin;
+          }
+        } else {
+          dist = fabs(i[j].get_y() + i[j - 1].get_y()) / 2;
+          if (i[j].get_y() > 0) {
+            type_side = top_field_margin;
+          } else {
+            type_side = bottom_field_margin;
+          }
         }
+      }
+      if (max_dist[type_side].first < dist) {
+        max_dist[type_side].first = dist;
+        max_dist[type_side].second = Point{(-i[j].get_x() - i[j - 1].get_x()) / 2,
+                                           (i[j].get_y() + i[j - 1].get_y()) / 2}.to_polar();
+        max_dist[type_side].second.add_f(-ang);
+      }
     }
-    {
-        DebugFieldMat mat;
-        add_lines_img(mat, lines);
-        for (int i = 0; i < suspicious_points.size(); i++) {
-            PolarPoint p = suspicious_points[i].second;
-            add_point_img(mat, p.to_cartesian());
-        }
-        debug("Init_robot_from_start", mat);
+  }
+
+  std::vector<std::pair<int, PolarPoint>> maybe_margin;
+  for (int i = 0; i < 4; i++) {
+      if (max_dist[i].first != 0) {
+        maybe_margin.emplace_back(i, max_dist[i].second);
+      }
+  }
+  auto colors = robot.GetColorFromAng(maybe_margin);
+
+  RobotPoint pos;
+  for (auto &i : colors) {
+    if (i.second == black_c) {
+      if (i.first == top_field_margin) {
+        pos.merge(RobotPoint(NAN, max_dist[i.first].first));
+      } else if (i.first == bottom_field_margin) {
+        pos.merge(RobotPoint(NAN, field_sett::max_field_height - max_dist[i.first].first));
+      } else if (i.first == right_field_margin) {
+        pos.merge(RobotPoint(field_sett::max_field_width - max_dist[i.first].first, NAN));
+      } else {
+        pos.merge(RobotPoint(max_dist[i.first].first, NAN));
+      }
     }
-	for (int i = 0; i < suspicious_points.size(); i++)
-	{
-		suspicious_points[i].second.set_f(-(M_PI - (suspicious_points[i].second.get_f() - ang)));
-	}
-    if (suspicious_points.size() > 1) {
-        std::vector<std::pair<int, color_t>> colors = robot.GetColorFromAng(suspicious_points);
-        for (int i = 0; i < colors.size(); i++) {
-            if (colors[i].first != suspicious_points[i].first) {
-                std::cerr << "Misha, BLIA. It might need sort!!!" << std::endl;
-                continue;
-            }
-            if (colors[i].second == black_c)
-            {
-                RobotPoint p = dist2coordinates(
-                    dist_line2point(lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second],
-                                    lines[extra_line[colors[i].first].first][extra_line[colors[i].first].second + 1],
-                                    { 0, 0 }),
-                    colors[i].first);
-//                if (colors[i].first == 0) {
-//                    //p.set_x(field_sett::max_field_width - p.get_x());
-//                }
-                pos.merge(p);
-            }
-        }
-    }
-    pos.set_angle(ang);
-    return pos;
+  }
+
+  pos.set_angle(ang);
+
+  return pos;
 }
 
 void update_box_color(Robot &robot, Map &map) {
