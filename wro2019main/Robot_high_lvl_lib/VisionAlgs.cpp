@@ -61,9 +61,14 @@ color_t VisionGetSmallBox(const cv::Mat& frame, Robot::CatchCubeSideEnum side) {
 }
 color_t VisionGetBigBox(const cv::Mat& frame,double dist) {
   const double dist_coef = 0.0683478260869565;
+int x_rect = 510 - (dist * dist_coef);
+	//far 355    near 505     off 120  385
+	  if(dist < 400)
+	{
+		x_rect = 746;
+	}
 
-  //far 355    near 505     off 120  385
-  cv::Rect cut_rect(cv::Point(545,  510- (dist * dist_coef)), cv::Size(15, 15));
+  cv::Rect cut_rect(cv::Point(545, x_rect), cv::Size(15, 15));
   cv::Mat cut_mat(frame, cut_rect);
   cv::Mat f_with_rect;
   frame.copyTo(f_with_rect);

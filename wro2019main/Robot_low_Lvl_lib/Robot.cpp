@@ -290,7 +290,7 @@ void RobotGardener::WayFromFrame(cv::Mat &frame)
 {
 
 	const int kmidDist  = 200;
-	AlliginByDist(48, -2);
+	AlliginByDist(48, -1);
 	omni_->MoveToPosInc(std::make_pair(0, 100), 200);
 	QrGetFrame(frame);
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
