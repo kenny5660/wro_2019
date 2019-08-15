@@ -183,44 +183,19 @@ PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, const Robo
 	  return p.dist(box_center) < (lidar_sett::max_tr_error + (field_sett::climate_box_max / 2.0) * 1.414);
 	};
 
-	bool is_found = false;
-	unsigned int count_in = 0;
-	unsigned int i = 0;
+        std::vector<PolarPoint> buff_point;
 
-	const unsigned int number_points = 3;
-	std::pair<unsigned int, unsigned int> box_points;
-	for (; i < points.size(); i++) {
-		if (point_is_box(points[i].to_cartesian())) {
-			count_in++;
-			if (count_in == 1) {
-				box_points.first = i;
-			}
-                        if (count_in >= number_points) {
-                          is_found = true;
-                          break;
-                        }
-                        continue;
-		}
-		count_in = 0;
-	}
-
-	if (!is_found) {
+        std::pair<unsigned int, unsigned int> box_points;
+	for (unsigned int i = 0; i < points.size(); i++) {
+          if (point_is_box(points[i].to_cartesian())) {
+            buff_point.push_back(points[i]);
+          }
+        }
+	if (buff_point.size() < 15) {
           return {};
 	}
 
-        box_points.second = i;
-	for (; (i < points.size()); i++) {
-		if (!point_is_box(points[i].to_cartesian())) {
-			count_in--;
-			if (count_in == 0) {
-				break;
-			}
-                        continue;
-		}
-		count_in = number_points;
-		box_points.second = i;
-	}
-	return points[(box_points.first + box_points.second) / 2];
+ 	return buff_point[buff_point.size() / 2];
 }
 
 void get_box_color(Robot &robot,
