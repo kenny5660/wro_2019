@@ -357,7 +357,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 
 	std::pair<double, PolarPoint> max_dist[4] = { { 0, { } }, { 0, { } }, { 0, { } }, { 0, { } } };
 	for (auto &i : lines) {
-		for (int j = 1; j < lines.size(); j++) {
+		for (int j = 1; j < i.size(); j++) {
 			double dist;
 			field_margin type_side;
 			if (i[j].dist(i[j - 1]) > min_length) {
@@ -388,9 +388,6 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 						(i[j].get_y() + i[j - 1].get_y()) / 2
 					};
 					max_dist[type_side].second = p.to_polar();
-					if (std::isinf(max_dist[type_side].second.get_r())) {
-						std::cout << max_dist[type_side].second.get_r();
-					}
 					max_dist[type_side].second.add_f(-ang);
 				}
 			}
