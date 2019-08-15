@@ -27,12 +27,15 @@ void decode_zbar(cv::Mat &im, std::vector<decodedObject> &decodedObjects) {
 	ImageScanner scanner;
 
 	// Configure scanner
-	scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 1);
-
+	scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 0);
+	scanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
+//	cv::Mat res;
+//	cv::resize(im, res, cv::Size(640, 480));
+//	cv::rotate(res, res, cv::ROTATE_180);
 	// Convert image to grayscale
 	cv::Mat imGray;
 	cvtColor(im, imGray, cv::COLOR_BGR2GRAY);
-
+	save_debug_img("greyQR", imGray);
 	// Wrap image data in a zbar image
 	Image image(im.cols,
 		im.rows,
@@ -92,15 +95,16 @@ std::string qr_detect_frame(cv::Mat qr)
 {
 	
 	std::string s;
-	save_debug_img("qrdetect", qr);
+
+//	cv::resize(qr, qr, cv::Size(640, 480));
 	if (kQrDetectorType == QrDetectorTypeEnum::CV)
 	{
 		cv::QRCodeDetector qd;
 		s = qd.detectAndDecode(qr);
-//		if (s.length() < 35)
-//		{
-//			throw std::runtime_error("Can't detect qr code using openCV, not enough symbols!");
-//		}
+		if (s.length() < 35)
+		{
+			throw std::runtime_error("Can't detect qr code using openCV, not enough symbols!");
+		}
 	}
 	if (kQrDetectorType == QrDetectorTypeEnum::ZBAR)
 	{
@@ -115,7 +119,7 @@ std::string qr_detect_frame(cv::Mat qr)
 			throw std::runtime_error("Can't detect qr code using Zbar!");
 		}
 	}
-	
+	save_debug_img("qrdetect", qr);
 	return s;
 }
 

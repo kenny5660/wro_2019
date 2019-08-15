@@ -18,7 +18,7 @@ enum class QrDetectorTypeEnum
 	ZBAR
 }
 ;
-const QrDetectorTypeEnum kQrDetectorType = QrDetectorTypeEnum::CV;// QrDetectorTypeEnum::ZBAR;
+const QrDetectorTypeEnum kQrDetectorType = QrDetectorTypeEnum::ZBAR;
 std::string qr_detect_frame(cv::Mat qr);
 RobotPoint qr_detect(cv::Mat qr, std::array<BoxMap, 3> &boxes_pos, std::pair<Point, Point> &pz, std::string s = "");
 

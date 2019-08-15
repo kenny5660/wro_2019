@@ -16,22 +16,22 @@ struct bin_hsv_params {
 color_t GetSquareBin(cv::Mat frame, bin_hsv_params* briks_colors);
 bin_hsv_params big_briks_colors[8]{
     {{0, 0}, {0, 0}, {0, 0}},            // undefined_c
-    {{83, 135}, {76, 192}, {0, 255}},  // blue_c
-    {{156, 185}, {71, 190}, {0, 255}},  // red_c
-    {{55, 81}, {70, 190}, {0, 255}},    // green_c
-    {{1, 19}, {71, 190}, {0, 255}},     // orange_c
-    {{20, 43}, {71, 190}, {0, 255}},    // yellow_c
+    {{83, 135}, {76, 255}, {0, 255}},  // blue_c
+    {{156, 185}, {71, 255}, {0, 255}},  // red_c
+    {{55, 81}, {70, 255}, {0, 255}},    // green_c
+    {{1, 19}, {71, 255}, {0, 255}},     // orange_c
+    {{20, 43}, {71, 255}, {0, 255}},    // yellow_c
     {{0, 255}, {0, 76}, {0, 76}},       // black_c
     {{0, 255}, {0, 50}, {125, 255}}     // white_c
 };
 
 bin_hsv_params small_briks_colors[8]{
     {{0, 0}, {0, 0}, {0, 0}},           // undefined_c
-    {{89, 125}, {147, 200}, {0, 255}},   // blue_c
-    {{157, 184}, {100, 200}, {0, 255}},  // red_c
-    {{70, 111}, {60, 131}, {90, 230}},    // green_c
-    {{1, 14}, {71, 164}, {0, 255}},     // orange_c
-    {{14, 38}, {77, 198}, {0, 255}},    // yellow_c
+    {{89, 125}, {147, 255}, {0, 255}},   // blue_c
+    {{157, 184}, {100, 255}, {0, 255}},  // red_c
+    {{70, 111}, {90, 255}, {0, 230}},    // green_c
+    {{1, 14}, {71, 255}, {0, 255}},     // orange_c
+    {{14, 38}, {77, 255}, {0, 255}},    // yellow_c
     {{0, 255}, {0, 76}, {0, 76}},     // black_c
     {{0, 255}, {0, 50}, {125, 255}}     // white_c
 };
@@ -63,7 +63,7 @@ color_t VisionGetBigBox(const cv::Mat& frame,double dist) {
   const double dist_coef = 0.0683478260869565;
 
   //far 355    near 505     off 120  385
-  cv::Rect cut_rect(cv::Point(480,  510- (dist * dist_coef)), cv::Size(15, 15));
+  cv::Rect cut_rect(cv::Point(545,  510- (dist * dist_coef)), cv::Size(15, 15));
   cv::Mat cut_mat(frame, cut_rect);
   cv::Mat f_with_rect;
   frame.copyTo(f_with_rect);
