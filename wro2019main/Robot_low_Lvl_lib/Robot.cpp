@@ -636,10 +636,10 @@ void RobotGardener::QrGetFrame(cv::Mat &frame)
 	auto fram = cam_rot_->GetFrame(kDegServo);
 	cam_rot_->GetServo()->SetDegrees(kDegServoAfter);
 	cv::Rect cut_rect;
-	cut_rect = cv::Rect(cv::Point(225, 361), cv::Point(617, 710));
+	cut_rect = cv::Rect(cv::Point(225, 331), cv::Point(617, 700));
 
 	cv::Mat cut_mat(*fram, cut_rect);
 	frame = cut_mat;	
-	frame.convertTo(frame, -1, 0.9, -2);
+	frame.convertTo(frame, -1, 0.9, -10);
 	save_debug_img("Qrcode.jpg", frame);
 }

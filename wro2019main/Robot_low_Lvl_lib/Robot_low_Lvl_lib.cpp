@@ -20,8 +20,8 @@ int start_robot()
 	{
 		robot->Init();
 //		do_alg_code(*robot, true); // camicadze
-		//do_alg_code(*robot, false);
-		alg(*robot);
+		do_alg_code(*robot, false);
+		//alg(*robot);
 		
 	}
 	catch (std::runtime_error e)
