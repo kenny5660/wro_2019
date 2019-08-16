@@ -1121,7 +1121,7 @@ void Map::normal_death_zone() {
     }
 }
 
-void Map::update(const std::vector<PolarPoint> &polar_points, Robot robot, show_img_debug debug) {
+void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show_img_debug debug) {
     std::vector<std::vector<Point>> lines = get_corners(polar_points);
     corners_rot(lines, -position_.get_angle());
     {

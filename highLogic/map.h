@@ -83,7 +83,7 @@ class Map {
     static Point normal_point(const Point &p);
     static std::pair <int, int> get_field_unit(const Point &p);
 
-    void update(const std::vector<PolarPoint> &, Robot robot, show_img_debug debug = nullptr);
+    void update(const std::vector<PolarPoint> &, Robot &robot, show_img_debug debug = nullptr);
 
     std::vector<std::vector<Point>> borders;
 
