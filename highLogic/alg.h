@@ -11,7 +11,8 @@
     #include "../wro2019main/Robot_low_Lvl_lib/Robot_facing.h"
 #include "map.h"
 #else
-    #include "../wro2019main/Robot_low_Lvl_lib/Robot.h"
+#include "map.h"
+    #include "Robot.h"
 #endif
 
 const double out_way_offset = 300;

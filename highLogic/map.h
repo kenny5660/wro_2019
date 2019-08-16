@@ -12,8 +12,10 @@
 #include "logic_structures.h"
 #include "debug.h"
 #include "settings.h"
+#if defined(WIN32) || defined(_WIN32) || \
+      defined(__WIN32) && !defined(__CYGWIN__)
 #include "../wro2019main/Robot_low_Lvl_lib/Robot_facing.h"
-
+#else#include "Robot.h"#endif
 const cv::Scalar box_color2color[6] = {
     {218, 197, 255},
     {159, 6, 16},

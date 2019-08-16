@@ -11,7 +11,6 @@
 #include "Button.h"
 #include "Camera.h"
 #include "OpticalFlow.h"
-#include "map.h"
 #include "Indicator.h"
 class Robot
 {
