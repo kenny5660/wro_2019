@@ -12,6 +12,7 @@
 #include "logic_structures.h"
 #include "debug.h"
 #include "settings.h"
+#include "../wro2019main/Robot_low_Lvl_lib/Robot_facing.h"
 
 const cv::Scalar box_color2color[6] = {
     {218, 197, 255},
@@ -82,7 +83,7 @@ class Map {
     static Point normal_point(const Point &p);
     static std::pair <int, int> get_field_unit(const Point &p);
 
-    void update(const std::vector<PolarPoint> &, show_img_debug debug = nullptr);
+    void update(const std::vector<PolarPoint> &, Robot robot, show_img_debug debug = nullptr);
 
     std::vector<std::vector<Point>> borders;
 

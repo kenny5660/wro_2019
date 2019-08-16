@@ -149,7 +149,7 @@ color_t do_box(Robot &robot,
 		map.set_new_position(pos);
 		std::vector<PolarPoint> ld;
 		robot.GetLidarPolarPoints(ld);
-		map.update(ld, db);
+		map.update(ld, robot, db);
 		{
 			save_debug_img("map_after", map.get_img());
 		}
@@ -535,7 +535,7 @@ start_position;
 			robot.Go2(way);
 			map.set_new_position(end_move_point);
 			robot.GetLidarPolarPoints(lidar_data);
-			map.update(lidar_data);
+			map.update(lidar_data, robot);
 			update_box_color(robot, map);
 		}
 		next_color = do_box(robot, map, box, side_catch, true, false, debug);
@@ -587,7 +587,7 @@ start_position;
 		debug("Map_after_init_pos", map.get_img());
 	}
 	robot.GetLidarPolarPoints(lidar_data);
-	map.update(lidar_data, debug);
+	map.update(lidar_data, robot, debug);
 	{
 		debug("Map_after_update", map.get_img());
 	}

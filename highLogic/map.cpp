@@ -12,7 +12,6 @@
 #include "map.h"
 #include "settings.h"
 #include "lidar_math.h"
-#include "../wro2019main/Robot_low_Lvl_lib/Robot_facing.h"
 
 // Черновики:
 // 1) Добавления мёртвых зон в лист: https://pastebin.com/yX17ZEa2
@@ -1156,7 +1155,13 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot robot, show_
 
     std::vector<std::pair<int, PolarPoint>> boxes_points;
     for (int i = 0; i < maybe_box.size(); i++) {
-        boxes_points.emplace_back(i, maybe_box[i]);
+      Point p = {
+          (-maybe_box[i].first.get_x() - maybe_box[i].second.get_x()) / 2,
+          (maybe_box[i].first.get_y() + maybe_box[i].second.get_y()) / 2
+      };
+      PolarPoint polar = p.to_polar();
+      polar.add_f(-ang);
+      boxes_points.emplace_back(i, polar);
     }
     auto colors = robot.GetColorFromAng(boxes_points);
 
