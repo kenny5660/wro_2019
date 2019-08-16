@@ -94,7 +94,7 @@ std::string qr_detect_frame(cv::Mat qr, QrDetectorTypeEnum qrDetectorType)
 			std::cout << "Can't detect qr code using ZBAR, not enough symbols!";
 		}
 	}
-	save_debug_img("qrdetect", qr);
+//	save_debug_img("qrdetect", qr);
 	return s;
 }
 

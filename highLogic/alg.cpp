@@ -549,6 +549,9 @@ start_position;
 			map.set_new_position(end_move_point);
 			robot.GetLidarPolarPoints(lidar_data);
 			map.update(lidar_data, robot);
+			{
+				debug("Map_after_update", map.get_img());
+			}
 			update_box_color(robot, map);
 		}
 		next_color = do_box(robot, map, box, side_catch, true, false, debug);
