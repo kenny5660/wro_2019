@@ -2,6 +2,103 @@
 #include <opencv2/imgproc.hpp>
 #include "debug.h"
 #include <algorithm>
+#if !(defined(WIN32) || defined(_WIN32) || \
+    defined(__WIN32) && !defined(__CYGWIN__))
+
+
+
+#include <zbar.h>
+
+
+typedef struct {
+	std::string type;
+	std::string data;
+	std::vector<cv::Point> location;
+} decodedObject;
+
+// Find and decode barcodes and QR codes
+void decode_zbar(cv::Mat &im, std::vector<decodedObject> &decodedObjects) {
+
+
+	using namespace zbar;
+	// Create zbar scanner
+	ImageScanner scanner;
+
+	// Configure scanner
+	scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 0);
+	scanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
+	//	cv::Mat res;
+	//	cv::resize(im, res, cv::Size(640, 480));
+	//	cv::rotate(res, res, cv::ROTATE_180);
+		// Convert image to grayscale
+		cv::Mat imGray;
+	cvtColor(im, imGray, cv::COLOR_BGR2GRAY);
+	save_debug_img("greyQR", imGray);
+	// Wrap image data in a zbar image
+	Image image(im.cols,
+		im.rows,
+		"Y800",
+		(uchar *)imGray.data,
+		im.cols * im.rows);
+
+	// Scan the image for barcodes and QRCodes
+	int n = scanner.scan(image);
+
+	// Print results
+	for(Image::SymbolIterator symbol = image.symbol_begin() ;
+	     symbol != image.symbol_end() ; ++symbol) {
+		decodedObject obj;
+
+		obj.type = symbol->get_type_name();
+		obj.data = symbol->get_data();
+
+		// Print type and data
+		std::cout << "Type : " << obj.type << std::endl;
+		std::cout << "Data : " << obj.data << std::endl << std::endl;
+
+		// Obtain location
+		for(int i = 0 ; i < symbol->get_location_size() ; i++) {
+			obj.location.push_back(
+			    cv::Point(symbol->get_location_x(i), symbol->get_location_y(i)));
+		}
+
+		decodedObjects.push_back(obj);
+	}
+}
+std::string qr_detect_frame(cv::Mat qr, QrDetectorTypeEnum qrDetectorType)
+{
+	
+	std::string s;
+
+	//	cv::resize(qr, qr, cv::Size(640, 480));
+		if(qrDetectorType == QrDetectorTypeEnum::CV)
+	{	
+		
+		cv::QRCodeDetector qd;
+		s = qd.detectAndDecode(qr);
+		if (s.length() < 35)
+		{
+			std::cout << "Can't detect qr code using openCV, not enough symbols!";
+		}
+	}
+	if (qrDetectorType == QrDetectorTypeEnum::ZBAR)
+	{
+		std::vector<decodedObject> dec_obj;
+		decode_zbar(qr, dec_obj);
+		if (dec_obj.size() > 0)
+		{
+			s = dec_obj[0].data;
+		}
+		else
+		{
+			std::cout << "Can't detect qr code using ZBAR, not enough symbols!";
+		}
+	}
+	save_debug_img("qrdetect", qr);
+	return s;
+}
+
+#endif
 
 std::string color_t2str(color_t color)
 {

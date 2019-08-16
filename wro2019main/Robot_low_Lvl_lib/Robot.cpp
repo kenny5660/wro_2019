@@ -286,21 +286,54 @@ void RobotGardener::WayFromFrame()
 	omni_->MoveToPosInc(std::make_pair(0, 40), 150);
 }
 
-void RobotGardener::WayFromFrame(cv::Mat &frame)
+void RobotGardener::WayFromFrame(std::string &str)
 {
-
 	const int kmidDist  = 200;
+	const int kDegServoAfter = 240;
 	AlliginByDist(48, -1);
 	omni_->MoveToPosInc(std::make_pair(0, 100), 200);
-	QrGetFrame(frame);
+	cv::Mat frame[3];
+	QrGetFrame(frame[0]);
 	std::shared_ptr<DistanceSensor> dist_sensor = GetDistSensor(RobotGardener::DIST_C_LEFT);
 	std::shared_ptr<DistanceSensor> dist_c_sensor = GetDistSensor(RobotGardener::DIST_C_RIGHT);
 	omni_->MoveWithSpeed(std::make_pair(0, 150), 0);
 	dist_sensor->GetRealDistance();
 	while (dist_sensor->GetDistance() < kmidDist) ;
 	omni_->Stop();
-
+	QrGetFrame(frame[1]);
 	omni_->MoveToPosInc(std::make_pair(0, 40), 150);
+	QrGetFrame(frame[2]);
+	
+	for (auto& it : frame)
+	{
+		str = qr_detect_frame(it, QrDetectorTypeEnum::ZBAR);
+		if (!(str.length() < 35))
+		{
+			cam_rot_->GetServo()->SetDegrees(kDegServoAfter);
+			return;
+		}	
+	}
+	for (auto& it : frame)
+	{
+		str = qr_detect_frame(it, QrDetectorTypeEnum::CV);
+		if (!(str.length() < 35))
+		{
+			cam_rot_->GetServo()->SetDegrees(kDegServoAfter);
+			return;
+		}	
+	}
+	for (int i  = 0;; i++)
+	{
+		cv::Mat frame2;
+		QrGetFrame(frame2);
+		frame2.convertTo(frame2, -1, 1 - ((i % 20) / 10.0), -((i % 20) +5));
+		str = qr_detect_frame(frame2, QrDetectorTypeEnum::ZBAR);
+		if (!(str.length() < 35))
+		{
+			cam_rot_->GetServo()->SetDegrees(kDegServoAfter);
+			return;
+		}
+	}
 }
 
 
@@ -630,16 +663,16 @@ std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng(const std::v
 
 void RobotGardener::QrGetFrame(cv::Mat &frame)
 {
-	const int kDegServo = 319;
-	const int kDegServoAfter = 240;
+	const int kDegServo = 325;
+
 	Delay(200);
 	auto fram = cam_rot_->GetFrame(kDegServo);
-	cam_rot_->GetServo()->SetDegrees(kDegServoAfter);
-	cv::Rect cut_rect;
-	cut_rect = cv::Rect(cv::Point(225, 331), cv::Point(617, 700));
 
-	cv::Mat cut_mat(*fram, cut_rect);
-	frame = cut_mat;	
-	frame.convertTo(frame, -1, 0.9, -10);
+//	cv::Rect cut_rect;
+//	cut_rect = cv::Rect(cv::Point(225, 331), cv::Point(617, 700));
+//
+//	cv::Mat cut_mat(, cut_rect);
+	frame = *fram;	
+	frame.convertTo(frame, -1, 0.9);
 	save_debug_img("Qrcode.jpg", frame);
 }

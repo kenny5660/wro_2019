@@ -45,7 +45,7 @@ public:
 	virtual	void QrGetFrame(cv::Mat &frame) = 0;
 	//@brief in radians
 	virtual void Turn(double angle) = 0;
-	virtual void WayFromFrame(cv::Mat& frame) = 0;
+	virtual void WayFromFrame(std::string &str) = 0;
 	virtual void WayFromFrame() = 0;
 	virtual std::vector<std::pair<int, color_t>> GetColorFromAng(const std::vector<std::pair<int, PolarPoint>> &ang_pps) = 0;
 	virtual void GetLidarPolarPoints(std::vector<PolarPoint>& polar_points)=0;
@@ -68,7 +68,7 @@ public:
 	virtual void WaitStartButton();
 	color_t CatchCube(CatchCubeSideEnum side, bool IsTakePhoto = true) override;
 	CatchCubeSideEnum AlliginByDist(int dist, int offset_alg) override;
-	void WayFromFrame(cv::Mat &frame) override;
+	void WayFromFrame(std::string &str) override;
 	void QrGetFrame(cv::Mat &frame) override;
 	void WayFromFrame()override;
 	

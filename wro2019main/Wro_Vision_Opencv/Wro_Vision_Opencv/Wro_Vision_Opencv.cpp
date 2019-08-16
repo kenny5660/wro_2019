@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/objdetect.hpp>
 const std::string path_small_cube("C:\\Users\\misha\\YandexDisk\\OneDrive\\Robots\\NImyrio\\WRO2019\\smallBox\\");
 const std::string path_big_cube("C:\\Users\\misha\\YandexDisk\\OneDrive\\Robots\\NImyrio\\WRO2019\\bigBoxes\\");
 
@@ -58,7 +59,13 @@ int main() {
     img = cv::imread(entry.path().string());
     
     //color_t color = VisionGetSmallBox(img, Robot::CatchCubeSideEnum::RIGHT);
-    color_t colorBig = VisionGetBigBox(img,1150);
+    //color_t colorBig = VisionGetBigBox(img,1150);
+    cv::QRCodeDetector qd;
+    cv::Mat imgGrey;
+//    img.convertTo(img, -1, 1,-20);
+  //  cvtColor(img,img, cv::COLOR_BGR2GRAY);
+    std::string strqr = qd.detectAndDecode(img);
+    std::cout << strqr << std::endl;
     //std::cout << colorBig << color;
     while (true) {
 

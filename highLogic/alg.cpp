@@ -257,13 +257,12 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 
 #endif
 	Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
-	cv::Mat QRCodeImg;
 	if (s.empty()) {
-		robot.WayFromFrame(QRCodeImg);
+		robot.WayFromFrame(s);
 	}
 	std::array<BoxMap, 3> boxes;
 	std::pair<Point, Point> pz;
-	RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, s);
+	RobotPoint start_position = qr_detect(boxes, pz, s);
 	double start_angle = start_position.get_angle();
 	{
 		write_log("Start angle: " + std::to_string(start_angle));

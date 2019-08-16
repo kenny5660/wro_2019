@@ -19,8 +19,8 @@ int start_robot()
 	try
 	{
 		robot->Init();
-//		do_alg_code(*robot, true); // camicadze
-		do_alg_code(*robot, false);
+		do_alg_code(*robot, true); // camicadze
+//		do_alg_code(*robot, false);
 		//alg(*robot);
 		
 	}
