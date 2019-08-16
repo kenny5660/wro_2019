@@ -530,32 +530,36 @@ start_position;
 	std::vector<Point> way;
 	Point end_move_point;
 	Robot::CatchCubeSideEnum side_catch = Robot::CatchCubeSideEnum::LEFT;
-	while ((next_color != black_c) || (!was_catch)) {
-		BoxMap box;
-		while (!get_box(next_color, map, box)) {
-			Point death_point;
-			auto death_zone = map.get_death_zone();
-			for (int i = 0; i < death_zone.size(); i++) {
-				for (int j = 0; j < death_zone[i].size(); j++) {
-					death_point = { i * field_sett::size_field_unit, j * field_sett::size_field_unit };
-					break;
-				}
-				if (!std::isnan(death_point.get_x())) {
-					break;
-				}
-			}
-			go_to2(map, death_point, way, end_move_point, false, debug);
-			robot.Go2(way);
-			map.set_new_position(end_move_point);
-			robot.GetLidarPolarPoints(lidar_data);
-			map.update(lidar_data, robot);
-			{
-				debug("Map_after_update", map.get_img());
-			}
-			update_box_color(robot, map);
-		}
-		next_color = do_box(robot, map, box, side_catch, true, false, debug);
-		was_catch = true;
+	for (int i = 0; i < 3; i++) {
+	  auto boxes = map.get_boxes();
+          int next_box = 0;
+	  for (; next_box < boxes.size(); next_box++) {
+	    if (boxes[next_box].get_color() == next_color) {
+              break;
+	    }
+	  }
+	  if (next_box >= boxes.size()) {
+            way.clear();
+            Point end_point;
+            while (!go_to2(map, boxes[rand() % 3].get_box_indent(), way, end_point, true, debug)) { way.clear(); }
+            robot.Go2(way);
+            map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
+            lidar_data.clear();
+            robot.GetLidarPolarPoints(lidar_data);
+            map.update(lidar_data, robot, debug);
+            {
+              debug("UpMap", map.get_img());
+            }
+	    i--;
+            continue;
+	  }
+          next_color = do_box(robot, map, boxes[next_box], side_catch, true, true, debug);
+          lidar_data.clear();
+          robot.GetLidarPolarPoints(lidar_data);
+          map.update(lidar_data, robot, debug);
+          {
+            debug("UpMap", map.get_img());
+          }
 	}
 	robot.Turn(map.get_position().get_angle() - M_PI_2);
 	auto buff = map.get_position();

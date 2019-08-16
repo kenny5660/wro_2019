@@ -10,7 +10,7 @@ extern PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, con
 TEST(Alg, 1) {
     Robot robot;
 
-    do_alg_code(robot, false, "(K,G,J,D)(F,H,D,J)(S,F,U,H)(I,Q,G,S)");
+    do_alg_code(robot, false, "(O,K,M,M)(G,G,E,I)(F,N,D,P)(J,R,H,T)");
     //do_alg_code(robot, false, "(F,J,H,H)(I,R,K,T)(O,A,M,C)(Q,Q,O,S)");
 }
 

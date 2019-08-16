@@ -226,7 +226,7 @@ void Map::add_box2boarder(std::vector<Point> &border, std::vector<Point> &border
 //            break;
 //        }
 //    }
-    // Не Костыль, А КОСТЫЛИЩЕ. Специально для абонентов DNDV
+    // Не Костыль, А КОСТЫЛИЩЕ. Специально для абонентов
     bool was_s = false;
     bool is_include = false;
     for (int i = (down_cross.second.first + 1) % border_from.size(); (!was_s) || (i != ((up_cross.second.first + 1) % border_from.size())); i = ((i + 1) % border_from.size())) {
