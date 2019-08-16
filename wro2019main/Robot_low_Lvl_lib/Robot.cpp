@@ -77,7 +77,12 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 
 color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
-	const int kDist = 64;
+	std::cout << "Getting cube  =================" <<  (int)side << std::endl;
+	int kDist = 65;
+	if (side  ==  CatchCubeSideEnum::RIGHT)
+	{
+		kDist = 62;
+	}
 	//const int kDistAfter = 110;
 	const int kOfsetAngle = -2;
 	const int kSpeed = 130;
@@ -86,7 +91,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	const int kCamAng = 21;
 		
 	CatchCubeSideEnum side_relative_cube  = AlliginByDist(kDist, kOfsetAngle);
-	const int mid_dist = 170;
+	const int mid_dist = 180;
 	int speed = side == CatchCubeSideEnum::LEFT ? kSpeed : -kSpeed;
 	int speedLow = side == CatchCubeSideEnum::LEFT ? kSpeedLow : -kSpeedLow;
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);

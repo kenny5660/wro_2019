@@ -1125,16 +1125,17 @@ void Map::normal_death_zone() {
 }
 
 void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show_img_debug debug) {
-    std::vector<std::vector<Point>> lines = get_corners(polar_points);
-    corners_rot(lines, -position_.get_angle());
-    {
-        DebugFieldMat mat;
-        add_lines_img(mat, lines);
-        debug("--Box_update", mat);
-    }
-    double ang = get_angle_lines(
-        lines,
-        parking_zone_circles_,
+	std::vector<std::vector<Point>> lines = get_corners(polar_points);
+	corners_rot(lines, -position_.get_angle());
+	{
+		DebugFieldMat mat;
+		add_lines_img(mat, lines);
+		debug("--Box_update", mat);
+	}
+	double ang = get_angle_lines(
+	    lines,
+		{ { parking_zone_circles_.first.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.first.get_y()}, 
+		  { parking_zone_circles_.second.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.second.get_y()}},
         2 * field_sett::size_field_unit);
 
     corners_rot(lines, -ang);
@@ -1155,35 +1156,58 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
             }
         }
     }
+	
+	auto is_repitbox = [&](int i) {
+		for (auto &j : boxes_) {
+			Point p = j.get_left_corner_point() + Point { 
+				field_sett::climate_box_width / 2,
+				field_sett::climate_box_height / 2
+			 };
+			p.set_x(p.get_x() - position_.get_x());
+			p.set_y(position_.get_y() - p.get_y());
+			if (p.dist(maybe_box[i].first) < ((field_sett::climate_box_max + lidar_sett::max_tr_error) * M_SQRT2)
+			    && p.dist(maybe_box[i].second) < ((field_sett::climate_box_max + lidar_sett::max_tr_error) * M_SQRT2)) {
+				return true;
+			}
+		}
+		return false;
+	};
 
     std::vector<std::pair<int, PolarPoint>> boxes_points;
     std::vector<int> recurring_boxes;
     for (int i = 0; i < maybe_box.size(); i++) {
-      for (auto &j : boxes_) {
-          Point p = j.get_left_corner_point() + Point{field_sett::climate_box_width / 2,
-                                                      field_sett::climate_box_height / 2};
-           p.set_x(p.get_x() - position_.get_x());
-           p.set_y(position_.get_y() - p.get_y());
-           if (p.dist(maybe_box[i].first) < ((field_sett::climate_box_max + lidar_sett::max_tr_error) * M_SQRT2)
-               && p.dist(maybe_box[i].second) < ((field_sett::climate_box_max + lidar_sett::max_tr_error) * M_SQRT2)) {
-              recurring_boxes.push_back(i);
-             continue;
-           }
-      }
+	    if (is_repitbox(i)) {
+		    recurring_boxes.push_back(i);
+		    continue;
+	    }
       // возможно новые коробки
       Point p = {
           (-maybe_box[i].first.get_x() - maybe_box[i].second.get_x()) / 2,
           (maybe_box[i].first.get_y() + maybe_box[i].second.get_y()) / 2
       };
       PolarPoint polar = p.to_polar();
-      polar.add_f(-ang);
+	    polar.add_f(-ang - position_.get_angle());
       boxes_points.emplace_back(i, polar);
     }
-    auto colors = robot.GetColorFromAng(boxes_points);
-
+	
+	{
+		DebugFieldMat mat;
+		add_lines_img(mat, lines);
+		for (auto &i : boxes_points)
+		{
+			Point p = i.second.to_cartesian(-M_PI, true);
+			add_point_img(mat, p);
+		}
+		debug("||Watch", mat);
+	}
+	
+	std::vector<std::pair<int, color_t>> colors;
+	if (box_count_ < 5) {
+		colors = robot.GetColorFromAng(boxes_points);
+	}
+	
     auto add_line2box = [&](Point a, Point b, color_t color) {
-      if (fabs(a.get_x() - b.get_x())
-          < fabs(a.get_y() - b.get_y())) {
+      if (fabs(a.get_x() - b.get_x()) < fabs(a.get_y() - b.get_y())) {
         Point top = (a.get_y() > b.get_y()) ? (a) : (b);
         if (top.get_x() < 0) {
           add_box({top.get_x() - field_sett::climate_box_width + position_.get_x(),
@@ -1193,7 +1217,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
                    position_.get_y() - top.get_y()}, color);
         }
       } else {
-        Point left = (a.get_x() < b.get_x()) ? (a.get_x()) : (b.get_x());
+        Point left = (a.get_x() < b.get_x()) ? (a) : (b);
         if (left.get_y() < 0) {
           add_box({left.get_x() + position_.get_x(),
                    position_.get_y() - left.get_y()}, color);

@@ -58,14 +58,14 @@ int main() {
     std::cout << entry.path() << std::endl;
     img = cv::imread(entry.path().string());
     
-    //color_t color = VisionGetSmallBox(img, Robot::CatchCubeSideEnum::RIGHT);
+    color_t color = VisionGetSmallBox(img, Robot::CatchCubeSideEnum::RIGHT);
     //color_t colorBig = VisionGetBigBox(img,1150);
     cv::QRCodeDetector qd;
     cv::Mat imgGrey;
 //    img.convertTo(img, -1, 1,-20);
   //  cvtColor(img,img, cv::COLOR_BGR2GRAY);
-    std::string strqr = qd.detectAndDecode(img);
-    std::cout << strqr << std::endl;
+    //std::string strqr = qd.detectAndDecode(img);
+    //std::cout << strqr << std::endl;
     //std::cout << colorBig << color;
     while (true) {
 

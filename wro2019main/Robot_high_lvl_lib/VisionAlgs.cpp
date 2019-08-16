@@ -126,11 +126,11 @@ bin_hsv_params small_briks_colors[8]{
     {{0, 0}, {0, 0}, {0, 0}},           // undefined_c
     {{89, 125}, {147, 255}, {0, 255}},   // blue_c
     {{157, 184}, {100, 255}, {0, 255}},  // red_c
-    {{70, 111}, {40, 255}, {60, 230}},    // green_c
+    {{61, 111}, {31, 255}, {0, 230}},    // green_c
     {{1, 14}, {71, 255}, {0, 255}},     // orange_c
     {{14, 38}, {77, 255}, {0, 255}},    // yellow_c
-    {{0, 255}, {0, 76}, {0, 76}},     // black_c
-    {{0, 255}, {0, 50}, {125, 255}}     // white_c
+    {{0, 0}, {0, 0}, {0, 0}},            // black_c
+    {{0, 0}, {0, 0}, {0, 0}}             // white_c
 };
 
 color_t VisionGetSmallBox(const cv::Mat& frame, Robot::CatchCubeSideEnum side) {
@@ -151,7 +151,7 @@ color_t VisionGetSmallBox(const cv::Mat& frame, Robot::CatchCubeSideEnum side) {
    cv::rectangle(f_with_rect, cut_rect, cv::Scalar(255, 0, 0));
 #if !(defined(WIN32) || defined(_WIN32) || \
       defined(__WIN32) && !defined(__CYGWIN__))
-  save_debug_img("SmallBox.jpg", frame);
+  //save_debug_img("SmallBox.jpg", frame);
   save_debug_img("SmallBoxRect.jpg", f_with_rect);
 #endif
   return color;
@@ -180,7 +180,7 @@ int x_rect = 510 - (dist * dist_coef);
 
 #if !(defined(WIN32) || defined(_WIN32) || \
       defined(__WIN32) && !defined(__CYGWIN__))
-  save_debug_img("BigBox.jpg", frame);
+  //save_debug_img("BigBox.jpg", frame);
   save_debug_img("BigBoxRect.jpg", f_with_rect);
 #endif
   return color;  // undefined_c;

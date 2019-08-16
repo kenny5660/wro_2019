@@ -20,7 +20,7 @@ int start_robot()
 	{
 		robot->Init();
 		do_alg_code(*robot, true); // camicadze
-//		do_alg_code(*robot, false);
+	//	do_alg_code(*robot, false);
 		//alg(*robot);
 		
 	}
