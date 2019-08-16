@@ -208,12 +208,12 @@ PolarPoint get_box_color_point(const std::vector<PolarPoint> &points, const Robo
 	return buff_point[buff_point.size() / 2];
 }
 
-void get_box_color(Robot &robot,
+void get_box_color(std::vector<PolarPoint> &points,
+	Robot &robot,
 	const RobotPoint &position,
 	std::array<BoxMap,
 	3> &boxes) {
-	std::vector<PolarPoint> points;
-	robot.GetLidarPolarPoints(points);
+	//robot.GetLidarPolarPoints(points);
 	save_ld_data(points, "peppa.ld");
 	std::vector<std::pair<int, PolarPoint>> boxes_point;
 	for (int i = 0; i < boxes.size(); ++i) {
@@ -292,13 +292,27 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 	db = save_debug_img;
 #endif
 
-	get_box_color(robot, start_position, boxes);
+	std::vector<PolarPoint> points;
+	robot.GetLidarPolarPoints(points);
+	get_box_color(points, robot, start_position, boxes);
+	map.update(points, robot, db);
+	{
+
+		db("UpMap", map.get_img());
+	}
 	color_t current_color = blue_c;
 
 	for (int i = 0; i < boxes.size(); i++) {
 		int ind = get_box_by_color(boxes, current_color);
 		if (ind >= 0) {
 			current_color = do_box(robot, map, boxes[ind], side_catch, true, kamikaze_mode, db);
+			points.clear();
+			robot.GetLidarPolarPoints(points);
+			map.update(points, robot, db);
+			{
+
+				db("UpMap", map.get_img());
+			}
 		}
 		else {
 			way.clear();
@@ -306,7 +320,9 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 			while (!go_to2(map, boxes[rand() % 3].get_box_indent(), way, end_point, kamikaze_mode, db)) { way.clear(); }
 			robot.Go2(way);
 			map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
-			get_box_color(robot, map.get_position(), boxes);
+			points.clear();
+			robot.GetLidarPolarPoints(points);
+			get_box_color(points, robot, map.get_position(), boxes);
 			i--;
 		}
 	}
