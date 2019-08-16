@@ -6,6 +6,8 @@
 #include "../highLogic/alg.h"
 #include "../highLogic/CV.h"
 
+extern RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, double frame_offset);
+
 TEST(TestDetectPosition, 1) {
     Robot robot;
     std::vector<PolarPoint> points;
@@ -17,6 +19,13 @@ TEST(TestDetectPosition, 2) {
     Robot robot;
     std::vector<PolarPoint> points;
     ASSERT_FALSE(read("Real//10.ld", points));
+    detect_position(robot, points, 300);
+}
+
+TEST(TestDetectPosition, 3) {
+    Robot robot;
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("12_15_42_2019_06_16.ld", points));
     detect_position(robot, points, 300);
 }
 

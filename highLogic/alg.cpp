@@ -149,7 +149,7 @@ color_t do_box(Robot &robot,
 		map.set_new_position(pos);
 		std::vector<PolarPoint> ld;
 		robot.GetLidarPolarPoints(ld);
-		map.update(ld, db);
+		map.update(ld, robot, db);
 		{
 			save_debug_img("map_after", map.get_img());
 		}
@@ -405,23 +405,17 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 	for (auto &i : colors) {
 		if (i.second == black_c) {
 			RobotPoint p;
-			DebugFieldMat mat;
-			add_lines_img(mat, lines);
 			if (i.first == top_field_margin) {
 				p = RobotPoint(NAN, max_dist[i.first].first);
-				add_point_img(mat, { 0, max_dist[i.first].first});
 			}
 			else if (i.first == bottom_field_margin) {
 				p = RobotPoint(NAN, field_sett::max_field_height - max_dist[i.first].first);
-				add_point_img(mat, { 0, -max_dist[i.first].first });
 			}
 			else if (i.first == right_field_margin) {
 				p = RobotPoint(field_sett::max_field_width - max_dist[i.first].first, NAN);
-				add_point_img(mat, { max_dist[i.first].first, 0 });
 			}
 			else {
 				p = RobotPoint(max_dist[i.first].first, NAN);
-				add_point_img(mat, { -max_dist[i.first].first, 0 });
 			}
 			pos.merge(p);
 		}
@@ -488,6 +482,7 @@ void alg(Robot &robot) {
 		robot.Go2({ { 0, 2 * field_sett::size_field_unit } });
 		frame_offset += 2 * field_sett::size_field_unit;
 		lidar_data.clear();
+          robot.GetLidarPolarPoints(lidar_data);
 		start_position = detect_position(robot, lidar_data, frame_offset);
 	}
 	write_log("Position:/n x: " + std::to_string(start_position.get_x()) +
@@ -511,12 +506,11 @@ start_position;
 
 		debug("Map_after_init_pos", map.get_img());
 	}
+        lidar_data.clear();
 	robot.GetLidarPolarPoints(lidar_data);
-	map.update(lidar_data, debug);
 	{
 		debug("Map_after_update", map.get_img());
 	}
-	update_box_color(robot, map);
 	color_t next_color = blue_c;
 	bool was_catch = false;
 	std::vector<Point> way;
@@ -540,7 +534,7 @@ start_position;
 			robot.Go2(way);
 			map.set_new_position(end_move_point);
 			robot.GetLidarPolarPoints(lidar_data);
-			map.update(lidar_data);
+			map.update(lidar_data, robot);
 			update_box_color(robot, map);
 		}
 		next_color = do_box(robot, map, box, side_catch, true, false, debug);
@@ -592,7 +586,7 @@ start_position;
 		debug("Map_after_init_pos", map.get_img());
 	}
 	robot.GetLidarPolarPoints(lidar_data);
-	map.update(lidar_data, debug);
+	map.update(lidar_data, robot, debug);
 	{
 		debug("Map_after_update", map.get_img());
 	}

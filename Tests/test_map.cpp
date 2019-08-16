@@ -567,319 +567,323 @@ TEST(Map, MergeRot3) {
                }}));
 }
 
-TEST(Map, NormalDeathZone) {
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("MergeMapRot2/1.ld", points));
-    Map m(points);
-    show_debug_img("", m.get_img());
-    // TODO: учесть свободное пространство перед квадратом. Скрыть данную функцию. Добавить с учётом кводратов.
-    m.normal_death_zone();
-    show_debug_img("", m.get_img());
-}
-
-TEST(MapCreateBorder, Merge) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(U,L,S,N)");
-    start_position.set_angle(0);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("", img);
-}
-
-TEST(MapCreateBorder, Merge2) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(H,K,K,K)(A,A,C,C)(I,A,K,C)(E,A,G,C)");
-    start_position.set_angle(0);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("", img);
-}
-
-
-TEST(MapCreateBorder, NonMerge) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(A,R,C,T)");
-    start_position.set_angle(0);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("", img);
-}
-
-TEST(MapCreateBorder, r) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz; // TODO:
-    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(C,C,G,C)(H,H,J,J)(Q,Q,O,S)(A,R,C,T)");
-    start_position.set_angle(0);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("", img);
-}
-
-TEST(MapUpdate, up1) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(U,L,S,N)");
-    start_position.set_angle(0);
-    start_position.set_x(1 * field_sett::size_field_unit);
-    start_position.set_y(8 * field_sett::size_field_unit);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("HalfData//(NGOI)(QQOS)(FGDI)(ULSN).ld", points));
-    map.update(points, show_debug_img);
-
-//    std::vector<std::vector<Point>> points;
-//    std::pair<Point, Point> parking_zone_circles_ = {
-//        {123, 456},
-//        {456, 321}
-//    };
-//    std::pair<double , double> p(250, 350);
-//    std::vector<std::vector<std::pair<Point, line_t>>> lines;
-//    line_detect_from_pos(lines, parking_zone_circles_,
-//                         points, p, {0, 0});
-}
-
-TEST(MapUpdate, up2) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(0);
-    start_position.set_x(400);
-    start_position.set_y(1100);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("HalfData//(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)_from_frame_root0.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, up3) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(0);
-    start_position.set_x(900);
-    start_position.set_y(666);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("HalfData//(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)_1_root0.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, up3WithRoot90) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(degree2radian(90));
-    start_position.set_x(900);
-    start_position.set_y(666);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("HalfData//(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)_1_root90.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, up3WithRoot100) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(degree2radian(110));
-    start_position.set_x(900);
-    start_position.set_y(666);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("HalfData//(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)_1_root100.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, RealUp) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(2.6853440000000002);
-    start_position.set_x(1162.1408730350097);
-    start_position.set_y(1266.5040220418102);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("Real//1.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, RealUp2) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(2.6853440000000002);
-    start_position.set_x(1162.1408730350097);
-    start_position.set_y(1266.5040220418102);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("Real//2.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, RealUp3) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(2.6853440000000002);
-    start_position.set_x(1162.1408730350097);
-    start_position.set_y(1266.5040220418102);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("Real//3.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, RealUp4) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(2.6853440000000002);
-    start_position.set_x(1162.1408730350097);
-    start_position.set_y(1266.5040220418102);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("Real//4.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, RealUp5) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(2.6853440000000002);
-    start_position.set_x(1162.1408730350097);
-    start_position.set_y(1266.5040220418102);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("Real//5.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, RealUp6) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    //RobotPoint start_position =
-    //    qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    //start_position.set_angle(2.6853440000000002);
-    //start_position.set_x(1162.1408730350097);
-    //start_position.set_y(1266.5040220418102);
-    //Map map(pz.first, pz.second, boxes, start_position);
+//TEST(Map, NormalDeathZone) {
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("MergeMapRot2/1.ld", points));
+//    Map m(points);
+//    show_debug_img("", m.get_img());
+//    // TODO: учесть свободное пространство перед квадратом. Скрыть данную функцию. Добавить с учётом кводратов.
+//    m.normal_death_zone();
+//    show_debug_img("", m.get_img());
+//}
+//
+//TEST(MapCreateBorder, Merge) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(U,L,S,N)");
+//    start_position.set_angle(0);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("", img);
+//}
+//
+//TEST(MapCreateBorder, Merge2) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(H,K,K,K)(A,A,C,C)(I,A,K,C)(E,A,G,C)");
+//    start_position.set_angle(0);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("", img);
+//}
+//
+//
+//TEST(MapCreateBorder, NonMerge) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(A,R,C,T)");
+//    start_position.set_angle(0);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("", img);
+//}
+//
+//TEST(MapCreateBorder, r) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz; // TODO:
+//    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(C,C,G,C)(H,H,J,J)(Q,Q,O,S)(A,R,C,T)");
+//    start_position.set_angle(0);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("", img);
+//}
+//
+//TEST(MapUpdate, up1) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(N,G,O,I)(Q,Q,O,S)(F,G,D,I)(U,L,S,N)");
+//    start_position.set_angle(0);
+//    start_position.set_x(1 * field_sett::size_field_unit);
+//    start_position.set_y(8 * field_sett::size_field_unit);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("HalfData//(NGOI)(QQOS)(FGDI)(ULSN).ld", points));
+//    map.update(points, show_debug_img);
+//
+////    std::vector<std::vector<Point>> points;
+////    std::pair<Point, Point> parking_zone_circles_ = {
+////        {123, 456},
+////        {456, 321}
+////    };
+////    std::pair<double , double> p(250, 350);
+////    std::vector<std::vector<std::pair<Point, line_t>>> lines;
+////    line_detect_from_pos(lines, parking_zone_circles_,
+////                         points, p, {0, 0});
+//}
+//
+//TEST(MapUpdate, up2) {
+//    cv::Mat QRCodeImg;
+//    Robot r;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(0);
+//    start_position.set_x(400);
+//    start_position.set_y(1100);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("HalfData//(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)_from_frame_root0.ld", points));
+//    map.update(points, r, show_debug_img);
+//}
+//
+//TEST(MapUpdate, up3) {
+//    cv::Mat QRCodeImg;
+//    Robot r;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(0);
+//    start_position.set_x(900);
+//    start_position.set_y(666);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("HalfData//(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)_1_root0.ld", points));
+//    map.update(points, r, show_debug_img);
+//}
+//
+//TEST(MapUpdate, up3WithRoot90) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    Robot r;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(degree2radian(90));
+//    start_position.set_x(900);
+//    start_position.set_y(666);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("HalfData//(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)_1_root90.ld", points));
+//    map.update(points, r, show_debug_img);
+//}
+//
+//TEST(MapUpdate, up3WithRoot100) {
+//    cv::Mat QRCodeImg;
+//    Robot r;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(degree2radian(110));
+//    start_position.set_x(900);
+//    start_position.set_y(666);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("HalfData//(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)_1_root100.ld", points));
+//    map.update(points, r, show_debug_img);
+//}
+//
+//TEST(MapUpdate, RealUp) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(2.6853440000000002);
+//    start_position.set_x(1162.1408730350097);
+//    start_position.set_y(1266.5040220418102);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("Real//1.ld", points));
+//    map.update(points, show_debug_img);
+//}
+//
+//TEST(MapUpdate, RealUp2) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(2.6853440000000002);
+//    start_position.set_x(1162.1408730350097);
+//    start_position.set_y(1266.5040220418102);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("Real//2.ld", points));
+//    map.update(points, show_debug_img);
+//}
+//
+//TEST(MapUpdate, RealUp3) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(2.6853440000000002);
+//    start_position.set_x(1162.1408730350097);
+//    start_position.set_y(1266.5040220418102);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("Real//3.ld", points));
+//    map.update(points, show_debug_img);
+//}
+//
+//TEST(MapUpdate, RealUp4) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(2.6853440000000002);
+//    start_position.set_x(1162.1408730350097);
+//    start_position.set_y(1266.5040220418102);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("Real//4.ld", points));
+//    map.update(points, show_debug_img);
+//}
+//
+//TEST(MapUpdate, RealUp5) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(2.6853440000000002);
+//    start_position.set_x(1162.1408730350097);
+//    start_position.set_y(1266.5040220418102);
+//    Map map(pz.first, pz.second, boxes, start_position);
 //    cv::Mat img = map.get_img();
 //    show_debug_img("Map", img);
 //    std::vector<PolarPoint> points;
 //    ASSERT_FALSE(read("Real//5.ld", points));
 //    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, RealUp7) {
-    Map map(RobotPoint{382.08470086484556, 1204.1152715488881, 5.7522159999999998}, Point{553.43096886860883, 903.45482113815888}, Point{728.12842176093397, 1200.9540647555737});
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-
-    ASSERT_FALSE(read("Real//9.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, RealUp10) {
-    cv::Mat QRCodeImg;
-    std::array<BoxMap, 3> boxes;
-    std::pair<Point, Point> pz;
-    RobotPoint start_position =
-        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
-    start_position.set_angle(5.7522159999999998);
-    start_position.set_x(382.08470086484556);
-    start_position.set_y(1204.1152715488881);
-    Map map(pz.first, pz.second, boxes, start_position);
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("Real//9.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapCreateAndUp, 1) {
-    RobotPoint start_position = {949.45814896952606, 1086, 5.8304879999999999};
-    double frame_offset = 300;
-    double ang = 2 * M_PI -start_position.get_angle();
-    Point start_frame_point = Point{frame_offset * cos(ang),
-                                    -frame_offset * sin(ang)} +
-        start_position;
-    Point offset_pz_center {-(field_sett::parking_zone_door_size / 2.) * sin(ang),
-                            -(field_sett::parking_zone_door_size / 2.) * cos(ang)};
-    Map map(start_position, start_frame_point + offset_pz_center, start_frame_point - offset_pz_center);
-    show_debug_img("", map.get_img());
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("Real//11.ld", points));
-    map.update(points);
-    show_debug_img("", map.get_img());
-}
-
-
-TEST(MapUpdate, RealUp11) {
-    RobotPoint start_position;
-    start_position.set_angle(5.814);
-    start_position.set_x(930);
-    start_position.set_y(980);
-    Map map(start_position, Point{850, 930}, Point{940, 930});
-    cv::Mat img = map.get_img();
-    show_debug_img("Map", img);
-    std::vector<PolarPoint> points;
-    ASSERT_FALSE(read("Real//13.ld", points));
-    map.update(points, show_debug_img);
-}
-
-TEST(MapUpdate, RealUp12) {
-    Robot robot;
-    std::vector<PolarPoint> lidar_data;
-    ASSERT_FALSE(read("Real//14.ld", lidar_data));
-    robot.GetLidarPolarPoints(lidar_data);
-    RobotPoint start_position = detect_position(robot, lidar_data, 300);
-}
+//}
+//
+//TEST(MapUpdate, RealUp6) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    //RobotPoint start_position =
+//    //    qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    //start_position.set_angle(2.6853440000000002);
+//    //start_position.set_x(1162.1408730350097);
+//    //start_position.set_y(1266.5040220418102);
+//    //Map map(pz.first, pz.second, boxes, start_position);
+////    cv::Mat img = map.get_img();
+////    show_debug_img("Map", img);
+////    std::vector<PolarPoint> points;
+////    ASSERT_FALSE(read("Real//5.ld", points));
+////    map.update(points, show_debug_img);
+//}
+//
+//TEST(MapUpdate, RealUp7) {
+//    Map map(RobotPoint{382.08470086484556, 1204.1152715488881, 5.7522159999999998}, Point{553.43096886860883, 903.45482113815888}, Point{728.12842176093397, 1200.9540647555737});
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//
+//    ASSERT_FALSE(read("Real//9.ld", points));
+//    map.update(points, show_debug_img);
+//}
+//
+//TEST(MapUpdate, RealUp10) {
+//    cv::Mat QRCodeImg;
+//    std::array<BoxMap, 3> boxes;
+//    std::pair<Point, Point> pz;
+//    RobotPoint start_position =
+//        qr_detect(QRCodeImg, boxes, pz, "(M,F,N,H)(P,K,R,M)(F,H,D,J)(I,R,K,T)");
+//    start_position.set_angle(5.7522159999999998);
+//    start_position.set_x(382.08470086484556);
+//    start_position.set_y(1204.1152715488881);
+//    Map map(pz.first, pz.second, boxes, start_position);
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("Real//9.ld", points));
+//    map.update(points, show_debug_img);
+//}
+//
+//TEST(MapCreateAndUp, 1) {
+//    RobotPoint start_position = {949.45814896952606, 1086, 5.8304879999999999};
+//    double frame_offset = 300;
+//    double ang = 2 * M_PI -start_position.get_angle();
+//    Point start_frame_point = Point{frame_offset * cos(ang),
+//                                    -frame_offset * sin(ang)} +
+//        start_position;
+//    Point offset_pz_center {-(field_sett::parking_zone_door_size / 2.) * sin(ang),
+//                            -(field_sett::parking_zone_door_size / 2.) * cos(ang)};
+//    Map map(start_position, start_frame_point + offset_pz_center, start_frame_point - offset_pz_center);
+//    show_debug_img("", map.get_img());
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("Real//11.ld", points));
+//    map.update(points);
+//    show_debug_img("", map.get_img());
+//}
+//
+//
+//TEST(MapUpdate, RealUp11) {
+//    RobotPoint start_position;
+//    start_position.set_angle(5.814);
+//    start_position.set_x(930);
+//    start_position.set_y(980);
+//    Map map(start_position, Point{850, 930}, Point{940, 930});
+//    cv::Mat img = map.get_img();
+//    show_debug_img("Map", img);
+//    std::vector<PolarPoint> points;
+//    ASSERT_FALSE(read("Real//13.ld", points));
+//    map.update(points, show_debug_img);
+//}
+//
+//TEST(MapUpdate, RealUp12) {
+//    Robot robot;
+//    std::vector<PolarPoint> lidar_data;
+//    ASSERT_FALSE(read("Real//14.ld", lidar_data));
+//    robot.GetLidarPolarPoints(lidar_data);
+//    RobotPoint start_position = detect_position(robot, lidar_data, 300);
+//}
