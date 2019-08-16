@@ -1193,6 +1193,27 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
             }
         }
     }
+
+    // линии в глобальные
+    for (auto &i : lines) {
+      for (auto &j : i) {
+        j.set_x(j.get_x() + position_.get_x());
+        j.set_y(-j.get_x() + position_.get_x());
+      }
+    }
+
+    // удаление чёрных зон
+    for (auto &i : lines) {
+      for (int x = 0; x < death_zone_.size(); x++) {
+        for (int y = 0; y < death_zone_[x].size(); y++) {
+          i.push_back(position_);
+          death_zone_[x][y]  = death_zone_[x][y] &&
+              !in_outline(i, {x * field_sett::size_field_unit + field_sett::size_field_unit / 2,
+                              y * field_sett::size_field_unit + field_sett::size_field_unit / 2});
+        }
+      }
+    }
+    normal_death_zone();
 }
 
 void detect_area_zone(std::array<std::array<int, field_sett::number_field_unit>, field_sett::number_field_unit> &field) {
