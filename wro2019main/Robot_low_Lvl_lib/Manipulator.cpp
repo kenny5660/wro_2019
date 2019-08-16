@@ -45,7 +45,7 @@ void Manipulator::Out(bool wait, int time)
 }
 void Manipulator::Out2(bool wait, int time)
 {
-	servo_low_->SetDegrees(173, wait, time);
+	servo_low_->SetDegrees(174, wait, time);
 }
 
 void Manipulator::CatchRight(bool wait, int time)
