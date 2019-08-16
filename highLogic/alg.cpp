@@ -297,7 +297,6 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 	get_box_color(points, robot, start_position, boxes);
 	map.update(points, robot, db);
 	{
-
 		db("UpMap", map.get_img());
 	}
 	color_t current_color = blue_c;
@@ -310,7 +309,6 @@ void do_alg_code(Robot &robot, bool kamikaze_mode, std::string s) {
 			robot.GetLidarPolarPoints(points);
 			map.update(points, robot, db);
 			{
-
 				db("UpMap", map.get_img());
 			}
 		}

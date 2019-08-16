@@ -562,6 +562,9 @@ Map::Map(const Point &p_1, const Point &p_2, const std::array<BoxMap, 3> &boxes,
     add_pz(p_1, p_2);
     for (auto i : boxes) {
         add_box(i.get_left_corner_point());
+        MassPoint mass_p = i.get_left_corner_point();
+        mass_p.set_mass({1000, 1000});
+        boxes_[box_count_ - 1].set_left_corner_point(mass_p);
         auto p_offset = get_field_unit(i.get_box_indent() - (field_sett::climate_box_offset / 2.));
         for (int x = std::max(0, p_offset.first); x < std::min(p_offset.first + field_sett::climate_box_number_unit_offset, field_sett::number_field_unit); x++) {
             for (int y = std::max(0, p_offset.second); y < std::min(p_offset.second + field_sett::climate_box_number_unit_offset, field_sett::number_field_unit); y++) {
@@ -1144,7 +1147,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
 
     std::vector<std::pair<Point, Point>> maybe_box;
     for (auto &i : lines) {
-        for (int j = 1; j = i.size(); j++) {
+        for (int j = 1; j < i.size(); j++) {
             double dist = i[j - 1].dist(i[j]);
             if ((dist > (field_sett::climate_box_max - lidar_sett::max_tr_error))
                 && (dist < (field_sett::climate_box_max + lidar_sett::max_tr_error))) {
@@ -1154,7 +1157,20 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
     }
 
     std::vector<std::pair<int, PolarPoint>> boxes_points;
+    std::vector<int> recurring_boxes;
     for (int i = 0; i < maybe_box.size(); i++) {
+      for (auto &j : boxes_) {
+          Point p = j.get_left_corner_point() + Point{field_sett::climate_box_width / 2,
+                                                      field_sett::climate_box_height / 2};
+           p.set_x(p.get_x() - position_.get_x());
+           p.set_y(position_.get_y() - p.get_y());
+           if (p.dist(maybe_box[i].first) < ((field_sett::climate_box_max + lidar_sett::max_tr_error) * M_SQRT2)
+               && p.dist(maybe_box[i].second) < ((field_sett::climate_box_max + lidar_sett::max_tr_error) * M_SQRT2)) {
+              recurring_boxes.push_back(i);
+             continue;
+           }
+      }
+      // возможно новые коробки
       Point p = {
           (-maybe_box[i].first.get_x() - maybe_box[i].second.get_x()) / 2,
           (maybe_box[i].first.get_y() + maybe_box[i].second.get_y()) / 2
@@ -1165,33 +1181,39 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
     }
     auto colors = robot.GetColorFromAng(boxes_points);
 
+    auto add_line2box = [&](Point a, Point b, color_t color) {
+      if (fabs(a.get_x() - b.get_x())
+          < fabs(a.get_y() - b.get_y())) {
+        Point top = (a.get_y() > b.get_y()) ? (a) : (b);
+        if (top.get_x() < 0) {
+          add_box({top.get_x() - field_sett::climate_box_width + position_.get_x(),
+                   position_.get_y() - top.get_y()}, color);
+        } else {
+          add_box({top.get_x() + position_.get_x(),
+                   position_.get_y() - top.get_y()}, color);
+        }
+      } else {
+        Point left = (a.get_x() < b.get_x()) ? (a.get_x()) : (b.get_x());
+        if (left.get_y() < 0) {
+          add_box({left.get_x() + position_.get_x(),
+                   position_.get_y() - left.get_y()}, color);
+        } else {
+          add_box({left.get_x() + position_.get_x(),
+                   position_.get_y() - left.get_y() - field_sett::climate_box_height}, color);
+        }
+      }
+    };
+
     for (auto &i : colors) {
         if (i.second != white_c
             && i.second != black_c
             && i.second != undefined_c) {
-            if (fabs(maybe_box[i.first].first.get_x() - maybe_box[i.first].second.get_x())
-                < fabs(maybe_box[i.first].first.get_y() - maybe_box[i.first].second.get_y())) {
-                Point top = (maybe_box[i.first].first.get_y() > maybe_box[i.first].second.get_y())
-                            ? (maybe_box[i.first].first) : (maybe_box[i.first].second);
-                if (top.get_x() < 0) {
-                    add_box({top.get_x() - field_sett::climate_box_width + position_.get_x(),
-                             position_.get_y() - top.get_y()}, i.second);
-                } else {
-                    add_box({top.get_x() + position_.get_x(),
-                             position_.get_y() - top.get_y()}, i.second);
-                }
-            } else {
-                Point left = (maybe_box[i.first].first.get_x() < maybe_box[i.first].second.get_x())
-                    ? (maybe_box[i.first].first.get_x()) : (maybe_box[i.first].second.get_x());
-                if (left.get_y() < 0) {
-                    add_box({left.get_x() + position_.get_x(),
-                             position_.get_y() - left.get_y()}, i.second);
-                } else {
-                    add_box({left.get_x() + position_.get_x(),
-                             position_.get_y() - left.get_y() - field_sett::climate_box_height}, i.second);
-                }
-            }
+            add_line2box(maybe_box[i.first].first, maybe_box[i.first].second, i.second);
         }
+    }
+
+    for (auto &i : recurring_boxes) {
+      add_line2box(maybe_box[i].first, maybe_box[i].second, undefined_c);
     }
 
     // линии в глобальные
