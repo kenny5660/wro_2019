@@ -1138,8 +1138,8 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
 		  { parking_zone_circles_.second.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.second.get_y()}},
         2 * field_sett::size_field_unit);
 
-    corners_rot(lines, -ang);
-    position_.add_angle(ang);
+    corners_rot(lines, ang);
+	position_.add_angle(-ang);
     {
         DebugFieldMat mat;
         add_lines_img(mat, lines);
@@ -1186,7 +1186,7 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
           (maybe_box[i].first.get_y() + maybe_box[i].second.get_y()) / 2
       };
       PolarPoint polar = p.to_polar();
-	    polar.add_f(-ang - position_.get_angle());
+	    polar.add_f(ang - position_.get_angle());
       boxes_points.emplace_back(i, polar);
     }
 	

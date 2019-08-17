@@ -361,7 +361,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 		debug("==Init_robot_from_start", mat);
 	}
 
-	corners_rot(lines, -ang);
+	corners_rot(lines, ang);
 	{
 		DebugFieldMat mat;
 		add_lines_img(mat, lines);
@@ -401,7 +401,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 						(i[j].get_y() + i[j - 1].get_y()) / 2
 					};
 					max_dist[type_side].second = p.to_polar();
-					max_dist[type_side].second.add_f(-ang);
+					max_dist[type_side].second.add_f(ang);
 				}
 			}
 		}
@@ -435,7 +435,7 @@ RobotPoint detect_position(Robot &robot, std::vector<PolarPoint> &lidar_data, do
 		}
 	}
 
-	pos.set_angle(ang);
+	pos.set_angle(-ang);
 
 	return pos;
 }
@@ -522,6 +522,7 @@ start_position;
 	}
         lidar_data.clear();
 	robot.GetLidarPolarPoints(lidar_data);
+	map.update(lidar_data, robot, debug);
 	{
 		debug("Map_after_update", map.get_img());
 	}
