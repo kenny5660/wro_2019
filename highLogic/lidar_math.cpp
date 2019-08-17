@@ -17,6 +17,7 @@
 #include <array>
 #include <set>
 #include "lidar_math.h"
+#include <stack>
 
 inline double get_side_triangle(double b, double c, double alpha) {
     return sqrt(b * b + c * c - 2 * c * b * cos(alpha));
@@ -201,6 +202,55 @@ void get_extr_point_from_obj(const std::vector<Point> &points,
 //    }
 //}
 
+void leastSquares2Line(Point& pointA, Point& pointB, std::stack<Point>& stackPoints)
+{
+  auto pointCordSwap = [](Point& point) {
+    double buff = point.get_x();
+    point.set_x(point.get_y());
+    point.set_y(buff);
+  };
+  std::stack<Point> stack = stackPoints;
+  bool isChanged = (fabs(pointA.get_x() - pointB.get_x()) < fabs(pointA.get_y() - pointB.get_y()));
+  if (isChanged) {
+    stack = std::stack<Point>();
+    pointCordSwap(pointA);
+    pointCordSwap(pointB);
+
+    while (!stackPoints.empty()) {
+      stack.push({stackPoints.top().get_y(), stackPoints.top().get_x()});
+      stackPoints.pop();
+    }
+  }
+  stackPoints = std::stack<Point>();
+
+  double sumX = pointA.get_x() + pointB.get_x(),
+         sumXX = pointA.get_x() * pointA.get_x() + pointB.get_x() * pointB.get_x(),
+         sumY = pointA.get_y() + pointB.get_y(),
+         sumXY = pointA.get_x() * pointA.get_y() + pointB.get_x() * pointB.get_y();
+  int n = 2 + stack.size();
+  while (!stack.empty()) {
+    sumX += stack.top().get_x();
+    sumXX += stack.top().get_x() * stack.top().get_x();
+    sumY += stack.top().get_y();
+    sumXY += stack.top().get_x() * stack.top().get_y();
+    stack.pop();
+  }
+  double d = (sumXX * n - sumX * sumX);
+  if (d == 0) {
+    return;
+  }
+  double a = -(sumX * sumY - sumXY * n) / d;
+  double b = (sumXX * sumY - sumXY * sumX) / d;
+
+  pointA.set_y(pointA.get_x() * a + b);
+  pointB.set_y(pointB.get_x() * a + b);
+
+  if (isChanged) {
+    pointCordSwap(pointA);
+    pointCordSwap(pointB);
+  }
+}
+
 void get_corners_from_obj(const std::vector<Point> &points,
                           size_t begin,
                           size_t end,
@@ -214,12 +264,20 @@ void get_corners_from_obj(const std::vector<Point> &points,
      * начала точки. Нужно выбрать именно эту, т. к. через 3 точки нельзя провести
      * две || прямые.
      */
-    std::vector<int> ind;
+    std::vector<int> ind = {0};
     get_extr_point_from_obj(points, begin, end, ans, delta, ind);
     for (int i = 1; i < ans.size() - 1; i++) {
         if (dist_line2point(ans[i - 1], ans[i + 1], ans[i]) <= delta) {
             ans.erase(ans.begin() + i);
         }
+    }
+
+    for (int i = 1; i < ind.size(); i++) {
+      std::stack<Point> stack;
+      for (int j = ind[i - 1]; j < ind[i]; j++) {
+        stack.push(points[j]);
+      }
+      leastSquares2Line(ans[i - 1], ans[i], stack);
     }
 }
 
@@ -885,37 +943,68 @@ bool in_parking_zone(const Point point, const std::pair<Point, Point> pz) {
     return (pz.first.dist(point) < length) || (pz.second.dist(point) < length);
 }
 
+double getAng(const std::pair<Point, Point>& line)
+{
+    Point delta = line.second - line.first;
+    double ang = fabs(std::atan2(delta.get_y(), delta.get_x()));
+    if (ang > M_PI_2) {
+        ang = M_PI - ang;
+    }
+    return ang;
+}
+
+double distBetweenAngles(double ang1, double ang2)
+{ // углы от 0 до Pi
+    if (ang1 > ang2) {
+        std::swap(ang1, ang2);
+    }
+    return std::min(ang2 - ang1, ang1 + M_PI_2 - ang2);
+}
+
 double get_angle_lines(const std::vector<std::vector<Point>> &lines, const std::pair<Point, Point> parking_zone,
                        double min_length) {
-    std::vector<double> angles;
-    for (int i = 0; i < lines.size(); i++) {
-        for (int j = 0; j < (lines[i].size() - 1); j++) {
-            if ((lines[i][j].dist(lines[i][j + 1]) > (min_length)) &&
-                (!in_parking_zone(lines[i][j], parking_zone)) &&
-                (!in_parking_zone(lines[i][j + 1], parking_zone))) {
-                Point delta = {lines[i][j + 1].get_y() - lines[i][j].get_y(), lines[i][j + 1].get_x() - lines[i][j].get_x()};
-                if (fabs(delta.get_y()) > fabs(delta.get_x())) {
-                    double buff = delta.get_y();
-                    delta.set_y(delta.get_x());
-                    delta.set_x(buff);
-                }
-                double buff_ang = atan2(delta.get_y(),
-                                        delta.get_x());
-                double ch_ang = fabs(buff_ang);
-                if (ch_ang > M_PI_2) {
-                    ch_ang = M_PI - ch_ang;
-                }
-                std::cout << buff_ang << " " << ch_ang << std::endl;
-                angles.push_back(ch_ang);
+    std::vector<std::pair<double, double>> allAng;
+    double sumLength = 0;
+    for (const auto& i : lines) {
+        for (int j = 1; j < i.size(); j++) {
+            double length = i[j - 1].dist(i[j]);
+            if ((min_length <= length)
+                 && !((parking_zone.first.dist(i[j]) < field_sett::parking_zone_free_radius)
+                     || (parking_zone.first.dist(i[j - 1]) < field_sett::parking_zone_free_radius)
+                     || (parking_zone.second.dist(i[j]) < field_sett::parking_zone_free_radius)
+                     || (parking_zone.second.dist(i[j - 1]) < field_sett::parking_zone_free_radius))) {
+              sumLength += length;
+              allAng.emplace_back(getAng({i[j - 1], i[j]}), length);
             }
         }
     }
-    std::sort(angles.begin(), angles.end());
-    double ans = angles[angles.size() / 2];
-    if (angles[angles.size() / 2] > M_PI_4) {
-        ans -= M_PI_2;
+    std::sort(allAng.begin(), allAng.end());
+
+    int indMaxGap = 0;
+    for (int i = 1; i < allAng.size(); i++) {
+        if (distBetweenAngles(allAng[indMaxGap].first, allAng[(indMaxGap - 1 + allAng.size()) % allAng.size()].first) <
+            distBetweenAngles(allAng[i].first, allAng[i - 1].first)) {
+            indMaxGap = i;
+        }
     }
-    return -ans;
+
+    double median = sumLength / 2;
+    for (int i = 0; i < indMaxGap; i++) {
+        median += allAng[i].second;
+    }
+    median = fmod(median, sumLength);
+
+    double buff = 0;
+    for (auto& i : allAng) {
+        buff += i.second;
+        if (buff > median) {
+          if (i.first > M_PI_4)
+            return M_PI_2 - i.first;
+          return -i.first;
+        }
+    }
+    std::cerr << "Median angle not found!" << std::endl;
+    return 0;
 }
 
 void corners_rot(std::vector<std::vector<Point>> &corners, double ang) {
