@@ -1001,12 +1001,16 @@ double get_angle_lines(const std::vector<std::vector<Point>> &lines, const std::
         buff += i.second;
         if (buff > median) {
           if (i.first.second) {
-            i.first.first *= -1;
+            if (i.first.first > M_PI_4) {
+              return -M_PI_2 + i.first.first;
+            }
+            return i.first.first;
+          } else {
+            if (i.first.first > M_PI_4) {
+              return M_PI_2 - i.first.first;
+            }
+            return -i.first.first;
           }
-          if (i.first.first > M_PI_4) {
-            return M_PI_2 - i.first.first;
-          }
-          return -i.first.first;
         }
     }
     std::cerr << "Median angle not found!" << std::endl;
