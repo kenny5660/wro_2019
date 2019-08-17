@@ -1145,6 +1145,8 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
 	{
 		DebugFieldMat mat;
 		add_lines_img(mat, lines);
+		add_point_img(mat, { parking_zone_circles_.first.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.first.get_y() });
+		add_point_img(mat, { parking_zone_circles_.second.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.second.get_y() });
 		debug("--Box_update", mat);
 	}
 	double ang = get_angle_lines(
