@@ -514,8 +514,7 @@ start_position;
 	}
 	;
 	robot.Turn(start_position.get_angle());
-	start_position.set_angle(0);
-	Map map(start_position,
+	Map map({start_position.get_x(), start_position.get_y(), 0},
 		offset_pz_center + start_frame_point,
 		start_frame_point - offset_pz_center);
 	{
