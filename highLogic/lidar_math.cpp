@@ -963,7 +963,7 @@ double distBetweenAngles(double ang1, double ang2)
 
 double get_angle_lines(const std::vector<std::vector<Point>> &lines, const std::pair<Point, Point> parking_zone,
                        double min_length) {
-    std::vector<std::pair<double, double>> allAng;
+    std::vector<std::pair<std::pair<double, bool>, double>> allAng; // bool показывает четверть: true - нечётная
     double sumLength = 0;
     for (const auto& i : lines) {
         for (int j = 1; j < i.size(); j++) {
@@ -974,7 +974,9 @@ double get_angle_lines(const std::vector<std::vector<Point>> &lines, const std::
                      || (parking_zone.second.dist(i[j]) < field_sett::parking_zone_free_radius)
                      || (parking_zone.second.dist(i[j - 1]) < field_sett::parking_zone_free_radius))) {
               sumLength += length;
-              allAng.emplace_back(getAng({i[j - 1], i[j]}), length);
+              Point diff = i[j - 1] - i[j];
+              allAng.emplace_back(std::make_pair(getAng({i[j - 1], i[j]}),
+                                                 (diff.get_y() * diff.get_x()) < 0), length);
             }
         }
     }
@@ -982,8 +984,8 @@ double get_angle_lines(const std::vector<std::vector<Point>> &lines, const std::
 
     int indMaxGap = 0;
     for (int i = 1; i < allAng.size(); i++) {
-        if (distBetweenAngles(allAng[indMaxGap].first, allAng[(indMaxGap - 1 + allAng.size()) % allAng.size()].first) <
-            distBetweenAngles(allAng[i].first, allAng[i - 1].first)) {
+        if (distBetweenAngles(allAng[indMaxGap].first.first, allAng[(indMaxGap - 1 + allAng.size()) % allAng.size()].first.first) <
+            distBetweenAngles(allAng[i].first.first, allAng[i - 1].first.first)) {
             indMaxGap = i;
         }
     }
@@ -998,9 +1000,13 @@ double get_angle_lines(const std::vector<std::vector<Point>> &lines, const std::
     for (auto& i : allAng) {
         buff += i.second;
         if (buff > median) {
-          if (i.first > M_PI_4)
-            return M_PI_2 - i.first;
-          return -i.first;
+          if (i.first.second) {
+            i.first.first *= -1;
+          }
+          if (i.first.first > M_PI_4) {
+            return M_PI_2 - i.first.first;
+          }
+          return -i.first.first;
         }
     }
     std::cerr << "Median angle not found!" << std::endl;
