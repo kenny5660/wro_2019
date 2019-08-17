@@ -69,6 +69,26 @@ TEST(MathFunc, GetLinesCorne) {
     }
 }
 
+TEST(MathFunc, GetLinesCorne2) {
+    std::vector<PolarPoint> points;
+    ASSERT_FALSE(read("17_08_19_01.ld", points));
+    auto corners = get_corners(points);
+    {
+        DebugFieldMat mat;
+        add_lines_img(mat, corners);
+        show_debug_img("", mat);
+    }
+    double ang = get_angle_lines(corners, {Point{300, 150},
+                                           Point{300, -150}}, 200);
+    std::cout << ang * 180 / M_PI << std::endl;
+    corners_rot(corners, ang);
+    {
+        DebugFieldMat mat;
+        add_lines_img(mat, corners);
+        show_debug_img("", mat);
+    }
+}
+
 TEST(PositiLeftCorne, 1) {
     std::vector<PolarPoint> points;
     ASSERT_FALSE(read("Real//12.ld", points));
