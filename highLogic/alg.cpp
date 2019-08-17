@@ -543,9 +543,10 @@ start_position;
 	  if (next_box >= boxes.size()) {
             way.clear();
             Point end_point;
-            while (!go_to2(map, boxes[rand() % 3].get_box_indent(), way, end_point, true, debug)) { way.clear(); }
+		  while (!go_to2(map, boxes[rand() % boxes.size()].get_box_indent(), way, end_point, true, debug)) { way.clear(); }
             robot.Go2(way);
-            map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() });
+		  robot.Turn(M_PI);
+            map.set_new_position(RobotPoint{ end_point.get_x(), end_point.get_y(), map.get_position().get_angle() + M_PI });
             lidar_data.clear();
             robot.GetLidarPolarPoints(lidar_data);
             map.update(lidar_data, robot, debug);
