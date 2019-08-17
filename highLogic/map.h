@@ -15,7 +15,9 @@
 #if defined(WIN32) || defined(_WIN32) || \
       defined(__WIN32) && !defined(__CYGWIN__)
 #include "../wro2019main/Robot_low_Lvl_lib/Robot_facing.h"
-#else#include "Robot.h"#endif
+#else
+#include "Robot.h"
+#endif
 const cv::Scalar box_color2color[6] = {
     {218, 197, 255},
     {159, 6, 16},
@@ -87,7 +89,7 @@ class Map {
 
     void update(const std::vector<PolarPoint> &, Robot &robot, show_img_debug debug = nullptr);
 
-    std::vector<std::vector<Point>> borders;
+    std::vector<std::vector<Point>> get_borders();
 
     Point get_max_death_zone();
 
@@ -114,6 +116,7 @@ class Map {
     std::pair<Point, Point> parking_zone_back_; // ниже главной - первая
     std::vector<std::vector<Point>> parking_detected_line_;
     std::array<BoxMap, 5> boxes_;
+    std::vector<Point> borders_pz_;
     size_t box_count_ = 0;
     RobotPoint position_;
     std::array<std::array<bool, field_sett::number_field_unit>, field_sett::number_field_unit> death_zone_;

@@ -588,16 +588,16 @@ TEST(Map, MergeRot3) {
 //    show_debug_img("", img);
 //}
 //
-//TEST(MapCreateBorder, Merge2) {
-//    cv::Mat QRCodeImg;
-//    std::array<BoxMap, 3> boxes;
-//    std::pair<Point, Point> pz;
-//    RobotPoint start_position = qr_detect(QRCodeImg, boxes, pz, "(H,K,K,K)(A,A,C,C)(I,A,K,C)(E,A,G,C)");
-//    start_position.set_angle(0);
-//    Map map(pz.first, pz.second, boxes, start_position);
-//    cv::Mat img = map.get_img();
-//    show_debug_img("", img);
-//}
+TEST(MapCreateBorder, Merge2) {
+    cv::Mat QRCodeImg;
+    std::array<BoxMap, 3> boxes;
+    std::pair<Point, Point> pz;
+    RobotPoint start_position = qr_detect(boxes, pz, "(H,K,K,K)(A,A,C,C)(I,A,K,C)(E,A,G,C)");
+    start_position.set_angle(0);
+    Map map(pz.first, pz.second, boxes, start_position);
+    cv::Mat img = map.get_img();
+    show_debug_img("", img);
+}
 //
 //
 //TEST(MapCreateBorder, NonMerge) {

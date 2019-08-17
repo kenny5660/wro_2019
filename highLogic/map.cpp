@@ -312,30 +312,6 @@ bool Map::add_box(const Point &p, color_t color) {
     boxes_[box_count_].set_color(color);
 
     // Проверка пересечения контуров
-    const Point move_offset = {-robot_sett::move_offset, -robot_sett::move_offset};
-    borders.emplace_back();
-    for (int i = 0; i < 4; i++) {
-        borders.back().push_back(boxes_[box_count_].get_box_corner(i, move_offset));
-    }
-    for (int i = 0; i < (borders.size() - 1); i++) {
-        bool is_cross = false;
-        for (int p = 0; p < borders.back().size(); p++) {
-            for (int q = 0; q < borders[i].size(); q++) {
-                if (!std::isnan(get_line_cross(borders.back()[p],  borders.back()[(p + 1) %  borders.back().size()], borders[i][q], borders[i][(q + 1) % borders[i].size()]).get_x())) {
-                    is_cross = true;
-                    break;
-                }
-            }
-            if (is_cross) {
-                break;
-            }
-        }
-        if(is_cross) {
-            add_box2boarder(borders.back(), borders[i], move_offset);
-            borders.erase(borders.begin() + i);
-            i--;
-        }
-    }
     //
 
     box_count_++;
@@ -541,12 +517,12 @@ void Map::add_pz(const Point &p_1, const Point &p_2) {
             parking_zone_back_.first = parking_zone_circles_.first + Point{p_off.get_y(), -p_off.get_x()};
             parking_zone_back_.second = parking_zone_circles_.second + Point{p_off.get_y(), -p_off.get_x()};
             // добавляем в контура
-            borders.emplace_back();
+            borders_pz_.clear();
 	        p_off = point_offset[(i + kPoint_offset - 1) % kPoint_offset](robot_sett::move_offset * 1.3, robot_sett::move_offset * 1.3);
-            borders.back().push_back(parking_zone_circles_.first - p_off - Point{p_off.get_y(), -p_off.get_x()});
-            borders.back().push_back(parking_zone_back_.first - p_off + Point{p_off.get_y(), -p_off.get_x()});
-            borders.back().push_back(parking_zone_back_.second + p_off + Point{p_off.get_y(), -p_off.get_x()});
-            borders.back().push_back(parking_zone_circles_.second + p_off - Point{p_off.get_y(), -p_off.get_x()});
+          borders_pz_.push_back(parking_zone_circles_.first - p_off - Point{p_off.get_y(), -p_off.get_x()});
+          borders_pz_.push_back(parking_zone_back_.first - p_off + Point{p_off.get_y(), -p_off.get_x()});
+          borders_pz_.push_back(parking_zone_back_.second + p_off + Point{p_off.get_y(), -p_off.get_x()});
+          borders_pz_.push_back(parking_zone_circles_.second + p_off - Point{p_off.get_y(), -p_off.get_x()});
             return;
         }
         last_dist = dist;
@@ -902,6 +878,7 @@ cv::Mat Map::get_img(int width, int height) {
             }
         }
     }
+    auto borders = get_borders();
     for (int i = 0; i < borders.size(); i++) {
         for (int j = 0; j < borders[i].size(); j++) {
             cv::line(img, {int(borders[i][j].get_x() * zoom.get_x()), int(borders[i][j].get_y() * zoom.get_y())},
@@ -1122,6 +1099,44 @@ void Map::normal_death_zone() {
                 || death_rect({i, j}, {i - unit_size_box.x, j - unit_size_box.y});
         }
     }
+}
+
+std::vector<std::vector<Point>> Map::get_borders() {
+  std::vector<std::vector<Point>> borders;
+  borders.push_back(borders_pz_);
+
+  const Point move_offset = {-robot_sett::move_offset, -robot_sett::move_offset};
+  for (int box = 0; box < box_count_; box++) {
+    borders.emplace_back();
+    for (int i = 0; i < 4; i++) {
+      borders.back().push_back(boxes_[box].get_box_corner(i, move_offset));
+    }
+    for (int i = 0; i < (borders.size() - 1); i++) {
+      bool is_cross = false;
+      for (int p = 0; p < borders.back().size(); p++) {
+        for (int q = 0; q < borders[i].size(); q++) {
+          if (!std::isnan(get_line_cross(
+                              borders.back()[p],
+                              borders.back()[(p + 1) % borders.back().size()],
+                              borders[i][q],
+                              borders[i][(q + 1) % borders[i].size()])
+                              .get_x())) {
+            is_cross = true;
+            break;
+          }
+        }
+        if (is_cross) {
+          break;
+        }
+      }
+      if (is_cross) {
+        add_box2boarder(borders.back(), borders[i], move_offset);
+        borders.erase(borders.begin() + i);
+        i--;
+      }
+    }
+  }
+  return borders;
 }
 
 void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show_img_debug debug) {
