@@ -99,7 +99,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	std::shared_ptr<DistanceSensor> dist_right =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_RIGHT) : GetDistSensor(DIST_C_LEFT);
 	man_->Middle(true);
 	Delay(100);
-	std::cout << "Dist aligin before = " <<  dist->GetRealDistance() << std::endl;
+//	std::cout << "Dist aligin before = " <<  dist->GetRealDistance() << std::endl;
 	if (dist->GetRealDistance() > mid_dist)
 	{
 		GetOmni()->MoveWithSpeed(std::make_pair(0, speed), 0);
