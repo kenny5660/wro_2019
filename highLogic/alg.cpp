@@ -513,6 +513,8 @@ start_position;
 	                        -(field_sett::parking_zone_door_size / 2.) * cos(ang_offset_frame)
 	}
 	;
+	robot.Turn(start_position.get_angle());
+	start_position.set_angle(0);
 	Map map(start_position,
 		offset_pz_center + start_frame_point,
 		start_frame_point - offset_pz_center);
