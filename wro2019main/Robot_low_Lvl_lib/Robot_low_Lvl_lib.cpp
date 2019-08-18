@@ -10,9 +10,7 @@
 
 
 int start_robot()
-{
-	
-	
+{	
 	clear_logs();
 	cout_to_file_log_enable();
 	std::unique_ptr<RobotGardenerHardwere>	 robot(new RobotGardenerHardwere());

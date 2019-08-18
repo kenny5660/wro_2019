@@ -1149,19 +1149,20 @@ void Map::update(const std::vector<PolarPoint> &polar_points, Robot &robot, show
 		add_point_img(mat, { parking_zone_circles_.second.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.second.get_y() });
 		debug("--Box_update", mat);
 	}
-	double ang = get_angle_lines(
-	    lines,
-		{ { parking_zone_circles_.first.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.first.get_y()}, 
-		  { parking_zone_circles_.second.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.second.get_y()}},
-        2 * field_sett::size_field_unit);
+	double ang = 0;
+//		get_angle_lines( баги даёт хуй знает почему. И ну нахуй это править. Пошли лучше спать?
+//	    lines, вот все норм чуваки спят. А я кушать хочу. Вот столовка тока через 29 минут откроется
+//		{ { parking_zone_circles_.first.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.first.get_y()}, 
+//		  { parking_zone_circles_.second.get_x() - position_.get_x(), position_.get_y() - parking_zone_circles_.second.get_y()}},
+//        2 * field_sett::size_field_unit);
 
-    corners_rot(lines, ang);
-	position_.add_angle(-ang);
-    {
-        DebugFieldMat mat;
-        add_lines_img(mat, lines);
-        debug("==Box_update", mat);
-    }
+//    corners_rot(lines, ang);
+//	position_.add_angle(-ang);
+//    {
+//        DebugFieldMat mat;
+//        add_lines_img(mat, lines);
+//        debug("==Box_update", mat);
+//    }
 
     std::vector<std::pair<Point, Point>> maybe_box;
     for (auto &i : lines) {

@@ -1,4 +1,5 @@
 #include "Motor.h"
+#include <cmath>
 MotorKangaroo::MotorKangaroo(std::shared_ptr<KangarooDriver> kangarooDrv, 
 	uint8_t chnl,
 	bool inverted,
@@ -55,10 +56,10 @@ void  MotorKangaroo::MoveContinue(double speed)
 }
 
 void MotorKangaroo::MoveIncEncCounts(double speed, double counts, bool wait)
-{
+{	
 	speed *= inverted_coef_*counts_per_deg_;
 	if (speed != 0) {
-		kangaroo_drv_->CmdMoveIncPos(chnl_, speed > 0 ? counts : -counts, speed > 0 ? speed : -speed);
+		kangaroo_drv_->CmdMoveIncPos(chnl_, round(speed > 0 ? counts : -counts), speed > 0 ? speed : -speed);
 	}
 	while (!IsReady() && wait) ;
 }
@@ -77,7 +78,8 @@ void MotorKangaroo::MoveToEncCounts(double speed, double counts, bool wait)
 {
 	speed *= inverted_coef_*counts_per_deg_;
 	if (speed != 0) {
-		kangaroo_drv_->CmdMoveToPos(chnl_, speed > 0 ? counts : -counts, speed > 0 ? speed : -speed);
+		kangaroo_drv_->CmdMoveToPos(chnl_,
+			round(speed > 0 ? counts : -counts), speed > 0 ? speed : -speed);
 	}
 	while (!IsReady() && wait) ;
 }

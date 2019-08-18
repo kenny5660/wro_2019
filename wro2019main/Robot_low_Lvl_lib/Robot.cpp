@@ -173,7 +173,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		man_->CatchRight();
 		Go2({ Point(0, 30) });
 		//		AlliginByDist(kDist, kOfsetAngle);
-				man_->Out(true);
+		man_->Out(true);
 		Go2({ Point(0, 110) });
 		//Go2({ Point(5, 0) });
 		//AlliginByDist(kDistAfter, kOfsetAngle);
@@ -610,7 +610,7 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng(const std::vector<std::pair<int, PolarPoint>> &ang_pps)
 {
 	const double cam_ang0 = 246; ///106
-	const double cam_ang_offset  = 248;
+	const double cam_ang_offset  = 247;
 	std::vector<std::pair<int, PolarPoint>> ang_pps_ = ang_pps;
 	std::vector<std::pair<int, color_t>> result;
 	double cur_ang = 0;
@@ -625,7 +625,7 @@ std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng(const std::v
 		double ang = (it.second.get_f()) - cur_ang;
 		Turn(ang);	
 		cur_ang += ang;
-		Delay(200);
+		//Delay(200);
 		auto frame = cam_rot_->GetFrame(cam_ang0);
 		color_t color  = VisionGetBigBox(*frame, it.second.get_r());
 		result.push_back(std::make_pair(it.first, color));
