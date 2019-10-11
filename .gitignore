@@ -26,6 +26,7 @@ Tests/lidar_math/*.ld
 *.tlog*
 *.exe
 *.dll
+*.TMP
 **/Debug/**
 **/.vs/**
 /wro2019main/Robot_exe/VisualGDB/Debug
