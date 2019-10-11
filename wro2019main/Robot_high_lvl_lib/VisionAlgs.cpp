@@ -116,8 +116,8 @@ bin_hsv_params big_briks_colors[8]{
     {{83, 135}, {60, 255}, {0, 255}},  // blue_c
     {{156, 185}, {60, 255}, {0, 255}},  // red_c
     {{55, 81}, {60, 255}, {0, 255}},    // green_c
-    {{1, 22}, {47, 255}, {0, 255}},     // orange_c
-    {{22, 43}, {60, 255}, {0, 255}},    // yellow_c
+    {{1, 10}, {47, 255}, {0, 255}},     // orange_c
+    {{14, 35}, {60, 255}, {0, 255}},    // yellow_c
     {{101, 255}, {0, 61}, {0, 151}},       // black_c
     {{0, 255}, {0, 50}, {125, 255}}     // white_c
 };
@@ -165,7 +165,7 @@ int x_rect = 510 - (dist * dist_coef);
 		x_rect = 746;
 	}
 
-  cv::Rect cut_rect(cv::Point(535, x_rect), cv::Size(15, 15));
+  cv::Rect cut_rect(cv::Point(550, x_rect), cv::Size(15, 15));
   cv::Mat cut_mat(frame, cut_rect);
   cv::Mat f_with_rect;
   frame.copyTo(f_with_rect);

@@ -105,7 +105,7 @@ void RobotGardenerHardwere::GetLidarPolarPoints(std::vector<PolarPoint>& polar_p
 	std::vector<LidarA1::Point> points_lidar;
 	lidar_->GetScan(points_lidar);
 	points_lidar.clear();
-	Delay(1111);
+	Delay(600);
 	lidar_->GetScan(points_lidar);
 	
 	for (auto it = points_lidar.begin(); it != points_lidar.end(); ++it)

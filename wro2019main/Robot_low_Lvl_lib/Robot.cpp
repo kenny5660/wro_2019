@@ -78,10 +78,10 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
 	std::cout << "Getting cube  =================" <<  (int)side << std::endl;
-	int kDist = 65;
+	int kDist = 75;
 	if (side  ==  CatchCubeSideEnum::RIGHT)
 	{
-		kDist = 62;
+		kDist = 74;
 	}
 	//const int kDistAfter = 110;
 	const int kOfsetAngle = -2;
@@ -91,7 +91,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	const int kCamAng = 21;
 		
 	CatchCubeSideEnum side_relative_cube  = AlliginByDist(kDist, kOfsetAngle);
-	const int mid_dist = 180;
+	const int mid_dist = 190;
 	int speed = side == CatchCubeSideEnum::LEFT ? kSpeed : -kSpeed;
 	int speedLow = side == CatchCubeSideEnum::LEFT ? kSpeedLow : -kSpeedLow;
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);
@@ -174,7 +174,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 		Go2({ Point(0, 30) });
 		//		AlliginByDist(kDist, kOfsetAngle);
 		man_->Out(true);
-		Go2({ Point(0, 110) });
+		Go2({ Point(0, 90) });
 		//Go2({ Point(5, 0) });
 		//AlliginByDist(kDistAfter, kOfsetAngle);
 		man_->CatchLeft(true, 300);
@@ -264,7 +264,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 		x_speed = std::abs(x_speed) >  x_speed_max ? Sign(x_speed)*x_speed_max : x_speed;
 		GetOmni()->MoveWithSpeed(std::make_pair(x_speed, 0), alg_speed);
 		Delay(5);
-		if ((abs(err_align) > 2 || abs(err_dist) > 2))
+		if ((abs(err_align) > 3 || abs(err_dist) > 3))
 		{
 			startTime = steady_clock::now(); 
 		}
@@ -398,7 +398,7 @@ void  RobotGardener::MouseTurn(double angle, int speed)
 void RobotGardener::Turn(double angle)
 {
 	const double pi2 = 2 * M_PI;
-	const int kRobot_rot_speed = 130;
+	const int kRobot_rot_speed = 180;
 		angle = (fmod(fmod(angle, pi2) + pi2, pi2));
 	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
 	//MouseTurn(angle, kRobot_rot_speed);
@@ -420,7 +420,7 @@ void RobotGardener::Turn(double angle)
 
 void RobotGardener::Go2(std::vector<Point> points)
 {
-	const int kRobot_mooving_speed = 250; //250;
+	const int kRobot_mooving_speed = 300; //250;
 	for (auto it : points)
 	{
 		MoveByEncoder(std::make_pair(it.get_x(), it.get_y()), kRobot_mooving_speed);
