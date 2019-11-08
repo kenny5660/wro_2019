@@ -78,10 +78,10 @@ std::shared_ptr<Lidar> RobotGardener::GetLidar()
 color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 {
 	std::cout << "Getting cube  =================" <<  (int)side << std::endl;
-	int kDist = 75;
+	int kDist = 83;
 	if (side  ==  CatchCubeSideEnum::RIGHT)
 	{
-		kDist = 74;
+		kDist = 83;
 	}
 	//const int kDistAfter = 110;
 	const int kOfsetAngle = -2;
@@ -91,7 +91,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	const int kCamAng = 21;
 		
 	CatchCubeSideEnum side_relative_cube  = AlliginByDist(kDist, kOfsetAngle);
-	const int mid_dist = 190;
+	const int mid_dist = 135;
 	int speed = side == CatchCubeSideEnum::LEFT ? kSpeed : -kSpeed;
 	int speedLow = side == CatchCubeSideEnum::LEFT ? kSpeedLow : -kSpeedLow;
 	std::shared_ptr<DistanceSensor> dist = GetDistSensor(RobotGardener::DIST_TOP);
@@ -99,7 +99,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	std::shared_ptr<DistanceSensor> dist_right =  side == CatchCubeSideEnum::LEFT ?  GetDistSensor(DIST_C_RIGHT) : GetDistSensor(DIST_C_LEFT);
 	man_->Middle(true);
 	Delay(100);
-//	std::cout << "Dist aligin before = " <<  dist->GetRealDistance() << std::endl;
+	std::cout << "Dist aligin before = " <<  dist->GetRealDistance() << std::endl;
 	if (dist->GetRealDistance() > mid_dist)
 	{
 		GetOmni()->MoveWithSpeed(std::make_pair(0, speed), 0);
@@ -264,7 +264,7 @@ Robot::CatchCubeSideEnum RobotGardener::AlliginByDist(int dist, int offset_alg)
 		x_speed = std::abs(x_speed) >  x_speed_max ? Sign(x_speed)*x_speed_max : x_speed;
 		GetOmni()->MoveWithSpeed(std::make_pair(x_speed, 0), alg_speed);
 		Delay(5);
-		if ((abs(err_align) > 3 || abs(err_dist) > 3))
+		if ((abs(err_align) > 5 || abs(err_dist) > 5))
 		{
 			startTime = steady_clock::now(); 
 		}
@@ -398,7 +398,7 @@ void  RobotGardener::MouseTurn(double angle, int speed)
 void RobotGardener::Turn(double angle)
 {
 	const double pi2 = 2 * M_PI;
-	const int kRobot_rot_speed = 180;
+	const int kRobot_rot_speed = 150;
 		angle = (fmod(fmod(angle, pi2) + pi2, pi2));
 	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
 	//MouseTurn(angle, kRobot_rot_speed);
@@ -609,7 +609,7 @@ void RobotGardener::MoveByOptFlow(std::pair<int, int> toPos, double speed)
 
 std::vector<std::pair<int, color_t>> RobotGardener::GetColorFromAng(const std::vector<std::pair<int, PolarPoint>> &ang_pps)
 {
-	const double cam_ang0 = 246; ///106
+	const double cam_ang0 = 244; ///106
 	const double cam_ang_offset  = 247;
 	std::vector<std::pair<int, PolarPoint>> ang_pps_ = ang_pps;
 	std::vector<std::pair<int, color_t>> result;

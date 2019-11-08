@@ -59,7 +59,7 @@ int main() {
     img = cv::imread(entry.path().string());
     
     //color_t color = VisionGetSmallBox(img, Robot::CatchCubeSideEnum::RIGHT);
-    color_t colorBig = VisionGetBigBox(img,1150);
+    color_t colorBig = VisionGetBigBox(img,1840);
     cv::QRCodeDetector qd;
     cv::Mat imgGrey;
 //    img.convertTo(img, -1, 1,-20);

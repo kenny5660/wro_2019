@@ -115,20 +115,20 @@ bin_hsv_params big_briks_colors[8]{
     {{0, 0}, {0, 0}, {0, 0}},            // undefined_c
     {{83, 135}, {60, 255}, {0, 255}},  // blue_c
     {{156, 185}, {60, 255}, {0, 255}},  // red_c
-    {{55, 81}, {60, 255}, {0, 255}},    // green_c
-    {{1, 10}, {47, 255}, {0, 255}},     // orange_c
-    {{14, 35}, {60, 255}, {0, 255}},    // yellow_c
+    {{40, 70}, {60, 255}, {0, 255}},    // green_c
+    {{1, 15}, {47, 255}, {0, 255}},     // orange_c
+    {{18, 40}, {60, 255}, {0, 255}},    // yellow_c
     {{101, 255}, {0, 61}, {0, 151}},       // black_c
     {{0, 255}, {0, 50}, {125, 255}}     // white_c
 };
 
 bin_hsv_params small_briks_colors[8]{
     {{0, 0}, {0, 0}, {0, 0}},           // undefined_c
-    {{89, 125}, {147, 255}, {0, 255}},   // blue_c
-    {{157, 184}, {100, 255}, {0, 255}},  // red_c
-    {{61, 111}, {31, 255}, {0, 230}},    // green_c
-    {{1, 14}, {71, 255}, {0, 255}},     // orange_c
-    {{14, 38}, {77, 255}, {0, 255}},    // yellow_c
+    {{89, 125}, {60, 255}, {0, 255}},   // blue_c
+    {{157, 184}, {60, 255}, {0, 255}},  // red_c
+    {{40, 70}, {68, 255}, {0, 230}},    // green_c
+    {{1, 15}, {71, 255}, {0, 255}},     // orange_c
+    {{18, 40}, {77, 255}, {0, 255}},    // yellow_c
     {{0, 0}, {0, 0}, {0, 0}},            // black_c
     {{0, 0}, {0, 0}, {0, 0}}             // white_c
 };
@@ -136,9 +136,9 @@ bin_hsv_params small_briks_colors[8]{
 color_t VisionGetSmallBox(const cv::Mat& frame, Robot::CatchCubeSideEnum side) {
   cv::Rect cut_rect;
 	if (side == Robot::CatchCubeSideEnum::LEFT) {
-    cut_rect = cv::Rect(cv::Point(383, 408), cv::Size(20, 20));
+    cut_rect = cv::Rect(cv::Point(460, 438), cv::Size(20, 20));
   } else {
-          cut_rect = cv::Rect(cv::Point(536, 394), cv::Size(20, 20));
+          cut_rect = cv::Rect(cv::Point(600, 408), cv::Size(20, 20));
   }
   cv::Mat cut_mat(frame, cut_rect);
   cv::Mat f_with_rect;
