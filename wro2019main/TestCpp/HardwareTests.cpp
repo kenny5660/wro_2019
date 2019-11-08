@@ -194,7 +194,7 @@ TEST(HardwareTestGroup, Omni_move_pos_inc_test)
 TEST(HardwareTestGroup, Robot_turn_test)
 {
 //	robot->Turn(M_PI / 2);
-	robot->Turn(8*M_PI);
+	robot->Turn(4*M_PI);
 	//	robot->Turn(-M_PI/2);
 //	robot->Turn(M_PI / 2 / 3);
 //	robot->Turn(M_PI / 2 / 3);
@@ -210,7 +210,7 @@ TEST(HardwareTestGroup, Robot_turn_test)
 TEST(HardwareTestGroup, Robot_go2_test)
 {
 	std::vector<Point> traj = { 
-		{  115 * 8, 115 * 8}
+		{ 0, 115 * 12}
 //		{0,-115*4 }
 //		{0, 115*4}
 //		{0, -115},

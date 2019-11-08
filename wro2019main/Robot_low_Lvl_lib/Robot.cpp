@@ -81,7 +81,7 @@ color_t RobotGardener::CatchCube(CatchCubeSideEnum side, bool IsTakePhoto)
 	int kDist = 83;
 	if (side  ==  CatchCubeSideEnum::RIGHT)
 	{
-		kDist = 83;
+		kDist = 81;
 	}
 	//const int kDistAfter = 110;
 	const int kOfsetAngle = -2;
@@ -399,8 +399,8 @@ void RobotGardener::Turn(double angle)
 {
 	const double pi2 = 2 * M_PI;
 	const int kRobot_rot_speed = 150;
-		angle = (fmod(fmod(angle, pi2) + pi2, pi2));
-	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
+//		angle = (fmod(fmod(angle, pi2) + pi2, pi2));
+//	angle = (angle > M_PI) ? (angle - pi2) : (angle); 
 	//MouseTurn(angle, kRobot_rot_speed);
 	//omni_->Stop();
 	omni_->Turn(angle, kRobot_rot_speed);

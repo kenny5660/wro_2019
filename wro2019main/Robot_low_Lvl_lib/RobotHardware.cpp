@@ -59,7 +59,7 @@ void RobotGardenerHardwere::Init()
 	std::shared_ptr<MotorKangaroo> motor_back(new MotorKangaroo(kangarooDriver1, '1', true));
 	std::shared_ptr<MotorKangaroo> motor_right(new MotorKangaroo(kangarooDriver1, '2', false));
 	omni_ = std::shared_ptr<OmniWheels4Squre>(new OmniWheels4Squre(50,
-		131,
+		128,
 		motor_left,
 		motor_front,
 		motor_right,
