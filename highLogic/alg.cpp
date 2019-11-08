@@ -514,10 +514,10 @@ start_position;
 	}
 	;
 	//robot.Turn(start_position.get_angle());
-	Map map({start_position.get_x(), start_position.get_y(), 0},
+	Map map({start_position.get_x(), start_position.get_y(), -start_position.get_angle()},
 		offset_pz_center + start_frame_point,
 		start_frame_point - offset_pz_center);
-	map.set_new_position({map.get_position().get_x(), map.get_position().get_y(), -start_position.get_angle()});
+	//map.set_new_position({map.get_position().get_x(), map.get_position().get_y(), -start_position.get_angle()});
 	{
 
 		debug("Map_after_init_pos", map.get_img());
